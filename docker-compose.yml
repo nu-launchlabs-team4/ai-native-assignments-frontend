@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    env_file: .env.local
+    environment:
+      # The /api rewrite runs inside the container, where localhost is the container itself.
+      NEXT_PUBLIC_API_URL: http://host.docker.internal:8010
+    extra_hosts:
+      # Docker Desktop provides host.docker.internal. This line also makes it work on Linux.
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      # Keep the container's own node_modules and build cache instead of the host's.
+      - /app/node_modules
+      - /app/.next
