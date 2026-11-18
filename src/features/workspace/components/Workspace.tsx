@@ -1,7 +1,7 @@
 import { Panel } from "@/components/ui/Panel";
+import { ChatPanel } from "@/features/chat/components/ChatPanel";
 
 import type { WorkspaceAssignment } from "../types";
-import { AIPanel } from "./AIPanel";
 import { CodeEditor } from "./CodeEditor";
 import { InstructionsPanel } from "./InstructionsPanel";
 import { StepStepper } from "./StepStepper";
@@ -34,7 +34,10 @@ export function Workspace({ assignment }: WorkspaceProps) {
           />
         </Panel>
       }
-      aiPanel={<AIPanel />}
+      aiPanel={
+        // TODO(singhsaravjit): pass the real submission and attempt state once autosave lands (#6).
+        <ChatPanel submissionId={null} attemptSaved={false} />
+      }
     />
   );
 }
