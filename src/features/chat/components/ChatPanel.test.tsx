@@ -88,6 +88,17 @@ describe("ChatPanel", () => {
     expect(screen.getByText("AI tutor is locked")).toBeDefined();
   });
 
+  it("sends without crypto.randomUUID, which plain-http origins lack", async () => {
+    vi.stubGlobal("crypto", {});
+    sendMock.mockResolvedValue(REPLY);
+    renderUnlocked();
+
+    typeAndSend("First question");
+    expect(await screen.findByText(REPLY.content)).toBeDefined();
+
+    vi.unstubAllGlobals();
+  });
+
   it("sends the student to login on 401", async () => {
     sendMock.mockRejectedValue(new ApiError("Your session has expired.", 401, "unauthorized", null));
     renderUnlocked();
