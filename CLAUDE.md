@@ -30,14 +30,19 @@ src/
     status/page.tsx        calls /api/health and shows API and database status
   features/
     workspace/             the student workspace feature
-      components/          Workspace, WorkspaceShell, StepStepper, CodeEditor, AIPanel, ... (+ *.test.tsx)
-      types.ts             feature types
+      components/          Workspace (state), WorkspaceShell, AssignmentPanel + QuestionList,
+                           AnswerPanel + AnswerEditor (CodeEditor | TextAnswer | MathAnswer), AIPanel,
+                           StepStepper, StatusBar, ... (+ *.test.tsx)
+      types.ts             WorkspaceAssignment, WorkspaceQuestion (code | text | math)
       mock-assignment.ts   mock data until the backend provides assignments
-  components/              UI shared across features (PagePlaceholder, HealthStatus)
+  components/              UI shared across features (PagePlaceholder, HealthStatus, ThemeToggle)
     ui/                    small building blocks used everywhere (Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend
-    constants.ts           enums mirrored from the backend, plus ROUTES, API_PATHS and SESSION_COOKIES
+    constants.ts           enums mirrored from the backend (AnswerType is new, see backend #6), plus ROUTES, API_PATHS,
+                           SESSION_COOKIES and THEME_STORAGE_KEY
+    theme.ts               useTheme and setTheme (client only)
+    theme-init.ts          the pre-paint theme script used by the root layout
     env.ts                 reads and checks NEXT_PUBLIC_API_URL
   proxy.ts                 redirects to /login when there is no session cookie on /student or /professor
 ```
@@ -85,7 +90,9 @@ Team skills live in `.claude/skills/`. Use the one that matches the task.
 - Use Server Components by default, and `"use client"` only when needed.
 - Every backend call goes through `src/lib/api.ts`. Never use raw `fetch` to the backend, and never call Supabase.
 - Shared values come from `src/lib/constants.ts`. No magic strings.
-- Style with Tailwind. No inline style objects.
+- Style with Tailwind. No inline style objects. Use the **design tokens** from `src/app/globals.css` (`bg-surface`, `bg-surface-muted`, `border-line`, `text-muted`, `bg-accent`, `text-foreground`) instead of hand-picked gray shades, so light and dark mode both work.
+- **Theme:** light by default. Dark mode is the `.dark` class on `<html>`, switched by `ThemeToggle` and remembered in localStorage. It never follows the OS. Modules that use React hooks stay out of Server Components (that's why `theme-init.ts` is separate from `theme.ts`).
+- **Assignments are lists of questions**, each with an `AnswerType`: `code` (Monaco), `text` (written) or `math` (MathLive, stored as LaTeX lines). The PDF parser detects the type, and the professor can correct it. Add a new answer type in `AnswerType`, the `WorkspaceQuestion` union and `AnswerEditor`. TypeScript then flags every switch that misses it.
 - Write accessible markup: labels on inputs, buttons not divs, alt text and visible keyboard focus.
 - Comment why, not what. Exported functions in `src/lib` get JSDoc. Use `TODO(name):` with an issue number.
 - Don't leave dead or commented-out code.

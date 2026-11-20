@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ROUTES } from "@/lib/constants";
 
 const ENTRY_LINKS = [
@@ -12,7 +13,10 @@ export default function HomePage() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-10 px-6 py-16">
       <header className="flex flex-col gap-3">
-        <h1 className="text-4xl font-semibold tracking-tight">AI-Native Assignments</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-4xl font-semibold tracking-tight">AI-Native Assignments</h1>
+          <ThemeToggle />
+        </div>
         <p className="text-lg text-zinc-600 dark:text-zinc-400">
           Students attempt, get feedback, evaluate, revise and explain their work, with an AI tutor that
           helps without giving away the answer.

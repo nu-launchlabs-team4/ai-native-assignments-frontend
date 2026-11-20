@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ROUTES } from "@/lib/constants";
 
 interface PagePlaceholderProps {
@@ -13,12 +14,15 @@ interface PagePlaceholderProps {
 export function PagePlaceholder({ title, description, children }: PagePlaceholderProps) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-16">
-      <Link
-        href={ROUTES.HOME}
-        className="text-sm text-zinc-600 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 dark:text-zinc-400"
-      >
-        ← Home
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          href={ROUTES.HOME}
+          className="text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          ← Home
+        </Link>
+        <ThemeToggle />
+      </div>
       <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
       <p className="text-zinc-600 dark:text-zinc-400">{description}</p>
       {children}

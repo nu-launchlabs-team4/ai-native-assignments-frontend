@@ -42,12 +42,12 @@ export function ChatComposer({ draft, onDraftChange, onSend, isSending }: ChatCo
         maxLength={CHAT_MAX_MESSAGE_LENGTH}
         rows={3}
         placeholder="Ask the tutor…"
-        className="resize-none rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-zinc-700 dark:bg-zinc-900"
+        className="resize-none rounded-md border border-line bg-surface px-3 py-2 text-sm placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2"
       />
       <button
         type="submit"
         disabled={!canSend}
-        className="self-end rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        className="self-end rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
       >
         {isSending ? "Sending…" : "Send"}
       </button>

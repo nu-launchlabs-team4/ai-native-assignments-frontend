@@ -15,8 +15,8 @@ const ROLE_LABEL: Record<ChatRole, string> = {
 };
 
 const BUBBLE_STYLE: Record<ChatRole, string> = {
-  [ChatRole.STUDENT]: "self-end bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900",
-  [ChatRole.ASSISTANT]: "self-start bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100",
+  [ChatRole.STUDENT]: "self-end bg-accent text-accent-foreground",
+  [ChatRole.ASSISTANT]: "self-start bg-surface-muted text-foreground",
 };
 
 /** The scrolling conversation between the student and the tutor. */
@@ -32,10 +32,10 @@ export function ChatMessageList({ messages, isWaiting }: ChatMessageListProps) {
       role="log"
       aria-live="polite"
       aria-label="Conversation with the AI tutor"
-      className="flex min-h-48 flex-1 flex-col gap-3 overflow-y-auto"
+      className="relative flex min-h-48 flex-1 flex-col gap-3 overflow-y-auto"
     >
       {messages.length === 0 && !isWaiting && (
-        <p className="m-auto text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="m-auto text-center text-sm text-muted">
           Ask a question about your work. The tutor will guide you without giving away the answer.
         </p>
       )}
@@ -49,7 +49,7 @@ export function ChatMessageList({ messages, isWaiting }: ChatMessageListProps) {
         </div>
       ))}
       {isWaiting && (
-        <p className="self-start text-sm text-zinc-600 dark:text-zinc-400">Tutor is thinking…</p>
+        <p className="self-start text-sm text-muted">Tutor is thinking…</p>
       )}
       <div ref={endRef} />
     </div>

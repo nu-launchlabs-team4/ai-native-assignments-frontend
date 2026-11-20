@@ -1,22 +1,47 @@
 @import "tailwindcss";
 
+/* Dark mode is opt-in through the .dark class on <html> (see src/lib/theme.ts).
+   It does not follow the operating system. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens. Use them through Tailwind (bg-surface, border-line, text-muted,
+   bg-accent) instead of picking gray shades by hand. */
 :root {
+  color-scheme: light;
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #18181b;
+  --surface: #ffffff;
+  --surface-muted: #f4f4f5;
+  --line: #e4e4e7;
+  --muted: #71717a;
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+}
+
+/* Dark values follow VS Code's default dark theme, so the panes match the Monaco editor. */
+.dark {
+  color-scheme: dark;
+  --background: #1e1e1e;
+  --foreground: #e4e4e7;
+  --surface: #1e1e1e;
+  --surface-muted: #252526;
+  --line: #333333;
+  --muted: #a1a1aa;
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
