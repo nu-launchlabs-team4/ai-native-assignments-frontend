@@ -15,10 +15,11 @@ gh pr checks <N>
 ## Checklist
 
 - [ ] **Matches the linked issue.** The PR has `Closes #N`, and it meets the issue's acceptance criteria with no unrelated changes. It aims for under 400 changed lines.
-- [ ] **CI is green.** The `test` check passes: lint, typecheck and build.
+- [ ] **CI is green.** The `test` check passes: lint, typecheck, tests and build.
+- [ ] **Has tests.** New components with logic or states have a colocated `*.test.tsx`, querying by role or label.
 - [ ] **Follows the clean-code rules:**
   - strict TypeScript with no `any`
-  - small components
+  - feature folders (`src/features/<feature>`), thin pages, small components that take props
   - Server Components by default, with `"use client"` only where needed
   - backend calls only through `apiFetch`
   - values from `lib/constants.ts`

@@ -10,6 +10,23 @@ export const Step = {
 } as const;
 export type Step = (typeof Step)[keyof typeof Step];
 
+/** The five steps in the order a student works through them. */
+export const STEP_ORDER: readonly Step[] = [
+  Step.ATTEMPT,
+  Step.FEEDBACK,
+  Step.EVALUATE,
+  Step.REVISE,
+  Step.EXPLAIN,
+];
+
+export const STEP_LABELS: Record<Step, string> = {
+  [Step.ATTEMPT]: "Attempt",
+  [Step.FEEDBACK]: "Feedback",
+  [Step.EVALUATE]: "Evaluate",
+  [Step.REVISE]: "Revise",
+  [Step.EXPLAIN]: "Explain",
+};
+
 export const AIPolicy = {
   PROHIBITED: "prohibited",
   PERMITTED: "permitted",
@@ -52,6 +69,11 @@ export const ROUTES = {
   PROFESSOR: "/professor",
   STATUS: "/status",
 } as const;
+
+/** URL of the student workspace for one assignment. */
+export function studentAssignmentRoute(assignmentId: string): string {
+  return `${ROUTES.STUDENT}/assignments/${encodeURIComponent(assignmentId)}`;
+}
 
 export const API_PATHS = {
   HEALTH: "/health",

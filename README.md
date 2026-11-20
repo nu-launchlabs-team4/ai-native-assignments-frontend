@@ -46,22 +46,24 @@ Docker Compose mounts the source for hot reload and keeps `node_modules` inside 
 
 Either way, open http://localhost:3000. Then open http://localhost:3000/status, where **API** and **Database** should both say **Connected**.
 
-## Lint, type check and build
+## Lint, type check, test and build
 
 ```bash
 npm run lint
 npm run typecheck   # next typegen, then tsc --noEmit
+npm test            # Vitest + React Testing Library
 npm run build
 ```
 
-CI runs the same three checks on every PR.
+CI runs the same four checks on every PR.
 
 ## Project layout
 
 ```
 src/
-  app/            pages: /, /login, /student, /professor, /status
-  components/     shared UI components
+  app/            pages: /, /login, /student, /student/assignments/[id], /professor, /status
+  features/       one folder per feature, such as workspace/ (components, types, tests)
+  components/     UI shared across features, with small building blocks in ui/
   lib/
     api.ts        apiFetch: the only way to call the backend
     constants.ts  enums shared with the backend, routes, cookie names
@@ -77,7 +79,7 @@ src/
    git checkout main && git pull
    git checkout -b feature/5-workspace-layout
    ```
-3. Make the change, then run lint, typecheck and build.
+3. Make the change, then run lint, typecheck, tests and build.
 4. Open a PR with `Closes #N`. CI (the `test` check) must pass, and one approval is required before you squash merge.
 
 Never commit `.env*` files (except `.env.example`) or any secret. This repo is public.
