@@ -23,10 +23,18 @@ src/
   app/
     layout.tsx, page.tsx   landing page with links to Login, Student and Professor
     login/page.tsx         placeholder login form (wired to the backend in #3)
-    student/page.tsx       placeholder for the five-step workspace
+    student/page.tsx       student landing page (links to the sample assignment)
+    student/assignments/[assignmentId]/
+                           the five-step workspace: page.tsx, error.tsx, not-found.tsx
     professor/page.tsx     placeholder for assignment setup and submissions
     status/page.tsx        calls /api/health and shows API and database status
-  components/              shared UI components
+  features/
+    workspace/             the student workspace feature
+      components/          Workspace, WorkspaceShell, StepStepper, CodeEditor, AIPanel, ... (+ *.test.tsx)
+      types.ts             feature types
+      mock-assignment.ts   mock data until the backend provides assignments
+  components/              UI shared across features (PagePlaceholder, HealthStatus)
+    ui/                    small building blocks used everywhere (Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend
     constants.ts           enums mirrored from the backend, plus ROUTES, API_PATHS and SESSION_COOKIES
@@ -49,6 +57,7 @@ src/
 npm run dev            # http://localhost:3000 (or: docker compose up --build)
 npm run lint
 npm run typecheck      # next typegen, then tsc --noEmit
+npm test               # Vitest + React Testing Library
 npm run build
 ```
 
@@ -70,7 +79,9 @@ Team skills live in `.claude/skills/`. Use the one that matches the task.
 
 - Branch names follow `type/issue-number-short-name`, where `type` is `feature`, `fix`, `chore` or `docs`. For example, `feature/5-workspace-layout`. Never commit to `main`. See the `git-workflow` skill.
 - Use strict TypeScript with no `any`.
-- Keep components small, each doing one thing.
+- **Feature folders:** UI for one feature lives in `src/features/<feature>/` (`components/`, `types.ts`, and helpers). UI shared by several features goes in `src/components/`, and small building blocks go in `src/components/ui/`. Pages in `src/app` stay thin: read params, load data, and render a feature component.
+- Keep components small, each doing one thing. Pass data in through props. A layout component takes slots (`ReactNode` props) instead of importing its children.
+- Every component with logic or states gets a colocated `*.test.tsx` using React Testing Library. Query by role and label, the way a user finds things. Mock Monaco and other browser-only libraries.
 - Use Server Components by default, and `"use client"` only when needed.
 - Every backend call goes through `src/lib/api.ts`. Never use raw `fetch` to the backend, and never call Supabase.
 - Shared values come from `src/lib/constants.ts`. No magic strings.

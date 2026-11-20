@@ -7,7 +7,8 @@ description: Checklist for adding or changing a page or route in this Next.js Ap
 
 Also follow the `clean-code` and `api-calls` skills. This is Next.js 16 with **Cache Components** enabled. When unsure, read the guide in `node_modules/next/dist/docs/`.
 
-1. **Add the route** under `src/app/<segment>/page.tsx`, and add its path to `ROUTES` in `src/lib/constants.ts`. Export `metadata` with a `title`.
+1. **Add the route** under `src/app/<segment>/page.tsx`, and add its path to `ROUTES` in `src/lib/constants.ts` (or a route helper such as `studentAssignmentRoute(id)`). Export `metadata` with a `title`.
+   - **Keep the page thin.** It reads params, loads data and renders a component from `src/features/<feature>/components`. The UI itself lives in the feature folder (see the `clean-code` skill). `src/app/student/assignments/[assignmentId]/page.tsx` is the example to follow.
 
 2. **Keep data fetching in Server Components or `lib`.**
    - The page is a Server Component. Push `"use client"` down to the small interactive parts.
@@ -31,4 +32,4 @@ Also follow the `clean-code` and `api-calls` skills. This is Next.js 16 with **C
 
 7. **Check:**
    - `npm run dev`, then open the page while signed out (it should redirect) and while signed in.
-   - `npm run lint`, `npm run typecheck` and `npm run build`.
+   - `npm run lint`, `npm run typecheck`, `npm test` and `npm run build`.

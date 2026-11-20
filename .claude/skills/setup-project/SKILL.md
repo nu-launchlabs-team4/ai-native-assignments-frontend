@@ -37,6 +37,7 @@ The frontend is a Next.js app on **http://localhost:3000**. It talks **only to o
    ```bash
    npm run lint
    npm run typecheck
+   npm test
    npm run build
    ```
 

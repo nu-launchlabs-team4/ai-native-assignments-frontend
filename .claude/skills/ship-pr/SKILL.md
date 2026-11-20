@@ -25,6 +25,7 @@ Follow these steps in order. Stop and report if any step fails.
    ```bash
    npm run lint
    npm run typecheck
+   npm test
    npm run build
    ```
    Fix any failures before continuing.
