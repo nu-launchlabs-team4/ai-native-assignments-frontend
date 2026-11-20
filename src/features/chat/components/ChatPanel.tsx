@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Panel } from "@/components/ui/Panel";
 import { ApiError } from "@/lib/api";
@@ -33,6 +33,9 @@ export function ChatPanel({ submissionId, attemptSaved }: ChatPanelProps) {
   // The backend has the final say: it can lock chat even after the attempt
   // is saved, for example during the AI interview.
   const [serverLockReason, setServerLockReason] = useState<string | null>(null);
+  // A counter, not crypto.randomUUID(): that only exists on HTTPS or localhost,
+  // so it would crash when testing over http://<laptop-IP>:3000.
+  const pendingCount = useRef(0);
 
   const lockReason = !submissionId || !attemptSaved ? ATTEMPT_FIRST_REASON : serverLockReason;
 
@@ -42,7 +45,7 @@ export function ChatPanel({ submissionId, attemptSaved }: ChatPanelProps) {
     }
     const content = draft.trim();
     const pending: ChatMessage = {
-      id: `pending-${crypto.randomUUID()}`,
+      id: `pending-${++pendingCount.current}`,
       role: ChatRole.STUDENT,
       content,
       created_at: new Date().toISOString(),
