@@ -4,6 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 import { getMockAssignment, MOCK_ASSIGNMENT_ID } from "../mock-assignment";
 import { Workspace } from "./Workspace";
 
+// The AI tutor panel uses the router, which only exists inside the Next.js app.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 // Monaco can't run in jsdom, so stand in a plain text area with the same accessible name.
 vi.mock("./CodeEditor", () => ({
   CodeEditor: ({ value, ariaLabel }: { value: string; ariaLabel: string }) => (
