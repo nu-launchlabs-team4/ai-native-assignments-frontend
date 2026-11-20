@@ -5,7 +5,42 @@ description: Code style and structure rules for this Next.js frontend. Use whene
 
 # Clean code rules
 
-These must pass: `npm run lint`, `npm run typecheck` and `npm run build`.
+These must pass: `npm run lint`, `npm run typecheck`, `npm test` and `npm run build`.
+
+## Component structure: feature folders
+
+UI for one feature lives together in `src/features/<feature>/`. Pages in `src/app` stay thin.
+
+```
+src/features/workspace/
+  components/Workspace.tsx        composes the feature
+  components/StepStepper.tsx      one job: show the steps
+  components/StepStepper.test.tsx
+  types.ts
+src/components/ui/Panel.tsx       building block shared by every feature
+```
+
+```tsx
+// Good: the page reads params and hands data to a feature component
+export default function WorkspacePage({ params }: PageProps<"/student/assignments/[assignmentId]">) {
+  return <Suspense fallback={<WorkspaceSkeleton />}><WorkspaceLoader params={params} /></Suspense>;
+}
+
+// Bad: a 300-line page.tsx that builds the whole UI inline, mixing data, layout and widgets
+```
+
+- **Shared or feature?** Used by one feature: `src/features/<feature>/components`. Used by two or more: `src/components`. A small generic building block (Panel, Button): `src/components/ui`.
+- **Props in, no hidden data.** Components get data through props. Only pages and loaders fetch.
+- **Layouts take slots.**
+
+```tsx
+// Good: the shell doesn't know what goes in each column
+<WorkspaceShell header={...} instructions={...} editor={...} aiPanel={...} />
+
+// Bad: the shell imports and wires every panel itself, so it can't be reused or tested alone
+```
+
+- **Test what the user sees.** Put a colocated `*.test.tsx` next to the component. Query by role or label (`getByRole("navigation", { name: "Assignment steps" })`), not by CSS class.
 
 ## TypeScript strict, no `any`
 

@@ -41,6 +41,7 @@ git checkout -b feature/5-workspace-layout
 ```bash
 npm run lint
 npm run typecheck
+npm test
 npm run build
 git status          # no .env, .env.local or other .env* file except .env.example
 ```
