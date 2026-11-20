@@ -19,14 +19,14 @@ export default function WorkspaceError({ error, retry }: WorkspaceErrorProps) {
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-4 px-6 py-16">
       <h1 className="text-2xl font-semibold">Something went wrong</h1>
-      <p className="text-zinc-600 dark:text-zinc-400">
+      <p className="text-muted">
         We couldn&apos;t open this assignment. Your work is not lost. Please try again.
       </p>
       <div className="flex gap-3">
         <button
           type="button"
           onClick={() => retry()}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           Try again
         </button>

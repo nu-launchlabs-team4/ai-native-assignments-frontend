@@ -14,14 +14,14 @@ export default function StudentPage() {
       title="Student"
       description="Each assignment has five steps. The list of your assignments arrives with the backend."
     >
-      <ol className="list-inside list-decimal text-zinc-700 dark:text-zinc-300">
+      <ol className="list-inside list-decimal text-foreground">
         {STEP_ORDER.map((step) => (
           <li key={step}>{STEP_LABELS[step]}</li>
         ))}
       </ol>
       <Link
         href={studentAssignmentRoute(MOCK_ASSIGNMENT_ID)}
-        className="self-start rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         Open the sample assignment
       </Link>

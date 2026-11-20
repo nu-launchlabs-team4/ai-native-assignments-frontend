@@ -1,24 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useSyncExternalStore } from "react";
 
-const DARK_SCHEME_QUERY = "(prefers-color-scheme: dark)";
-
-function subscribeToColorScheme(onChange: () => void) {
-  const query = window.matchMedia(DARK_SCHEME_QUERY);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-/** Follows the system color scheme, like the rest of the app does through globals.css. */
-function usePrefersDarkMode(): boolean {
-  return useSyncExternalStore(
-    subscribeToColorScheme,
-    () => window.matchMedia(DARK_SCHEME_QUERY).matches,
-    () => false,
-  );
-}
+import { useTheme } from "@/lib/theme";
 
 // Monaco needs the browser, so it never renders on the server.
 // @monaco-editor/react loads the editor itself from a CDN on first use.
@@ -29,7 +13,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 
 function EditorLoading() {
   return (
-    <div role="status" className="flex h-full items-center justify-center text-sm text-zinc-500">
+    <div role="status" className="flex h-full items-center justify-center text-sm text-muted">
       Loading editor…
     </div>
   );
@@ -46,7 +30,7 @@ interface CodeEditorProps {
 
 /** Code editor for the student's work. */
 export function CodeEditor({ value, language, ariaLabel, onChange }: CodeEditorProps) {
-  const prefersDarkMode = usePrefersDarkMode();
+  const theme = useTheme();
 
   return (
     // Monaco sizes itself to its parent, so give it a box with a definite size.
@@ -54,7 +38,7 @@ export function CodeEditor({ value, language, ariaLabel, onChange }: CodeEditorP
       <div className="absolute inset-0">
         <MonacoEditor
           height="100%"
-          theme={prefersDarkMode ? "vs-dark" : "light"}
+          theme={theme === "dark" ? "vs-dark" : "light"}
           language={language}
           value={value}
           onChange={(next) => onChange?.(next ?? "")}

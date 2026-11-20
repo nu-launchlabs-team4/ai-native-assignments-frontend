@@ -103,12 +103,16 @@ The enums mirror `app/core/constants.py` in the backend. Change both together.
 
 ## Tailwind for styling
 
+Use the design tokens from `src/app/globals.css`. They switch automatically between light and dark mode.
+
 ```tsx
 // Good
-<p className="text-sm text-zinc-600">...</p>
+<p className="text-sm text-muted">...</p>
+<section className="border-b border-line bg-surface">...</section>
 
-// Bad
+// Bad: inline styles, or hand-picked grays that need a dark: twin everywhere
 <p style={{ fontSize: 14, color: "#52525b" }}>...</p>
+<p className="text-zinc-600 dark:text-zinc-400">...</p>
 ```
 
 ## Accessible markup

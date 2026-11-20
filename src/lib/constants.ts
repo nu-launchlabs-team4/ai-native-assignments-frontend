@@ -27,6 +27,20 @@ export const STEP_LABELS: Record<Step, string> = {
   [Step.EXPLAIN]: "Explain",
 };
 
+/** How a question is answered. The PDF parser detects it, and the professor can correct it. */
+export const AnswerType = {
+  CODE: "code",
+  TEXT: "text",
+  MATH: "math",
+} as const;
+export type AnswerType = (typeof AnswerType)[keyof typeof AnswerType];
+
+export const ANSWER_TYPE_LABELS: Record<AnswerType, string> = {
+  [AnswerType.CODE]: "Code",
+  [AnswerType.TEXT]: "Written",
+  [AnswerType.MATH]: "Math",
+};
+
 export const AIPolicy = {
   PROHIBITED: "prohibited",
   PERMITTED: "permitted",
@@ -82,3 +96,6 @@ export const API_PATHS = {
 // Names of the httpOnly cookies the backend sets (backend issue #4). The
 // frontend only checks that one exists. It never reads or verifies the value.
 export const SESSION_COOKIES = ["access_token", "refresh_token"] as const;
+
+/** localStorage key that remembers the light or dark choice. */
+export const THEME_STORAGE_KEY = "theme";

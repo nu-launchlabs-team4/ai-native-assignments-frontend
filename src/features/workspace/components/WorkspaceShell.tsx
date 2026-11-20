@@ -5,25 +5,28 @@ interface WorkspaceShellProps {
   instructions: ReactNode;
   editor: ReactNode;
   aiPanel: ReactNode;
+  statusBar: ReactNode;
 }
 
 /**
- * Full-screen workspace frame: a header row, then instructions | editor | AI tutor.
- * Each column scrolls on its own. Below the lg breakpoint the columns stack.
+ * Full-screen, IDE-style frame: a top bar, then instructions | editor | AI tutor
+ * separated by thin lines, and a status bar at the bottom.
+ * On narrow screens the panes stack and the middle area scrolls.
  */
-export function WorkspaceShell({ header, instructions, editor, aiPanel }: WorkspaceShellProps) {
+export function WorkspaceShell({ header, instructions, editor, aiPanel, statusBar }: WorkspaceShellProps) {
   return (
-    <div className="flex h-dvh flex-col bg-zinc-50 dark:bg-black">
-      <header className="flex flex-col gap-3 border-b border-zinc-200 bg-white px-4 py-3 lg:flex-row lg:items-center lg:justify-between dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="flex h-dvh flex-col bg-surface text-foreground">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-line bg-surface-muted px-3 py-2">
         {header}
       </header>
-      {/* Narrow screens: panels take their natural height and the page area scrolls.
-          lg and up: one full-height row, and each panel scrolls on its own. */}
-      <main className="grid min-h-0 flex-1 auto-rows-max grid-cols-1 gap-3 overflow-y-auto p-3 lg:grid-cols-[minmax(18rem,1fr)_minmax(0,2fr)_minmax(18rem,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden">
+      <main className="grid min-h-0 flex-1 auto-rows-max grid-cols-1 divide-y divide-line overflow-y-auto lg:grid-cols-[20rem_minmax(0,1fr)_22rem] lg:grid-rows-[minmax(0,1fr)] lg:divide-x lg:divide-y-0 lg:overflow-hidden">
         {instructions}
         {editor}
         {aiPanel}
       </main>
+      <footer className="flex h-6 shrink-0 items-center border-t border-line bg-surface-muted px-3 text-xs text-muted">
+        {statusBar}
+      </footer>
     </div>
   );
 }
