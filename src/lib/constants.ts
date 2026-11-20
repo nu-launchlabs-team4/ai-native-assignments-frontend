@@ -91,7 +91,17 @@ export function studentAssignmentRoute(assignmentId: string): string {
 
 export const API_PATHS = {
   HEALTH: "/health",
+  // TODO(singhsaravjit): confirm the path and body with backend #10 (AI chat endpoint).
+  AI_CHAT: "/ai/chat",
 } as const;
+
+export const ChatRole = {
+  STUDENT: "student",
+  ASSISTANT: "assistant",
+} as const;
+export type ChatRole = (typeof ChatRole)[keyof typeof ChatRole];
+
+export const CHAT_MAX_MESSAGE_LENGTH = 4000;
 
 // Names of the httpOnly cookies the backend sets (backend issue #4). The
 // frontend only checks that one exists. It never reads or verifies the value.

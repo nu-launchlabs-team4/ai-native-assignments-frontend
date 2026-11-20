@@ -9,6 +9,8 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    // Placeholder so lib/env.ts loads, as in CI. Tests mock every backend call.
+    env: { NEXT_PUBLIC_API_URL: "http://localhost:8010" },
     setupFiles: ["./vitest.setup.ts"],
   },
 });

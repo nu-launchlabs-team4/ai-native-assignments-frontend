@@ -3,9 +3,9 @@
 import { useState } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ChatPanel } from "@/features/chat/components/ChatPanel";
 
 import type { Answers, WorkspaceAssignment } from "../types";
-import { AIPanel } from "./AIPanel";
 import { AnswerPanel } from "./AnswerPanel";
 import { AssignmentPanel } from "./AssignmentPanel";
 import { StatusBar } from "./StatusBar";
@@ -62,7 +62,10 @@ export function Workspace({ assignment }: WorkspaceProps) {
           onAnswerChange={(value) => setAnswers((current) => ({ ...current, [question.id]: value }))}
         />
       }
-      aiPanel={<AIPanel />}
+      aiPanel={
+        // TODO(singhsaravjit): pass the real submission and attempt state once autosave lands (#6).
+        <ChatPanel submissionId={null} attemptSaved={false} />
+      }
       statusBar={
         <StatusBar
           question={question}

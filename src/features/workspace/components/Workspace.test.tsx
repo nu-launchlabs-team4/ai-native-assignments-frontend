@@ -14,6 +14,9 @@ vi.mock("./MathAnswer", () => ({
   MathAnswer: ({ ariaLabel }: { ariaLabel: string }) => <div role="group" aria-label={`${ariaLabel} (math)`} />,
 }));
 
+// The AI tutor panel uses the router, which only exists inside the Next.js app.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 const assignment = getMockAssignment(MOCK_ASSIGNMENT_ID)!;
 
 function openQuestion(number: number) {
