@@ -76,11 +76,42 @@ export type Role = (typeof Role)[keyof typeof Role];
 
 // Frontend-only values below.
 
+export const AI_POLICY_LABELS: Record<AIPolicy, string> = {
+  [AIPolicy.PROHIBITED]: "Prohibited",
+  [AIPolicy.PERMITTED]: "Permitted",
+  [AIPolicy.EXPECTED]: "Expected",
+};
+
+export const HELP_LEVEL_LABELS: Record<HelpLevel, string> = {
+  [HelpLevel.HINTS]: "Hints only",
+  [HelpLevel.APPROACH]: "Feedback on approach",
+  [HelpLevel.CONCEPTS]: "Concept explanations",
+};
+
+export const FINAL_CHECK_LABELS: Record<FinalCheck, string> = {
+  [FinalCheck.AI_INTERVIEW]: "AI follow-up interview",
+  [FinalCheck.QUESTIONNAIRE]: "Fixed questionnaire",
+};
+
+/** Languages a professor can pick for a code question. Ids are Monaco language ids. */
+export const CODE_LANGUAGES = [
+  { id: "python", label: "Python" },
+  { id: "java", label: "Java" },
+  { id: "javascript", label: "JavaScript" },
+  { id: "typescript", label: "TypeScript" },
+  { id: "c", label: "C" },
+  { id: "cpp", label: "C++" },
+] as const;
+
+/** Language a question gets when the professor switches it to code. */
+export const DEFAULT_CODE_LANGUAGE = "python";
+
 export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
   STUDENT: "/student",
   PROFESSOR: "/professor",
+  PROFESSOR_NEW_ASSIGNMENT: "/professor/assignments/new",
   STATUS: "/status",
 } as const;
 
