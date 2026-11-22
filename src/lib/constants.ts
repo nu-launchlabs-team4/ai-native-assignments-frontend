@@ -141,6 +141,11 @@ export function submissionTrailRoute(submissionId: string): string {
   return `${submissionSummaryRoute(submissionId)}/trail`;
 }
 
+/** URL of the work sessions timeline for one submission. */
+export function submissionSessionsRoute(submissionId: string): string {
+  return `${submissionSummaryRoute(submissionId)}/sessions`;
+}
+
 export const API_PATHS = {
   HEALTH: "/health",
   // TODO(singhsaravjit): confirm the path and body with backend #10 (AI chat endpoint).

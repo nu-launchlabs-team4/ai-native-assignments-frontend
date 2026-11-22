@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { submissionTrailRoute } from "@/lib/constants";
+import { submissionSessionsRoute, submissionTrailRoute } from "@/lib/constants";
 
 import { getMockSubmission } from "../mock-submissions";
 import { ReasoningSummaryView } from "./ReasoningSummaryView";
@@ -52,10 +52,12 @@ describe("ReasoningSummaryView", () => {
     expect(screen.queryByRole("region", { name: /Review priority/ })).toBeNull();
   });
 
-  it("links to the full trail", () => {
+  it("links to the full trail and the work sessions", () => {
     renderSubmission("sub-1");
 
-    const link = screen.getByRole("link", { name: "Open the full trail" });
-    expect(link.getAttribute("href")).toBe(submissionTrailRoute("sub-1"));
+    const trail = screen.getByRole("link", { name: "Open the full trail" });
+    expect(trail.getAttribute("href")).toBe(submissionTrailRoute("sub-1"));
+    const sessions = screen.getByRole("link", { name: "See work sessions" });
+    expect(sessions.getAttribute("href")).toBe(submissionSessionsRoute("sub-1"));
   });
 });

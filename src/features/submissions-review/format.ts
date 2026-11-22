@@ -10,3 +10,10 @@ const DATE_TIME = new Intl.DateTimeFormat("en-US", {
 export function formatDateTime(iso: string): string {
   return `${DATE_TIME.format(new Date(iso))} UTC`;
 }
+
+const TIME = new Intl.DateTimeFormat("en-US", { timeStyle: "short", timeZone: "UTC" });
+
+/** Format an ISO timestamp as a time of day, such as "6:30 PM UTC". */
+export function formatTime(iso: string): string {
+  return `${TIME.format(new Date(iso))} UTC`;
+}
