@@ -76,6 +76,12 @@ export type Role = (typeof Role)[keyof typeof Role];
 
 // Frontend-only values below.
 
+export const REVIEW_PRIORITY_LABELS: Record<ReviewPriority, string> = {
+  [ReviewPriority.ROUTINE]: "Routine",
+  [ReviewPriority.WORTH_REVIEWING]: "Worth reviewing",
+  [ReviewPriority.NEEDS_CONVERSATION]: "Needs a conversation",
+};
+
 export const AI_POLICY_LABELS: Record<AIPolicy, string> = {
   [AIPolicy.PROHIBITED]: "Prohibited",
   [AIPolicy.PERMITTED]: "Permitted",
@@ -118,6 +124,21 @@ export const ROUTES = {
 /** URL of the student workspace for one assignment. */
 export function studentAssignmentRoute(assignmentId: string): string {
   return `${ROUTES.STUDENT}/assignments/${encodeURIComponent(assignmentId)}`;
+}
+
+/** URL of the submissions table for one of the professor's assignments. */
+export function assignmentSubmissionsRoute(assignmentId: string): string {
+  return `${ROUTES.PROFESSOR}/assignments/${encodeURIComponent(assignmentId)}/submissions`;
+}
+
+/** URL of the reasoning summary for one submission. */
+export function submissionSummaryRoute(submissionId: string): string {
+  return `${ROUTES.PROFESSOR}/submissions/${encodeURIComponent(submissionId)}`;
+}
+
+/** URL of the full trail for one submission. */
+export function submissionTrailRoute(submissionId: string): string {
+  return `${submissionSummaryRoute(submissionId)}/trail`;
 }
 
 export const API_PATHS = {

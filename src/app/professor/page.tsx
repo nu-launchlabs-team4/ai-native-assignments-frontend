@@ -2,22 +2,35 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PagePlaceholder } from "@/components/PagePlaceholder";
-import { ROUTES } from "@/lib/constants";
+import { MOCK_REVIEW_ASSIGNMENT_ID } from "@/features/submissions-review/mock-submissions";
+import { assignmentSubmissionsRoute, ROUTES } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "Professor" };
 
+const LINK_CLASS =
+  "rounded-md px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2";
+
+// TODO(dineshbachchani1234): list the professor's real assignments once the backend has them (#11).
 export default function ProfessorPage() {
   return (
     <PagePlaceholder
       title="Professor dashboard"
-      description="Set up an assignment from your PDF. The submissions review arrives in issue #11."
+      description="Set up an assignment from your PDF, or review the sample assignment's submissions."
     >
-      <Link
-        href={ROUTES.PROFESSOR_NEW_ASSIGNMENT}
-        className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
-      >
-        Set up a new assignment
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href={ROUTES.PROFESSOR_NEW_ASSIGNMENT}
+          className={`${LINK_CLASS} bg-accent text-accent-foreground hover:opacity-90`}
+        >
+          Set up a new assignment
+        </Link>
+        <Link
+          href={assignmentSubmissionsRoute(MOCK_REVIEW_ASSIGNMENT_ID)}
+          className={`${LINK_CLASS} border border-line bg-surface hover:bg-surface-muted`}
+        >
+          Review submissions
+        </Link>
+      </div>
     </PagePlaceholder>
   );
 }
