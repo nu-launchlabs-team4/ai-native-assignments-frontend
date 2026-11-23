@@ -15,6 +15,7 @@ interface MathAnswerProps {
   value: string;
   ariaLabel: string;
   onChange: (value: string) => void;
+  readOnly?: boolean;
 }
 
 function toLines(value: string): MathLine[] {
@@ -23,7 +24,7 @@ function toLines(value: string): MathLine[] {
 }
 
 /** Step-by-step math answer: one visual equation editor per line of working. */
-export function MathAnswer({ value, ariaLabel, onChange }: MathAnswerProps) {
+export function MathAnswer({ value, ariaLabel, onChange, readOnly = false }: MathAnswerProps) {
   const [lines, setLines] = useState<MathLine[]>(() => toLines(value));
   const [nextKey, setNextKey] = useState(lines.length);
 
@@ -52,9 +53,10 @@ export function MathAnswer({ value, ariaLabel, onChange }: MathAnswerProps) {
                 onChange={(latex) =>
                   update(lines.map((other) => (other.key === line.key ? { ...other, latex } : other)))
                 }
+                readOnly={readOnly}
               />
             </div>
-            {lines.length > 1 && (
+            {!readOnly && lines.length > 1 && (
               <button
                 type="button"
                 onClick={() => update(lines.filter((other) => other.key !== line.key))}
@@ -67,13 +69,15 @@ export function MathAnswer({ value, ariaLabel, onChange }: MathAnswerProps) {
           </li>
         ))}
       </ol>
-      <button
-        type="button"
-        onClick={addLine}
-        className="self-start rounded border border-line px-3 py-1.5 text-sm hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2"
-      >
-        + Add step
-      </button>
+      {!readOnly && (
+        <button
+          type="button"
+          onClick={addLine}
+          className="self-start rounded border border-line px-3 py-1.5 text-sm hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          + Add step
+        </button>
+      )}
     </div>
   );
 }

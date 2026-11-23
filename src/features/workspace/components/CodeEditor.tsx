@@ -26,10 +26,11 @@ interface CodeEditorProps {
   /** Accessible name for the editor's text area. */
   ariaLabel: string;
   onChange?: (value: string) => void;
+  readOnly?: boolean;
 }
 
 /** Code editor for the student's work. */
-export function CodeEditor({ value, language, ariaLabel, onChange }: CodeEditorProps) {
+export function CodeEditor({ value, language, ariaLabel, onChange, readOnly = false }: CodeEditorProps) {
   const theme = useTheme();
 
   return (
@@ -47,6 +48,7 @@ export function CodeEditor({ value, language, ariaLabel, onChange }: CodeEditorP
             automaticLayout: true,
             fontSize: 14,
             minimap: { enabled: false },
+            readOnly,
             scrollBeyondLastLine: false,
             tabSize: 4,
           }}

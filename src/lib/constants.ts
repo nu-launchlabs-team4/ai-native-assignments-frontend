@@ -74,6 +74,18 @@ export const Role = {
 } as const;
 export type Role = (typeof Role)[keyof typeof Role];
 
+export const SubmissionStatus = {
+  IN_PROGRESS: "in_progress",
+  SUBMITTED: "submitted",
+} as const;
+export type SubmissionStatus = (typeof SubmissionStatus)[keyof typeof SubmissionStatus];
+
+/** The student's confidence in their attempt, from 1 (not sure) to 5 (very sure). */
+export const CONFIDENCE_MIN = 1;
+export const CONFIDENCE_MAX = 5;
+
+export const MAX_APPROACH_NOTE_CHARS = 1000;
+
 // Frontend-only values below.
 
 export const REVIEW_PRIORITY_LABELS: Record<ReviewPriority, string> = {
@@ -146,8 +158,12 @@ export function submissionSessionsRoute(submissionId: string): string {
   return `${submissionSummaryRoute(submissionId)}/sessions`;
 }
 
+/** How often the workspace saves changed answers. */
+export const AUTOSAVE_INTERVAL_MS = 30_000;
+
 export const API_PATHS = {
   HEALTH: "/health",
+  SUBMISSIONS: "/submissions",
   // TODO(singhsaravjit): confirm the path and body with backend #10 (AI chat endpoint).
   AI_CHAT: "/ai/chat",
 } as const;
