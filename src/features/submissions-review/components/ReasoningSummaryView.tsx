@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { submissionSessionsRoute, submissionTrailRoute } from "@/lib/constants";
+import { CONFIDENCE_MAX, submissionSessionsRoute, submissionTrailRoute } from "@/lib/constants";
 
 import { type ReasoningSummary, SUGGESTION_JUDGMENT_LABELS } from "../types";
 import { ReviewPriorityBadge } from "./ReviewPriorityBadge";
@@ -11,8 +11,6 @@ interface ReasoningSummaryViewProps {
   studentName: string;
   summary: ReasoningSummary | null;
 }
-
-const MAX_CONFIDENCE = 5;
 
 // The summary's lists are fixed once generated and may repeat text, so items are keyed by position.
 
@@ -68,7 +66,7 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
         <SummaryPart term="Initial approach">
           <p>{summary.initial_approach}</p>
           <p className="mt-1 text-muted">
-            Confidence before the AI unlocked: {summary.confidence} of {MAX_CONFIDENCE}
+            Confidence before the AI unlocked: {summary.confidence} of {CONFIDENCE_MAX}
           </p>
         </SummaryPart>
         <SummaryPart term="Main misconception">

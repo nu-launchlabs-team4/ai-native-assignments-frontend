@@ -1,12 +1,10 @@
 import type { ReactNode } from "react";
 
-import { AnswerType, ChatRole, Step, STEP_LABELS } from "@/lib/constants";
+import { AnswerType, ChatRole, CONFIDENCE_MAX, Step, STEP_LABELS } from "@/lib/constants";
 
 import { formatDateTime } from "../format";
 import { EVALUATION_VERDICT_LABELS, type TrailAnswer, type TrailEntry, TrailEntryKind } from "../types";
 import { RevisionDiff } from "./RevisionDiff";
-
-const MAX_CONFIDENCE = 5;
 
 /** One entry in the trail: a heading, its step and time, and what the student or AI wrote. */
 export function TrailEntryView({ entry }: { entry: TrailEntry }) {
@@ -40,7 +38,7 @@ function describe(entry: TrailEntry): { title: string; step: Step; body: ReactNo
               <span className="font-medium">Approach:</span> {entry.approach_note}
             </p>
             <p className="text-muted">
-              Confidence before the AI unlocked: {entry.confidence} of {MAX_CONFIDENCE}
+              Confidence before the AI unlocked: {entry.confidence} of {CONFIDENCE_MAX}
             </p>
             {entry.answers.map((answer) => (
               <Answer key={answer.question_number} answer={answer} />

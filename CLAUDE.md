@@ -30,15 +30,21 @@ src/
     status/page.tsx        calls /api/health and shows API and database status
   features/
     workspace/             the student workspace feature
-      components/          Workspace (state), WorkspaceShell, AssignmentPanel + QuestionList,
-                           AnswerPanel + AnswerEditor (CodeEditor | TextAnswer | MathAnswer), AIPanel,
+      components/          WorkspaceLoader (starts the submission), Workspace, WorkspaceShell,
+                           AssignmentPanel + QuestionList + FinishAttemptPanel (+ ConfidenceRating),
+                           AnswerPanel + AnswerEditor (CodeEditor | TextAnswer | MathAnswer),
                            StepStepper, StatusBar, ... (+ *.test.tsx)
+      use-attempt.ts       step 1 state: answers, autosave of changed answers every 30 s, submit
+      submission-client.ts SubmissionClient: the real /submissions API, or the mock for the demo id
+      mock-submission-client.ts  in-browser stand-in with the backend's rules, used only for "sample-1"
+      map-submission.ts    SubmissionOut -> what the panes show (paragraphs, file names, answers)
       types.ts             WorkspaceAssignment, WorkspaceQuestion (code | text | math)
-      mock-assignment.ts   mock data until the backend provides assignments
+      mock-assignment.ts   the demo assignment, in the backend's AssignmentOut shape
   components/              UI shared across features (PagePlaceholder, HealthStatus, ThemeToggle)
     ui/                    small building blocks used everywhere (Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend
+    api-types.ts           QuestionOut, AssignmentOut, SubmissionOut: mirrors of the backend schemas
     constants.ts           enums mirrored from the backend (AnswerType is new, see backend #6), plus ROUTES, API_PATHS,
                            SESSION_COOKIES and THEME_STORAGE_KEY
     theme.ts               useTheme and setTheme (client only)

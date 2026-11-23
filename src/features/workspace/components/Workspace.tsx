@@ -1,33 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ChatPanel } from "@/features/chat/components/ChatPanel";
+import type { SubmissionOut } from "@/lib/api-types";
+import { Step } from "@/lib/constants";
 
-import type { Answers, WorkspaceAssignment } from "../types";
+import { isAnswered, toWorkspaceAssignment } from "../map-submission";
+import type { SubmissionClient } from "../submission-client";
+import { useAttempt } from "../use-attempt";
 import { AnswerPanel } from "./AnswerPanel";
 import { AssignmentPanel } from "./AssignmentPanel";
+import { FinishAttemptPanel } from "./FinishAttemptPanel";
 import { StatusBar } from "./StatusBar";
 import { StepStepper } from "./StepStepper";
 import { WorkspaceShell } from "./WorkspaceShell";
 
 interface WorkspaceProps {
-  assignment: WorkspaceAssignment;
-}
-
-function initialAnswers(assignment: WorkspaceAssignment): Answers {
-  return Object.fromEntries(assignment.questions.map((question) => [question.id, question.starterAnswer]));
+  client: SubmissionClient;
+  initialSubmission: SubmissionOut;
 }
 
 /**
- * The student's workspace for one assignment. Holds which question is open and
- * every answer, so switching questions never loses work.
+ * The student's workspace for one submission: the questions, an editor per
+ * question, the finish-attempt form and the AI tutor.
  */
-// TODO(akashshetty1997): save answers to the backend with autosave (#6).
-export function Workspace({ assignment }: WorkspaceProps) {
+export function Workspace({ client, initialSubmission }: WorkspaceProps) {
+  const attempt = useAttempt(client, initialSubmission);
+  const { submission, answers } = attempt;
+  const assignment = useMemo(() => toWorkspaceAssignment(submission), [submission]);
   const [selectedQuestionId, setSelectedQuestionId] = useState(assignment.questions[0].id);
-  const [answers, setAnswers] = useState<Answers>(() => initialAnswers(assignment));
+
+  const isAttemptStep = submission.current_step === Step.ATTEMPT;
+  const answeredIds = useMemo(
+    () =>
+      new Set(
+        assignment.questions
+          .filter((question) => isAnswered(answers[question.id], question.starterAnswer))
+          .map((question) => question.id),
+      ),
+    [answers, assignment.questions],
+  );
 
   const questionIndex = assignment.questions.findIndex((question) => question.id === selectedQuestionId);
   const question = assignment.questions[questionIndex];
@@ -49,23 +63,35 @@ export function Workspace({ assignment }: WorkspaceProps) {
           instructions={assignment.instructions}
           questions={assignment.questions}
           selectedQuestionId={selectedQuestionId}
+          answeredIds={answeredIds}
           onSelectQuestion={setSelectedQuestionId}
+          footer={
+            <FinishAttemptPanel
+              answeredCount={answeredIds.size}
+              questionCount={assignment.questions.length}
+              isAttemptStep={isAttemptStep}
+              saveStatus={attempt.saveStatus}
+              lastSavedAt={attempt.lastSavedAt}
+              isFinishing={attempt.isFinishing}
+              finishError={attempt.finishError}
+              onFinish={attempt.finish}
+            />
+          }
         />
       }
       editor={
         <AnswerPanel
           // A new key per question gives each one a fresh editor that starts from its saved answer.
-          key={question.id}
+          // The step is in the key too, so editors remount read-only once the attempt is submitted.
+          key={`${question.id}-${isAttemptStep}`}
           question={question}
           questionNumber={questionNumber}
           answer={answers[question.id]}
-          onAnswerChange={(value) => setAnswers((current) => ({ ...current, [question.id]: value }))}
+          onAnswerChange={(value) => attempt.setAnswer(question.id, value)}
+          readOnly={!isAttemptStep}
         />
       }
-      aiPanel={
-        // TODO(singhsaravjit): pass the real submission and attempt state once autosave lands (#6).
-        <ChatPanel submissionId={null} attemptSaved={false} />
-      }
+      aiPanel={<ChatPanel submissionId={submission.id} attemptSaved={!isAttemptStep} />}
       statusBar={
         <StatusBar
           question={question}
