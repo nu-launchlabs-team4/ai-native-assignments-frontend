@@ -21,7 +21,7 @@ Next.js 16 differs from older versions. For example, `middleware.ts` is now `pro
 ```
 src/
   app/
-    layout.tsx, page.tsx   landing page with links to Login, Student and Professor
+    layout.tsx, page.tsx   root layout; page.tsx renders the landing page
     login/page.tsx         placeholder login form (wired to the backend in #3)
     student/page.tsx       student landing page (links to the sample assignment)
     student/assignments/[assignmentId]/
@@ -29,6 +29,8 @@ src/
     professor/page.tsx     placeholder for assignment setup and submissions
     status/page.tsx        calls /api/health and shows API and database status
   features/
+    landing/               the public landing page (Northeastern black, white and red): header, hero,
+                           StepStrip, two RoleCard links, footer
     workspace/             the student workspace feature
       components/          WorkspaceLoader (starts the submission), Workspace, WorkspaceShell,
                            AssignmentPanel + QuestionList + FinishAttemptPanel (+ ConfidenceRating),
@@ -97,7 +99,7 @@ Team skills live in `.claude/skills/`. Use the one that matches the task.
 - Every backend call goes through `src/lib/api.ts`. Never use raw `fetch` to the backend, and never call Supabase.
 - Shared values come from `src/lib/constants.ts`. No magic strings.
 - **Design follows Apple's Human Interface Guidelines** (issue #36). Style with Tailwind, no inline style objects, and use the **design tokens** from `src/app/globals.css` instead of picking colors by hand:
-  - Colors: `bg-background`, `bg-surface` (content), `bg-surface-muted` (bars, sidebars), `text-foreground`, `text-muted` (secondary text), `border-line` (separators only), `border-field` (text fields and controls), `bg-accent` / `text-accent-foreground` (the main action), `bg-accent-soft` (tinted), `text-success` / `text-warning` / `text-danger`. Every text pairing meets 4.5:1 in light and dark, and the comments in `globals.css` give the ratios.
+  - Colors: `bg-background`, `bg-surface` (content), `bg-surface-muted` (bars, sidebars), `text-foreground`, `text-muted` (secondary text), `border-line` (separators only), `border-field` (text fields and controls), `bg-accent` / `text-accent-foreground` (the main action), `bg-accent-soft` (tinted), `text-success` / `text-warning` / `text-danger`, and `outline-focus` for every keyboard focus ring (black in light, white in dark). The `brand-*` tokens (Northeastern red #C8102E on black and white) are for the landing page only: on app screens red would read as `danger`. Every text pairing meets 4.5:1 in light and dark, and the comments in `globals.css` give the ratios.
   - Type: the **IBM Plex** family from `src/lib/fonts.ts`: Plex Sans for text (`font-sans`, the default), Plex Serif for titles (`font-serif`, which every `h1` uses), and Plex Mono for code (`font-mono`, and the Monaco editor). next/font self-hosts them, so there are no requests to Google. Sizes come from the scale `text-large-title`, `text-title`, `text-headline`, `text-body`, `text-callout`, `text-footnote` and `text-caption` (12 px, the minimum).
   - Controls: use `Button` (`filled` for the one main action, `tinted`, `plain`) and `SegmentedControl` from `src/components/ui`. They include a press state and 44 px touch targets (`pointer-coarse:`). A custom control needs both.
   - Motion stays brief and optional: guard repeating animations with `motion-safe:`.
