@@ -9,6 +9,7 @@ interface AnswerPanelProps {
   questionNumber: number;
   answer: string;
   onAnswerChange: (value: string) => void;
+  readOnly?: boolean;
 }
 
 function countWords(text: string): number {
@@ -30,7 +31,13 @@ function headerMeta(question: WorkspaceQuestion, answer: string): string {
 }
 
 /** Middle pane: the selected question and the editor for its answer. */
-export function AnswerPanel({ question, questionNumber, answer, onAnswerChange }: AnswerPanelProps) {
+export function AnswerPanel({
+  question,
+  questionNumber,
+  answer,
+  onAnswerChange,
+  readOnly = false,
+}: AnswerPanelProps) {
   return (
     <Panel
       title={`Question ${questionNumber}`}
@@ -53,6 +60,7 @@ export function AnswerPanel({ question, questionNumber, answer, onAnswerChange }
           value={answer}
           ariaLabel={`Your answer to question ${questionNumber}`}
           onChange={onAnswerChange}
+          readOnly={readOnly}
         />
       </div>
     </Panel>

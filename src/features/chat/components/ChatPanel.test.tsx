@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError } from "@/lib/api";
 import { ChatRole, ROUTES } from "@/lib/constants";
@@ -19,11 +19,6 @@ const REPLY = {
   content: "What does your loop do on the last index?",
   created_at: "2026-11-20T00:00:00Z",
 };
-
-beforeAll(() => {
-  // jsdom doesn't implement scrolling.
-  Element.prototype.scrollIntoView = vi.fn();
-});
 
 beforeEach(() => {
   sendMock.mockReset();

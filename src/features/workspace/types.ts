@@ -27,7 +27,7 @@ export interface MathQuestion extends QuestionBase {
 
 export type WorkspaceQuestion = CodeQuestion | TextQuestion | MathQuestion;
 
-/** What the workspace needs to show one assignment. Replaced by the backend schema in BE#9. */
+/** What the workspace panes show. Built from the backend's SubmissionOut by map-submission.ts. */
 export interface WorkspaceAssignment {
   id: string;
   title: string;
