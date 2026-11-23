@@ -10,7 +10,7 @@ import { ROUTES } from "@/lib/constants";
 import { logOut } from "../auth-client";
 
 /** Ends the session, then goes to the login page. */
-export function LogoutButton() {
+export function LogoutButton({ className = "" }: { className?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +29,13 @@ export function LogoutButton() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex flex-col gap-1 ${className}`}>
       {error && (
         <p role="alert" className="text-footnote text-danger">
           {error}
         </p>
       )}
-      <Button variant="plain" size="small" onClick={handleClick} disabled={pending}>
+      <Button variant="plain" size="small" onClick={handleClick} disabled={pending} className="justify-start">
         Log out
       </Button>
     </div>

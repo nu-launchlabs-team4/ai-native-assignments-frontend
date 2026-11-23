@@ -14,6 +14,11 @@ export function signUp(email: string, password: string): Promise<SignupOut> {
   return apiFetch<SignupOut>(API_PATHS.AUTH_SIGNUP, { method: "POST", body: { email, password } });
 }
 
+/** The signed-in account. A 401 means the session is gone (after one refresh attempt). */
+export function getMe(): Promise<UserOut> {
+  return apiFetch<UserOut>(API_PATHS.AUTH_ME);
+}
+
 /** End the session and clear its cookies. */
 export function logOut(): Promise<void> {
   return apiFetch<void>(API_PATHS.AUTH_LOGOUT, { method: "POST" });

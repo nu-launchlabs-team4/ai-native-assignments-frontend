@@ -134,6 +134,7 @@ export const ROUTES = {
   STUDENT: "/student",
   PROFESSOR: "/professor",
   PROFESSOR_NEW_ASSIGNMENT: "/professor/assignments/new",
+  PROFILE: "/profile",
   STATUS: "/status",
 } as const;
 

@@ -8,12 +8,10 @@ interface PagePlaceholderProps {
   title: string;
   description: string;
   children?: ReactNode;
-  /** Controls next to the appearance control, such as Log out. */
-  actions?: ReactNode;
 }
 
 /** Layout for pages that are not built yet. */
-export function PagePlaceholder({ title, description, children, actions }: PagePlaceholderProps) {
+export function PagePlaceholder({ title, description, children }: PagePlaceholderProps) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-16">
       <div className="flex items-center justify-between">
@@ -23,10 +21,7 @@ export function PagePlaceholder({ title, description, children, actions }: PageP
         >
           ← Home
         </Link>
-        <div className="flex items-center gap-3">
-          {actions}
-          <AppearanceControl />
-        </div>
+        <AppearanceControl />
       </div>
       <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
       <p className="text-zinc-600 dark:text-zinc-400">{description}</p>
