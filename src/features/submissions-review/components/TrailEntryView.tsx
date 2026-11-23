@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
-import { AnswerType, ChatRole, CONFIDENCE_MAX, Step, STEP_LABELS } from "@/lib/constants";
+import { AnswerType, ChatRole, CONFIDENCE_MAX, EVALUATION_VERDICT_LABELS, Step, STEP_LABELS } from "@/lib/constants";
 
 import { formatDateTime } from "../format";
-import { EVALUATION_VERDICT_LABELS, type TrailAnswer, type TrailEntry, TrailEntryKind } from "../types";
+import { type TrailAnswer, type TrailEntry, TrailEntryKind } from "../types";
 import { RevisionDiff } from "./RevisionDiff";
 
 /** One entry in the trail: a heading, its step and time, and what the student or AI wrote. */

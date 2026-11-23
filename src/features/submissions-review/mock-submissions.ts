@@ -1,6 +1,6 @@
-import { ReviewPriority } from "@/lib/constants";
+import { ReviewPriority, SubmissionStatus } from "@/lib/constants";
 
-import { type AssignmentSubmissions, type SubmissionDetail, SubmissionStatus, SuggestionJudgment } from "./types";
+import { type AssignmentSubmissions, type SubmissionDetail, SuggestionJudgment } from "./types";
 
 export const MOCK_REVIEW_ASSIGNMENT_ID = "sample-1";
 export const MOCK_REVIEW_ASSIGNMENT_TITLE = "Week 3: Counting and loops";

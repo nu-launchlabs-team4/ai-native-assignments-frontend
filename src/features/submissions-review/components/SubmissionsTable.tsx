@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-import { submissionSummaryRoute } from "@/lib/constants";
+import { SUBMISSION_STATUS_LABELS, submissionSummaryRoute } from "@/lib/constants";
 
 import { formatDateTime } from "../format";
 import { sortByReviewPriority } from "../sort";
-import { SUBMISSION_STATUS_LABELS, type SubmissionListItem } from "../types";
+import type { SubmissionListItem } from "../types";
 import { ReviewPriorityBadge } from "./ReviewPriorityBadge";
 
 interface SubmissionsTableProps {
