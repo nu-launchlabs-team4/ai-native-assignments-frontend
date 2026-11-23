@@ -1,14 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
-
-import { AppearanceControl } from "@/components/AppearanceControl";
-import { ROUTES } from "@/lib/constants";
 
 import type { AssignmentSettings, SetupAssignment, SetupQuestion } from "../types";
 import { AssignmentSettingsForm } from "./AssignmentSettingsForm";
 import { QuestionReviewList } from "./QuestionReviewList";
+import { SetupTopBar } from "./SetupTopBar";
 
 interface AssignmentSetupProps {
   initialAssignment: SetupAssignment;
@@ -18,7 +15,7 @@ interface AssignmentSetupProps {
  * The professor's setup page for one draft assignment. Holds every edit, so the
  * questions and settings can be saved and published together.
  */
-// TODO(dineshbachchani1234): add PDF upload, save and publish once the backend endpoints exist (#4).
+// TODO(dineshbachchani1234): add save and publish once the backend endpoints exist (#4).
 export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
   const [assignment, setAssignment] = useState(initialAssignment);
 
@@ -35,15 +32,7 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-10">
-      <div className="flex items-center justify-between">
-        <Link
-          href={ROUTES.PROFESSOR}
-          className="text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          ← Professor dashboard
-        </Link>
-        <AppearanceControl />
-      </div>
+      <SetupTopBar />
 
       <header className="flex flex-col gap-1">
         <p className="text-sm text-muted">Set up assignment</p>

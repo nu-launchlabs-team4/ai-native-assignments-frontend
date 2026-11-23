@@ -68,6 +68,9 @@ export const ReviewPriority = {
 } as const;
 export type ReviewPriority = (typeof ReviewPriority)[keyof typeof ReviewPriority];
 
+/** Largest PDF a professor can upload, in megabytes. */
+export const MAX_PDF_MB = 10;
+
 export const Role = {
   STUDENT: "student",
   PROFESSOR: "professor",

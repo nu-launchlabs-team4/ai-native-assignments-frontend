@@ -4,9 +4,12 @@ import type { SetupAssignment } from "./types";
 
 // A draft shaped like what the PDF parser will return (BE#8): one question of each
 // answer type, so the whole review flow can be checked before the backend lands.
+/** The course new drafts go into until the professor can pick one. */
+export const MOCK_COURSE_ID = "course-1";
+
 export const MOCK_DRAFT: SetupAssignment = {
   id: "draft-1",
-  course_id: "course-1",
+  course_id: MOCK_COURSE_ID,
   title: "Week 3: Counting and loops",
   instructions: "Answer each question yourself before you ask the AI tutor for help.",
   source_pdf: "week-3-counting-and-loops.pdf",
