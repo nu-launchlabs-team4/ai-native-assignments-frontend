@@ -46,14 +46,14 @@ export function SegmentedControl<T extends string | number>({
       className={`flex min-w-0 flex-col gap-2 ${className}`}
     >
       <legend className={hideLegend ? "sr-only" : "mb-2 text-footnote font-semibold"}>{legend}</legend>
-      <div className="flex rounded-lg bg-surface-muted p-0.5">
+      <div className="flex rounded-lg bg-fill p-0.5">
         {segments.map((segment) => (
           <label
             key={segment.value}
             title={segment.icon ? segment.label : undefined}
             className={
               "flex h-7 min-w-8 flex-1 cursor-pointer items-center justify-center rounded-md px-2 text-footnote text-muted transition " +
-              "hover:text-foreground has-checked:bg-surface has-checked:font-semibold has-checked:text-foreground has-checked:shadow-sm " +
+              "hover:text-foreground has-checked:bg-fill-selected has-checked:font-semibold has-checked:text-foreground has-checked:shadow-sm " +
               "has-focus-visible:outline-2 has-focus-visible:outline-offset-1 has-focus-visible:outline-accent " +
               "active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 " +
               "has-disabled:cursor-default has-disabled:opacity-50 pointer-coarse:min-h-11"

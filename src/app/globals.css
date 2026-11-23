@@ -33,6 +33,11 @@
   --success: #1e7b34;
   --warning: #9a5b00;
   --danger: #c9302c;
+  /* Tracks of segmented controls and other grouped controls: Apple's gray fill, visible
+     on both the page and a card. Icons on it: 4.7:1 or more. */
+  --fill: rgb(118 118 128 / 0.12);
+  /* The selected segment on a fill. */
+  --fill-selected: #ffffff;
 }
 
 .dark {
@@ -55,6 +60,9 @@
   --success: #4fc26a;
   --warning: #f2a93b;
   --danger: #ff6b61;
+  --fill: rgb(118 118 128 / 0.24);
+  /* Lighter than the track, as in Apple's dark controls. Text on it: 5.5:1. */
+  --fill-selected: #636366;
 }
 
 @theme inline {
@@ -71,6 +79,8 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-fill: var(--fill);
+  --color-fill-selected: var(--fill-selected);
 }
 
 @theme {
