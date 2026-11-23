@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { submissionTrailRoute } from "@/lib/constants";
+import { submissionSessionsRoute, submissionTrailRoute } from "@/lib/constants";
 
 import { type ReasoningSummary, SUGGESTION_JUDGMENT_LABELS } from "../types";
 import { ReviewPriorityBadge } from "./ReviewPriorityBadge";
@@ -22,20 +22,28 @@ const MAX_CONFIDENCE = 5;
  */
 // TODO(dineshbachchani1234): link each line to its place in the trail once #12 exists (#11).
 export function ReasoningSummaryView({ submissionId, studentName, summary }: ReasoningSummaryViewProps) {
-  const trailLink = (
-    <Link
-      href={submissionTrailRoute(submissionId)}
-      className="self-start rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
-    >
-      Open the full trail
-    </Link>
+  const reviewLinks = (
+    <div className="flex flex-wrap gap-3">
+      <Link
+        href={submissionTrailRoute(submissionId)}
+        className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        Open the full trail
+      </Link>
+      <Link
+        href={submissionSessionsRoute(submissionId)}
+        className="rounded-md border border-line bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        See work sessions
+      </Link>
+    </div>
   );
 
   if (!summary) {
     return (
       <div className="flex flex-col gap-4">
         <p className="text-muted">The summary appears after {studentName} submits the assignment.</p>
-        {trailLink}
+        {reviewLinks}
       </div>
     );
   }
@@ -101,7 +109,7 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
         <SummaryPart term="AI declaration">{summary.ai_declaration}</SummaryPart>
       </dl>
 
-      {trailLink}
+      {reviewLinks}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { ReviewPriority } from "@/lib/constants";
 import { type AssignmentSubmissions, type SubmissionDetail, SubmissionStatus, SuggestionJudgment } from "./types";
 
 export const MOCK_REVIEW_ASSIGNMENT_ID = "sample-1";
-const ASSIGNMENT_TITLE = "Week 3: Counting and loops";
+export const MOCK_REVIEW_ASSIGNMENT_TITLE = "Week 3: Counting and loops";
 
 // Sample data until BE#12 and BE#13 land: one submission per review priority, plus one
 // still in progress, so every state of the table and summary can be checked.
@@ -11,7 +11,7 @@ const MOCK_SUBMISSIONS: readonly SubmissionDetail[] = [
   {
     id: "sub-1",
     assignment_id: MOCK_REVIEW_ASSIGNMENT_ID,
-    assignment_title: ASSIGNMENT_TITLE,
+    assignment_title: MOCK_REVIEW_ASSIGNMENT_TITLE,
     student_name: "Alex Rivera",
     status: SubmissionStatus.SUBMITTED,
     submitted_at: "2026-11-20T18:30:00Z",
@@ -37,7 +37,7 @@ const MOCK_SUBMISSIONS: readonly SubmissionDetail[] = [
   {
     id: "sub-2",
     assignment_id: MOCK_REVIEW_ASSIGNMENT_ID,
-    assignment_title: ASSIGNMENT_TITLE,
+    assignment_title: MOCK_REVIEW_ASSIGNMENT_TITLE,
     student_name: "Sam Patel",
     status: SubmissionStatus.SUBMITTED,
     submitted_at: "2026-11-21T02:10:00Z",
@@ -70,7 +70,7 @@ const MOCK_SUBMISSIONS: readonly SubmissionDetail[] = [
   {
     id: "sub-3",
     assignment_id: MOCK_REVIEW_ASSIGNMENT_ID,
-    assignment_title: ASSIGNMENT_TITLE,
+    assignment_title: MOCK_REVIEW_ASSIGNMENT_TITLE,
     student_name: "Jordan Lee",
     status: SubmissionStatus.IN_PROGRESS,
     submitted_at: null,
@@ -85,7 +85,7 @@ export function getMockSubmissions(assignmentId: string): AssignmentSubmissions 
   }
   return {
     assignment_id: assignmentId,
-    assignment_title: ASSIGNMENT_TITLE,
+    assignment_title: MOCK_REVIEW_ASSIGNMENT_TITLE,
     submissions: MOCK_SUBMISSIONS.map(({ id, student_name, status, submitted_at, summary }) => ({
       id,
       student_name,
