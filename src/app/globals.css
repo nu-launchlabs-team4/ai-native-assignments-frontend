@@ -54,6 +54,11 @@
   --brand-action: #c8102e;
   /* Keyboard focus ring for every control, landing and app: 21:1 on white. */
   --focus: #000000;
+  /* Tracks of segmented controls and other grouped controls: Apple's gray fill, visible
+     on both the page and a card. Icons on it: 4.7:1 or more. */
+  --fill: rgb(118 118 128 / 0.12);
+  /* The selected segment on a fill. */
+  --fill-selected: #ffffff;
 }
 
 .dark {
@@ -90,6 +95,9 @@
   --brand-tile: #2a0d13;
   --brand-action: #ffffff;
   --focus: #ffffff;
+  --fill: rgb(118 118 128 / 0.24);
+  /* Lighter than the track, as in Apple's dark controls. Text on it: 5.5:1. */
+  --fill-selected: #636366;
 }
 
 @theme inline {
@@ -116,6 +124,8 @@
   --color-brand-tile: var(--brand-tile);
   --color-brand-action: var(--brand-action);
   --color-focus: var(--focus);
+  --color-fill: var(--fill);
+  --color-fill-selected: var(--fill-selected);
 }
 
 @theme {
