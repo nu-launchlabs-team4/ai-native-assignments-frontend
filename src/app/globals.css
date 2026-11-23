@@ -74,10 +74,11 @@
 }
 
 @theme {
-  /* The system font: San Francisco on Apple devices, the platform font elsewhere.
-     Nothing is downloaded. */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  /* IBM Plex (src/lib/fonts.ts): Sans for text, Serif for titles, Mono for code.
+     The system fonts follow as fallbacks. */
+  --font-sans: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* Type scale, after Apple's text styles. In rem, so browser text-size and zoom
      settings scale it. Use these (text-body, text-headline …) for new code. */
@@ -105,4 +106,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+/* Page and screen titles use the serif; everything else stays in the sans. */
+h1 {
+  font-family: var(--font-serif);
 }

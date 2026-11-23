@@ -1,8 +1,16 @@
 "use client";
 
+import type { OnMount } from "@monaco-editor/react";
 import dynamic from "next/dynamic";
 
+import { plexMono } from "@/lib/fonts";
 import { useTheme } from "@/lib/theme";
+
+// Monaco measures character widths to place the cursor, so it needs the font's real
+// name (not a CSS variable) and a re-measure once the font has loaded.
+const remeasureWhenFontsLoad: OnMount = (_editor, monaco) => {
+  void document.fonts.ready.then(() => monaco.editor.remeasureFonts());
+};
 
 // Monaco needs the browser, so it never renders on the server.
 // @monaco-editor/react loads the editor itself from a CDN on first use.
@@ -43,9 +51,11 @@ export function CodeEditor({ value, language, ariaLabel, onChange, readOnly = fa
           language={language}
           value={value}
           onChange={(next) => onChange?.(next ?? "")}
+          onMount={remeasureWhenFontsLoad}
           options={{
             ariaLabel,
             automaticLayout: true,
+            fontFamily: plexMono.style.fontFamily,
             fontSize: 14,
             minimap: { enabled: false },
             readOnly,

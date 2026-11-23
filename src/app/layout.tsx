@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { fontVariables } from "@/lib/fonts";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-init";
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // The theme script may add the "dark" class before React loads, so the class can differ from the server render.
-    <html lang="en" suppressHydrationWarning className="h-full antialiased">
+    <html lang="en" suppressHydrationWarning className={`${fontVariables} h-full antialiased`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
