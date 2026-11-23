@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PagePlaceholder } from "@/components/PagePlaceholder";
+import { LogoutButton } from "@/features/auth/components/LogoutButton";
 import { MOCK_ASSIGNMENT_ID } from "@/features/workspace/mock-assignment";
 import { STEP_LABELS, STEP_ORDER, studentAssignmentRoute } from "@/lib/constants";
 
@@ -11,6 +12,7 @@ export const metadata: Metadata = { title: "Student" };
 export default function StudentPage() {
   return (
     <PagePlaceholder
+      actions={<LogoutButton />}
       title="Student"
       description="Each assignment has five steps. The list of your assignments arrives with the backend."
     >

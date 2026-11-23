@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PagePlaceholder } from "@/components/PagePlaceholder";
+import { LogoutButton } from "@/features/auth/components/LogoutButton";
 import { MOCK_REVIEW_ASSIGNMENT_ID } from "@/features/submissions-review/mock-submissions";
 import { assignmentSubmissionsRoute, ROUTES } from "@/lib/constants";
 
@@ -14,6 +15,7 @@ const LINK_CLASS =
 export default function ProfessorPage() {
   return (
     <PagePlaceholder
+      actions={<LogoutButton />}
       title="Professor dashboard"
       description="Set up an assignment from your PDF, or review the sample assignment's submissions."
     >
