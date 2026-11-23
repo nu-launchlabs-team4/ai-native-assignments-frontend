@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { AppearanceControl } from "@/components/AppearanceControl";
+import { SidebarMenuButton } from "@/features/app-shell/components/SidebarMenuButton";
 
 interface ReviewLayoutProps {
   backHref: string;
@@ -16,10 +17,11 @@ interface ReviewLayoutProps {
 export function ReviewLayout({ backHref, backLabel, eyebrow, title, children }: ReviewLayoutProps) {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-10">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
+        <SidebarMenuButton />
         <Link
           href={backHref}
-          className="text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="mr-auto text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           ← {backLabel}
         </Link>

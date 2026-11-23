@@ -30,6 +30,7 @@ src/
     status/page.tsx        calls /api/health and shows API and database status
   features/
     app-shell/             AppShell (sidebar, phone menu, the /auth/me session check), ShellNav,
+                           SidebarMenuButton (the same menu as a panel on full-screen pages),
                            nav-items.ts (menu per role), current-user.tsx (useCurrentUser)
     profile/               ProfileView: account, password reset link, appearance, log out
     auth/                  LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, LogoutButton,

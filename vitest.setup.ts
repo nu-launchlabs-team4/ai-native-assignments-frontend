@@ -24,6 +24,15 @@ window.matchMedia = (query: string) =>
     dispatchEvent: () => false,
   }) as MediaQueryList;
 
+// jsdom has <dialog> but not its modal methods. The sidebar menu on full-screen pages uses them.
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+  this.open = true;
+};
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+  this.open = false;
+  this.dispatchEvent(new Event("close"));
+};
+
 // Unmount rendered components between tests so queries only see the current test.
 afterEach(() => {
   cleanup();

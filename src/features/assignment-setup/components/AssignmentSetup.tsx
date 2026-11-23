@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { AppearanceControl } from "@/components/AppearanceControl";
+import { SidebarMenuButton } from "@/features/app-shell/components/SidebarMenuButton";
 import { ROUTES } from "@/lib/constants";
 
 import type { AssignmentSettings, SetupAssignment, SetupQuestion } from "../types";
@@ -35,10 +36,11 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-10">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
+        <SidebarMenuButton />
         <Link
           href={ROUTES.PROFESSOR}
-          className="text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="mr-auto text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           ← Professor dashboard
         </Link>

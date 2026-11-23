@@ -1,10 +1,16 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { AnswerType } from "@/lib/constants";
 
 import { MOCK_DRAFT } from "../mock-draft";
 import { AssignmentSetup } from "./AssignmentSetup";
+
+// The sidebar menu button in the top bar reads the route.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/professor/assignments/new",
+}));
 
 function questionItems() {
   return within(screen.getByRole("list", { name: "Detected questions" })).getAllByRole("listitem");
