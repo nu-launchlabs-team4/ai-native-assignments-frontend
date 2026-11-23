@@ -31,7 +31,7 @@ export function AuthLayout({ title, description, children, footer }: AuthLayoutP
   );
 }
 
-/** A link inside the footer line. 44 px tall on touch screens. */
+/** A text link on the auth screens, such as in the footer line. 44 px tall on touch screens. */
 export function AuthFooterLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link

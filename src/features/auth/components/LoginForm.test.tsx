@@ -40,6 +40,12 @@ describe("LoginForm", () => {
     expect(logInMock).toHaveBeenCalledWith("prof@uni.edu", "correct horse");
   });
 
+  it("links to the password reset next to the password label", () => {
+    render(<LoginForm />);
+
+    expect(screen.getByRole("link", { name: "Forgot password?" }).getAttribute("href")).toBe("/forgot-password");
+  });
+
   it("returns to the page that sent people to log in", async () => {
     window.history.replaceState(null, "", "/login?next=%2Fstudent%2Fassignments%2Fa1");
     logInMock.mockResolvedValue({ id: "u1", email: "student@uni.edu", role: Role.STUDENT });

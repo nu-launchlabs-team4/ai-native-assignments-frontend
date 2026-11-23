@@ -10,7 +10,7 @@ import { homeRouteFor } from "@/lib/constants";
 import { signUp } from "../auth-client";
 import { emailError, type FieldErrors, focusFirstInvalid, formErrors, passwordError } from "../validation";
 import { AuthField } from "./AuthField";
-import { SignupConfirmation } from "./SignupConfirmation";
+import { CheckEmailPanel } from "./CheckEmailPanel";
 
 const CONFLICT = 409;
 const UNPROCESSABLE = 422;
@@ -77,7 +77,12 @@ export function SignupForm() {
   }
 
   if (confirmEmailTo) {
-    return <SignupConfirmation email={confirmEmailTo} onUseDifferentEmail={() => setConfirmEmailTo(null)} />;
+    return (
+      <CheckEmailPanel onUseDifferentEmail={() => setConfirmEmailTo(null)}>
+        A confirmation link is on its way to <strong className="font-semibold">{confirmEmailTo}</strong>. Open it,
+        then log in.
+      </CheckEmailPanel>
+    );
   }
 
   return (

@@ -18,3 +18,16 @@ export function signUp(email: string, password: string): Promise<SignupOut> {
 export function logOut(): Promise<void> {
   return apiFetch<void>(API_PATHS.AUTH_LOGOUT, { method: "POST" });
 }
+
+/** Email a reset link. Succeeds whether or not the account exists. */
+export function requestPasswordReset(email: string): Promise<void> {
+  return apiFetch<void>(API_PATHS.AUTH_FORGOT_PASSWORD, { method: "POST", body: { email } });
+}
+
+/** Set a new password with the reset link's one-time code, which also logs in. */
+export function resetPassword(tokenHash: string, password: string): Promise<UserOut> {
+  return apiFetch<UserOut>(API_PATHS.AUTH_RESET_PASSWORD, {
+    method: "POST",
+    body: { token_hash: tokenHash, password },
+  });
+}

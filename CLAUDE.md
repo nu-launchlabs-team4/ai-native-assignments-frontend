@@ -22,14 +22,16 @@ Next.js 16 differs from older versions. For example, `middleware.ts` is now `pro
 src/
   app/
     layout.tsx, page.tsx   root layout; page.tsx renders the landing page
-    login/, signup/        log-in and sign-up pages (the forms live in features/auth)
+    login/, signup/, forgot-password/, reset-password/
+                           the auth pages (the forms live in features/auth)
     student/page.tsx       student landing page (links to the sample assignment)
     student/assignments/[assignmentId]/
                            the five-step workspace: page.tsx, error.tsx, not-found.tsx
     professor/page.tsx     placeholder for assignment setup and submissions
     status/page.tsx        calls /api/health and shows API and database status
   features/
-    auth/                  LoginForm, SignupForm, LogoutButton, auth-client.ts (the /auth calls),
+    auth/                  LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, LogoutButton,
+                           auth-client.ts (the /auth calls), validation.ts,
                            next-path.ts (safe ?next= redirects)
     landing/               the public landing page (Northeastern black, white and red): header, hero,
                            StepStrip, two RoleCard links, footer

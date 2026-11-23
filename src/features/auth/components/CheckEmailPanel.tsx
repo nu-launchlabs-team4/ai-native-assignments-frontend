@@ -1,19 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
 import { Button, buttonClassName } from "@/components/ui/Button";
 import { ROUTES } from "@/lib/constants";
 
-interface SignupConfirmationProps {
-  email: string;
+interface CheckEmailPanelProps {
+  /** What was sent and what to do with it. */
+  children: ReactNode;
   /** Back to the form, to fix a mistyped address. */
   onUseDifferentEmail: () => void;
 }
 
-/** After sign-up, when Supabase wants the email confirmed: where the link went, and what to do next. */
-export function SignupConfirmation({ email, onUseDifferentEmail }: SignupConfirmationProps) {
+/** After an email goes out (sign-up confirmation, password reset): what happens next. */
+export function CheckEmailPanel({ children, onUseDifferentEmail }: CheckEmailPanelProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // The form this replaces had focus; move it here so screen readers read the result.
@@ -26,9 +27,7 @@ export function SignupConfirmation({ email, onUseDifferentEmail }: SignupConfirm
       <h2 ref={headingRef} tabIndex={-1} className="text-title outline-none">
         Check your email
       </h2>
-      <p className="text-body">
-        A confirmation link is on its way to <strong className="font-semibold">{email}</strong>. Open it, then log in.
-      </p>
+      <p className="text-body">{children}</p>
       <div className="flex flex-col gap-2">
         <Link href={ROUTES.LOGIN} className={buttonClassName({ className: "h-10 w-full" })}>
           Go to log in

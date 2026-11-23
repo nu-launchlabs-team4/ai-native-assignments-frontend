@@ -128,6 +128,9 @@ export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
   SIGNUP: "/signup",
+  FORGOT_PASSWORD: "/forgot-password",
+  // The reset email's link opens this page (set in Supabase's Reset Password email template).
+  RESET_PASSWORD: "/reset-password",
   STUDENT: "/student",
   PROFESSOR: "/professor",
   PROFESSOR_NEW_ASSIGNMENT: "/professor/assignments/new",
@@ -180,6 +183,8 @@ export const API_PATHS = {
   AUTH_LOGOUT: "/auth/logout",
   AUTH_REFRESH: "/auth/refresh",
   AUTH_ME: "/auth/me",
+  AUTH_FORGOT_PASSWORD: "/auth/forgot-password",
+  AUTH_RESET_PASSWORD: "/auth/reset-password",
   // TODO(singhsaravjit): confirm the path and body with backend #10 (AI chat endpoint).
   AI_CHAT: "/ai/chat",
 } as const;

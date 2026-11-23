@@ -8,7 +8,8 @@ export function safeNextPath(next: string | null): string | null {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
     return null;
   }
-  if (next.startsWith(ROUTES.LOGIN) || next.startsWith(ROUTES.SIGNUP)) {
+  const authPages = [ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.FORGOT_PASSWORD, ROUTES.RESET_PASSWORD];
+  if (authPages.some((page) => next.startsWith(page))) {
     return null;
   }
   return next;

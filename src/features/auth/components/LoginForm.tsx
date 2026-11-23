@@ -5,12 +5,13 @@ import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api";
-import { homeRouteFor } from "@/lib/constants";
+import { homeRouteFor, ROUTES } from "@/lib/constants";
 
 import { logIn } from "../auth-client";
 import { useNextPath } from "../use-next-path";
 import { emailError, type FieldErrors, focusFirstInvalid, formErrors } from "../validation";
 import { AuthField } from "./AuthField";
+import { AuthFooterLink } from "./AuthLayout";
 
 /** Email and password log-in. Returns to `?next=` when it's safe, else to the role's home. */
 export function LoginForm() {
@@ -64,6 +65,7 @@ export function LoginForm() {
         name="password"
         autoComplete="current-password"
         disabled={pending}
+        labelAction={<AuthFooterLink href={ROUTES.FORGOT_PASSWORD}>Forgot password?</AuthFooterLink>}
         error={fieldErrors.password}
         onChange={() => setFieldErrors((errors) => ({ ...errors, password: undefined }))}
       />

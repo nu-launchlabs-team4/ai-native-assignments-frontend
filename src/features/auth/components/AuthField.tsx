@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { type AuthFieldName, EMAIL_MAX_CHARS, PASSWORD_MAX_CHARS, PASSWORD_MIN_CHARS } from "../validation";
 
@@ -17,12 +17,24 @@ interface AuthFieldProps {
   onChange?: () => void;
   /** Put the cursor here when the page opens, on devices with a mouse or trackpad only. */
   focusOnDesktop?: boolean;
+  /** A link on the label's line, such as "Forgot password?". */
+  labelAction?: ReactNode;
 }
 
 const FINE_POINTER_QUERY = "(pointer: fine)";
 
 /** A labelled email or password field. Passwords can be shown, and a new one shows its length rule live. */
-export function AuthField({ label, name, autoComplete, disabled, error, onBlur, onChange, focusOnDesktop }: AuthFieldProps) {
+export function AuthField({
+  label,
+  name,
+  autoComplete,
+  disabled,
+  error,
+  onBlur,
+  onChange,
+  focusOnDesktop,
+  labelAction,
+}: AuthFieldProps) {
   const id = useId();
   const errorId = useId();
   const ruleId = useId();
@@ -45,9 +57,12 @@ export function AuthField({ label, name, autoComplete, disabled, error, onBlur, 
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-callout font-medium">
-        {label}
-      </label>
+      <div className="flex items-baseline justify-between gap-3 text-callout">
+        <label htmlFor={id} className="text-callout font-medium">
+          {label}
+        </label>
+        {labelAction}
+      </div>
       <div className="relative">
         <input
           ref={inputRef}
