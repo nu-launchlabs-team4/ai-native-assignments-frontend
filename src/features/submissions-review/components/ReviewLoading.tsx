@@ -5,8 +5,8 @@ export function ReviewLoading() {
       <p role="status" className="sr-only">
         Loading…
       </p>
-      <div className="h-8 w-72 animate-pulse rounded bg-line" />
-      <div className="h-48 animate-pulse rounded bg-line" />
+      <div className="h-8 w-72 motion-safe:animate-pulse rounded bg-line" />
+      <div className="h-48 motion-safe:animate-pulse rounded bg-line" />
     </main>
   );
 }

@@ -40,8 +40,8 @@ src/
       map-submission.ts    SubmissionOut -> what the panes show (paragraphs, file names, answers)
       types.ts             WorkspaceAssignment, WorkspaceQuestion (code | text | math)
       mock-assignment.ts   the demo assignment, in the backend's AssignmentOut shape
-  components/              UI shared across features (PagePlaceholder, HealthStatus, ThemeToggle)
-    ui/                    small building blocks used everywhere (Panel)
+  components/              UI shared across features (PagePlaceholder, HealthStatus, AppearanceControl)
+    ui/                    small building blocks used everywhere (Button, SegmentedControl, Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend
     api-types.ts           QuestionOut, AssignmentOut, SubmissionOut: mirrors of the backend schemas
@@ -96,8 +96,12 @@ Team skills live in `.claude/skills/`. Use the one that matches the task.
 - Use Server Components by default, and `"use client"` only when needed.
 - Every backend call goes through `src/lib/api.ts`. Never use raw `fetch` to the backend, and never call Supabase.
 - Shared values come from `src/lib/constants.ts`. No magic strings.
-- Style with Tailwind. No inline style objects. Use the **design tokens** from `src/app/globals.css` (`bg-surface`, `bg-surface-muted`, `border-line`, `text-muted`, `bg-accent`, `text-foreground`) instead of hand-picked gray shades, so light and dark mode both work.
-- **Theme:** light by default. Dark mode is the `.dark` class on `<html>`, switched by `ThemeToggle` and remembered in localStorage. It never follows the OS. Modules that use React hooks stay out of Server Components (that's why `theme-init.ts` is separate from `theme.ts`).
+- **Design follows Apple's Human Interface Guidelines** (issue #36). Style with Tailwind, no inline style objects, and use the **design tokens** from `src/app/globals.css` instead of picking colors by hand:
+  - Colors: `bg-background`, `bg-surface` (content), `bg-surface-muted` (bars, sidebars), `text-foreground`, `text-muted` (secondary text), `border-line` (separators only), `border-field` (text fields and controls), `bg-accent` / `text-accent-foreground` (the main action), `bg-accent-soft` (tinted), `text-success` / `text-warning` / `text-danger`. Every text pairing meets 4.5:1 in light and dark, and the comments in `globals.css` give the ratios.
+  - Type: the system font (San Francisco on Apple devices) and the scale `text-large-title`, `text-title`, `text-headline`, `text-body`, `text-callout`, `text-footnote` and `text-caption` (12 px, the minimum).
+  - Controls: use `Button` (`filled` for the one main action, `tinted`, `plain`) and `SegmentedControl` from `src/components/ui`. They include a press state and 44 px touch targets (`pointer-coarse:`). A custom control needs both.
+  - Motion stays brief and optional: guard repeating animations with `motion-safe:`.
+- **Appearance:** follows the device's light or dark setting by default (Apple's rule). `AppearanceControl` (System, Light, Dark) lets people override it, and the choice is remembered in localStorage. Dark mode is the `.dark` class on `<html>`, set before paint by `theme-init.ts`. Modules that use React hooks stay out of Server Components (that's why `theme-init.ts` is separate from `theme.ts`).
 - **Assignments are lists of questions**, each with an `AnswerType`: `code` (Monaco), `text` (written) or `math` (MathLive, stored as LaTeX lines). The PDF parser detects the type, and the professor can correct it. Add a new answer type in `AnswerType`, the `WorkspaceQuestion` union and `AnswerEditor`. TypeScript then flags every switch that misses it.
 - Write accessible markup: labels on inputs, buttons not divs, alt text and visible keyboard focus.
 - Comment why, not what. Exported functions in `src/lib` get JSDoc. Use `TODO(name):` with an issue number.

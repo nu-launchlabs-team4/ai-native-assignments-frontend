@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 
+import { Button, buttonClassName } from "@/components/ui/Button";
 import { ROUTES } from "@/lib/constants";
 
 interface WorkspaceErrorProps {
@@ -23,17 +24,8 @@ export default function WorkspaceError({ error, retry }: WorkspaceErrorProps) {
         We couldn&apos;t open this assignment. Your work is not lost. Please try again.
       </p>
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => retry()}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          Try again
-        </button>
-        <Link
-          href={ROUTES.STUDENT}
-          className="rounded-md px-4 py-2 text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
+        <Button onClick={() => retry()}>Try again</Button>
+        <Link href={ROUTES.STUDENT} className={buttonClassName({ variant: "plain" })}>
           Back to assignments
         </Link>
       </div>
