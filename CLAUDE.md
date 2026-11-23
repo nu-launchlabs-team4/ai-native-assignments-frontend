@@ -44,7 +44,7 @@ src/
       map-submission.ts    SubmissionOut -> what the panes show (paragraphs, file names, answers)
       types.ts             WorkspaceAssignment, WorkspaceQuestion (code | text | math)
       mock-assignment.ts   the demo assignment, in the backend's AssignmentOut shape
-  components/              UI shared across features (PagePlaceholder, HealthStatus, AppearanceControl)
+  components/              UI shared across features (PagePlaceholder, HealthStatus, AppearanceControl, ProductMark)
     ui/                    small building blocks used everywhere (Button, SegmentedControl, Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend

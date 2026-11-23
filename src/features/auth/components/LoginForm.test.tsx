@@ -13,9 +13,13 @@ vi.mock("../auth-client", () => ({ logIn: vi.fn() }));
 
 const logInMock = vi.mocked(logIn);
 
-function submit(email = "student@uni.edu", password = "correct horse") {
+function fill(email: string, password: string) {
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: email } });
   fireEvent.change(screen.getByLabelText("Password"), { target: { value: password } });
+}
+
+function submit(email = "student@uni.edu", password = "correct horse") {
+  fill(email, password);
   fireEvent.click(screen.getByRole("button", { name: "Log in" }));
 }
 
@@ -56,13 +60,40 @@ describe("LoginForm", () => {
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/student"));
   });
 
+  it("points at each empty field and moves the cursor to the first", () => {
+    render(<LoginForm />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Log in" }));
+
+    const email = screen.getByLabelText("Email");
+    expect(email.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByText("Enter your email address.")).toBeTruthy();
+    expect(screen.getByText("Enter your password.")).toBeTruthy();
+    expect(document.activeElement).toBe(email);
+    expect(logInMock).not.toHaveBeenCalled();
+  });
+
+  it("checks the email when people leave the field", () => {
+    render(<LoginForm />);
+    const email = screen.getByLabelText("Email");
+
+    fireEvent.change(email, { target: { value: "student" } });
+    fireEvent.blur(email);
+
+    expect(screen.getByText("Enter an email address like name@university.edu.")).toBeTruthy();
+  });
+
   it("shows the backend's message and lets people try again", async () => {
-    logInMock.mockRejectedValue(new ApiError("Wrong email or password", 401, "unauthorized", "r1"));
+    logInMock.mockRejectedValue(
+      new ApiError("That email and password don't match. Check them and try again.", 401, "unauthorized", "r1"),
+    );
     render(<LoginForm />);
 
     submit();
 
-    expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Wrong email or password");
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "That email and password don't match. Check them and try again.",
+    );
     expect(screen.getByRole("button", { name: "Log in" })).toHaveProperty("disabled", false);
     expect(replace).not.toHaveBeenCalled();
   });

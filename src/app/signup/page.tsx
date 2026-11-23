@@ -10,6 +10,7 @@ export default function SignupPage() {
   return (
     <AuthLayout
       title="Create an account"
+      description="Work through each assignment in five steps, with an AI tutor that won't give away the answer."
       footer={
         <>
           Already have an account? <AuthFooterLink href={ROUTES.LOGIN}>Log in</AuthFooterLink>

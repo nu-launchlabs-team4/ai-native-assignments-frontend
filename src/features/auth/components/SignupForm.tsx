@@ -8,7 +8,12 @@ import { ApiError } from "@/lib/api";
 import { homeRouteFor } from "@/lib/constants";
 
 import { signUp } from "../auth-client";
-import { AuthField, PASSWORD_MIN_CHARS } from "./AuthField";
+import { emailError, type FieldErrors, focusFirstInvalid, formErrors, passwordError } from "../validation";
+import { AuthField } from "./AuthField";
+import { SignupConfirmation } from "./SignupConfirmation";
+
+const CONFLICT = 409;
+const UNPROCESSABLE = 422;
 
 /**
  * Create an account. There's no role choice: the backend makes professors from its
@@ -17,17 +22,28 @@ import { AuthField, PASSWORD_MIN_CHARS } from "./AuthField";
 export function SignupForm() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [confirmEmailTo, setConfirmEmailTo] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const email = String(form.get("email"));
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const email = String(data.get("email") ?? "").trim();
+    const password = String(data.get("password") ?? "");
+
+    const errors = formErrors(email, password, true);
+    setFieldErrors(errors);
+    setFormError(null);
+    if (Object.keys(errors).length > 0) {
+      focusFirstInvalid(form, errors);
+      return;
+    }
+
     setPending(true);
-    setError(null);
     try {
-      const result = await signUp(email, String(form.get("password")));
+      const result = await signUp(email, password);
       if (result.user) {
         router.replace(homeRouteFor(result.user.role));
         router.refresh();
@@ -35,39 +51,67 @@ export function SignupForm() {
       }
       setConfirmEmailTo(email);
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught.message : "Couldn't create the account. Try again.");
+      showServerError(caught, form);
     }
     setPending(false);
   }
 
+  // Put the backend's answer next to the field it's about.
+  function showServerError(caught: unknown, form: HTMLFormElement) {
+    if (!(caught instanceof ApiError)) {
+      setFormError("Couldn't create the account. Try again.");
+      return;
+    }
+    const field =
+      caught.status === CONFLICT || (caught.status === UNPROCESSABLE && /email/i.test(caught.message))
+        ? "email"
+        : caught.status === UNPROCESSABLE
+          ? "password"
+          : null;
+    if (field) {
+      setFieldErrors({ [field]: caught.message });
+      focusFirstInvalid(form, { [field]: caught.message });
+    } else {
+      setFormError(caught.message);
+    }
+  }
+
   if (confirmEmailTo) {
-    return (
-      <p role="status" className="text-body">
-        We sent a link to <strong className="font-semibold">{confirmEmailTo}</strong>. Open it to confirm your
-        email, then log in.
-      </p>
-    );
+    return <SignupConfirmation email={confirmEmailTo} onUseDifferentEmail={() => setConfirmEmailTo(null)} />;
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4" aria-busy={pending}>
-      <AuthField label="Email" name="email" autoComplete="email" disabled={pending} />
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4" aria-busy={pending}>
+      <AuthField
+        label="Email"
+        name="email"
+        autoComplete="email"
+        disabled={pending}
+        error={fieldErrors.email}
+        focusOnDesktop
+        onBlur={(value) => value && setFieldErrors((errors) => ({ ...errors, email: emailError(value) ?? undefined }))}
+        onChange={() => setFieldErrors((errors) => ({ ...errors, email: undefined }))}
+      />
       <AuthField
         label="Password"
         name="password"
         autoComplete="new-password"
         disabled={pending}
-        hint={`At least ${PASSWORD_MIN_CHARS} characters.`}
+        error={fieldErrors.password}
+        onBlur={(value) =>
+          value && setFieldErrors((errors) => ({ ...errors, password: passwordError(value, true) ?? undefined }))
+        }
+        onChange={() => setFieldErrors((errors) => ({ ...errors, password: undefined }))}
       />
       <p className="text-caption text-muted">
-        Professors: sign up with the email your course team registered, and you&apos;ll get professor access.
+        Professors get professor access automatically when their email is on the course list.
       </p>
-      {error && (
+      {formError && (
         <p role="alert" className="text-callout text-danger">
-          {error}
+          {formError}
         </p>
       )}
-      <Button type="submit" disabled={pending} className="w-full">
+      <Button type="submit" disabled={pending} className="h-10 w-full">
         {pending ? "Creating account…" : "Create account"}
       </Button>
     </form>

@@ -13,9 +13,9 @@ vi.mock("../auth-client", () => ({ signUp: vi.fn() }));
 
 const signUpMock = vi.mocked(signUp);
 
-function submit() {
+function submit(password = "correct horse") {
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "new@uni.edu" } });
-  fireEvent.change(screen.getByLabelText("Password"), { target: { value: "correct horse" } });
+  fireEvent.change(screen.getByLabelText("Password"), { target: { value: password } });
   fireEvent.click(screen.getByRole("button", { name: "Create account" }));
 }
 
@@ -44,26 +44,44 @@ describe("SignupForm", () => {
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/student"));
   });
 
-  it("asks people to confirm their email when Supabase requires it", async () => {
+  it("explains a short password next to the field, without calling the backend", () => {
+    render(<SignupForm />);
+
+    submit("short");
+
+    expect(screen.getByLabelText("Password").getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByText("Choose a password with at least 8 characters.")).toBeTruthy();
+    expect(signUpMock).not.toHaveBeenCalled();
+  });
+
+  it("puts a taken email's message under the email field", async () => {
+    signUpMock.mockRejectedValue(new ApiError("An account with this email already exists", 409, "conflict", "r1"));
+    render(<SignupForm />);
+
+    submit();
+
+    const email = screen.getByLabelText("Email");
+    await waitFor(() => expect(email.getAttribute("aria-invalid")).toBe("true"));
+    const describedBy = email.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(describedBy.split(" ")[0])?.textContent).toBe(
+      "An account with this email already exists",
+    );
+  });
+
+  it("asks people to confirm their email, with a way to log in or fix the address", async () => {
     signUpMock.mockResolvedValue({ user: null, confirm_email: true });
     render(<SignupForm />);
 
     submit();
 
-    const status = await screen.findByRole("status");
-    expect(status.textContent).toContain("new@uni.edu");
-    expect(status.textContent).toContain("confirm your email");
+    const heading = await screen.findByRole("heading", { name: "Check your email" });
+    expect(document.activeElement).toBe(heading);
+    expect(screen.getByText("new@uni.edu")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Go to log in" }).getAttribute("href")).toBe("/login");
     expect(replace).not.toHaveBeenCalled();
-  });
 
-  it("shows why the account couldn't be created", async () => {
-    signUpMock.mockRejectedValue(
-      new ApiError("An account with this email already exists", 409, "conflict", "r1"),
-    );
-    render(<SignupForm />);
+    fireEvent.click(screen.getByRole("button", { name: "Use a different email" }));
 
-    submit();
-
-    expect((await screen.findByRole("alert")).textContent).toBe("An account with this email already exists");
+    expect(screen.getByRole("button", { name: "Create account" })).toBeTruthy();
   });
 });

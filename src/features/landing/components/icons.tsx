@@ -23,18 +23,6 @@ function Icon({ className = "size-6", children }: IconProps & { children: ReactN
   );
 }
 
-/** Two stacked pages: the product mark. */
-export function DocumentStackIcon({ className }: IconProps) {
-  return (
-    <Icon className={className}>
-      <path d="M8 3h7l4 4v11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-      <path d="M15 3v4h4" />
-      <path d="M4 7v13a1 1 0 0 0 1 1h10" />
-      <path d="M10 11h5M10 14.5h5" />
-    </Icon>
-  );
-}
-
 export function GraduationCapIcon({ className }: IconProps) {
   return (
     <Icon className={className}>
