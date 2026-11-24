@@ -127,11 +127,26 @@ export const DEFAULT_CODE_LANGUAGE = "python";
 export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
+  SIGNUP: "/signup",
+  FORGOT_PASSWORD: "/forgot-password",
+  // The reset email's link opens this page (set in Supabase's Reset Password email template).
+  RESET_PASSWORD: "/reset-password",
   STUDENT: "/student",
   PROFESSOR: "/professor",
   PROFESSOR_NEW_ASSIGNMENT: "/professor/assignments/new",
+  PROFILE: "/profile",
   STATUS: "/status",
 } as const;
+
+/** Where a role lands after logging in. */
+export function homeRouteFor(role: Role): string {
+  return role === Role.PROFESSOR ? ROUTES.PROFESSOR : ROUTES.STUDENT;
+}
+
+/** The login page, returning to `next` afterwards. */
+export function loginRoute(next?: string): string {
+  return next ? `${ROUTES.LOGIN}?next=${encodeURIComponent(next)}` : ROUTES.LOGIN;
+}
 
 /** URL of the student workspace for one assignment. */
 export function studentAssignmentRoute(assignmentId: string): string {
@@ -164,6 +179,13 @@ export const AUTOSAVE_INTERVAL_MS = 30_000;
 export const API_PATHS = {
   HEALTH: "/health",
   SUBMISSIONS: "/submissions",
+  AUTH_SIGNUP: "/auth/signup",
+  AUTH_LOGIN: "/auth/login",
+  AUTH_LOGOUT: "/auth/logout",
+  AUTH_REFRESH: "/auth/refresh",
+  AUTH_ME: "/auth/me",
+  AUTH_FORGOT_PASSWORD: "/auth/forgot-password",
+  AUTH_RESET_PASSWORD: "/auth/reset-password",
   // TODO(singhsaravjit): confirm the path and body with backend #10 (AI chat endpoint).
   AI_CHAT: "/ai/chat",
 } as const;

@@ -22,13 +22,20 @@ Next.js 16 differs from older versions. For example, `middleware.ts` is now `pro
 src/
   app/
     layout.tsx, page.tsx   root layout; page.tsx renders the landing page
-    login/page.tsx         placeholder login form (wired to the backend in #3)
-    student/page.tsx       student landing page (links to the sample assignment)
+    login/, signup/, forgot-password/, reset-password/
+                           the auth pages (the forms live in features/auth)
+    (shell)/               signed-in pages with the sidebar (AppShell): student/, professor/ and profile/
     student/assignments/[assignmentId]/
                            the five-step workspace: page.tsx, error.tsx, not-found.tsx
-    professor/page.tsx     placeholder for assignment setup and submissions
     status/page.tsx        calls /api/health and shows API and database status
   features/
+    app-shell/             AppShell (sidebar, phone menu, the /auth/me session check), ShellNav,
+                           SidebarMenuButton (the same menu as a panel on full-screen pages),
+                           nav-items.ts (menu per role), current-user.tsx (useCurrentUser)
+    profile/               ProfileView: account, password reset link, appearance, log out
+    auth/                  LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, LogoutButton,
+                           auth-client.ts (the /auth calls), validation.ts,
+                           next-path.ts (safe ?next= redirects)
     landing/               the public landing page (Northeastern black, white and red): header, hero,
                            StepStrip, two RoleCard links, footer
     workspace/             the student workspace feature
@@ -42,7 +49,7 @@ src/
       map-submission.ts    SubmissionOut -> what the panes show (paragraphs, file names, answers)
       types.ts             WorkspaceAssignment, WorkspaceQuestion (code | text | math)
       mock-assignment.ts   the demo assignment, in the backend's AssignmentOut shape
-  components/              UI shared across features (PagePlaceholder, HealthStatus, AppearanceControl)
+  components/              UI shared across features (PagePlaceholder, HealthStatus, AppearanceControl, ProductMark)
     ui/                    small building blocks used everywhere (Button, SegmentedControl, Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend
@@ -59,7 +66,8 @@ src/
 
 - **The frontend never talks to Supabase.** There are no Supabase packages or keys here. Only the backend talks to Supabase.
 - **All data and auth go through the backend.** The browser calls `/api/*` on the frontend's own origin, and `next.config.ts` rewrites it to `NEXT_PUBLIC_API_URL`. The calls are same-origin, so there's no CORS, and the backend's cookies are first-party.
-- **Sessions live in httpOnly cookies** set by the backend's `/auth/*` endpoints (backend #4). The frontend never reads, stores or verifies tokens. `apiFetch` sends `credentials: "include"`.
+- **Sessions live in httpOnly cookies** set by the backend's `/auth/*` endpoints (backend #4). The frontend never reads, stores or verifies tokens. `apiFetch` sends `credentials: "include"`. When a call gets 401 (the access cookie lasts an hour), `apiFetch` calls `/auth/refresh` once and retries, so people stay logged in while they work.
+- **Roles come from the backend.** Sign-up has no role choice: the backend makes professors from its `PROFESSOR_EMAILS` allowlist. After log-in, `homeRouteFor(role)` picks the landing page.
 - `src/proxy.ts` only checks whether a session cookie exists, so it can redirect quickly. The backend does the real session and role check on every request.
 - Backend errors have the shape `{"error": {"code", "message", "request_id"}}`. `apiFetch` turns them into a typed `ApiError` with friendly messages for 401, 403 and 429.
 - `lib/constants.ts` mirrors `app/core/constants.py` in the backend. Change both together.
