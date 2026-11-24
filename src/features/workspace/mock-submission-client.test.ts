@@ -12,6 +12,13 @@ afterEach(() => {
 
 const ALL_ANSWERS = { q1: "def count_vowels(t): return 0", q2: "It loops.", q3: "5n+5" };
 
+/** A submission whose attempt is submitted, so it's in the feedback step. */
+async function feedbackStep() {
+  const submission = await client.start(MOCK_ASSIGNMENT_ID);
+  await client.saveAttemptAnswers(submission.id, ALL_ANSWERS);
+  return client.finishAttempt(submission.id, { confidence: 3, approach_note: "Plan" });
+}
+
 describe("mockSubmissionClient", () => {
   it("starts once and resumes the same submission", async () => {
     const first = await client.start(MOCK_ASSIGNMENT_ID);
@@ -48,5 +55,38 @@ describe("mockSubmissionClient", () => {
     await expect(client.saveAttemptAnswers(submission.id, { q1: "late" })).rejects.toMatchObject({
       status: 409,
     });
+  });
+  it("starts the revision as a copy of the attempt and keeps the attempt as it was", async () => {
+    const submission = await feedbackStep();
+
+    const revising = await client.saveEvaluation(submission.id, { verdict: "incorrect", test_case: "f(0) is 0" });
+    await client.saveRevisionAnswers(revising.id, { q2: "It loops over each letter." });
+    const latest = await client.start(MOCK_ASSIGNMENT_ID);
+
+    expect(revising.current_step).toBe(Step.REVISE);
+    expect(revising.evaluation_verdict).toBe("incorrect");
+    expect(latest.revision_answers.q2).toBe("It loops over each letter.");
+    expect(latest.attempt_answers.q2).toBe(ALL_ANSWERS.q2);
+  });
+
+  it("only takes the evaluation after the attempt, like the backend", async () => {
+    const submission = await client.start(MOCK_ASSIGNMENT_ID);
+
+    await expect(
+      client.saveEvaluation(submission.id, { verdict: "correct", test_case: "x" }),
+    ).rejects.toMatchObject({ status: 409, message: "Not allowed in the attempt step" });
+  });
+
+  it("hands in the revision only when every question is answered", async () => {
+    const submission = await feedbackStep();
+    await client.saveEvaluation(submission.id, { verdict: "correct", test_case: "x" });
+    await client.saveRevisionAnswers(submission.id, { q3: "  " });
+
+    await expect(client.finishRevision(submission.id)).rejects.toMatchObject({ status: 422 });
+
+    await client.saveRevisionAnswers(submission.id, { q3: "5n+5" });
+    const explaining = await client.finishRevision(submission.id);
+    expect(explaining.current_step).toBe(Step.EXPLAIN);
+    await expect(client.saveRevisionAnswers(submission.id, { q3: "6" })).rejects.toMatchObject({ status: 409 });
   });
 });

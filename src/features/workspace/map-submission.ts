@@ -1,5 +1,5 @@
-import type { QuestionOut, SubmissionOut } from "@/lib/api-types";
-import { AnswerType } from "@/lib/constants";
+import type { AnswerMap, QuestionOut, SubmissionOut } from "@/lib/api-types";
+import { AnswerType, Step } from "@/lib/constants";
 
 import type { Answers, WorkspaceAssignment, WorkspaceQuestion } from "./types";
 
@@ -54,13 +54,34 @@ export function toWorkspaceAssignment(submission: SubmissionOut): WorkspaceAssig
 }
 
 /** Saved attempt answers, falling back to starter code for questions not answered yet. */
-export function initialAnswers(submission: SubmissionOut): Answers {
+/** Whether a step shows the revision (steps 4 and 5) rather than the attempt. */
+export function showsRevision(step: Step): boolean {
+  return step === Step.REVISE || step === Step.EXPLAIN;
+}
+
+function answersFrom(submission: SubmissionOut, saved: AnswerMap): Answers {
   return Object.fromEntries(
     submission.assignment.questions.map((question) => [
       question.id,
-      submission.attempt_answers[question.id] ?? question.starter_code ?? "",
+      saved[question.id] ?? question.starter_code ?? "",
     ]),
   );
+}
+
+/**
+ * The answers the workspace shows for the submission's step: the attempt in steps 1 to 3,
+ * the revision in steps 4 and 5. Starter code fills any question without a saved answer.
+ */
+export function initialAnswers(submission: SubmissionOut): Answers {
+  return answersFrom(
+    submission,
+    showsRevision(submission.current_step) ? submission.revision_answers : submission.attempt_answers,
+  );
+}
+
+/** The step 1 answers, which stay as they were once the revision starts. */
+export function attemptAnswers(submission: SubmissionOut): Answers {
+  return answersFrom(submission, submission.attempt_answers);
 }
 
 /** The backend's rule for "answered": more than whitespace. */

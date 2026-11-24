@@ -1,4 +1,12 @@
-import type { AIPolicy, AnswerType, FinalCheck, HelpLevel, Step, SubmissionStatus } from "@/lib/constants";
+import type {
+  AIPolicy,
+  AnswerType,
+  EvaluationVerdict,
+  FinalCheck,
+  HelpLevel,
+  Step,
+  SubmissionStatus,
+} from "@/lib/constants";
 
 // Mirrors of the backend's response schemas, field names included, so no mapping
 // layer is needed between the API and the app. Keep in sync with
@@ -38,6 +46,12 @@ export interface AssignmentOut extends AssignmentSettings {
 /** Answers keyed by question id. Math answers are LaTeX lines separated by "\n". */
 export type AnswerMap = Record<string, string>;
 
+/** InterviewAnswer: one follow-up question and the student's answer (step 5). */
+export interface InterviewAnswer {
+  question: string;
+  answer: string;
+}
+
 /** SubmissionOut */
 export interface SubmissionOut {
   id: string;
@@ -47,6 +61,12 @@ export interface SubmissionOut {
   confidence: number | null;
   approach_note: string | null;
   attempt_submitted_at: string | null;
+  /** Step 3: the student's judgement of the AI feedback, and the test case or example behind it. */
+  evaluation_verdict: EvaluationVerdict | null;
+  evaluation_test_case: string | null;
+  /** Step 5. */
+  interview_answers: InterviewAnswer[] | null;
+  ai_declaration: string | null;
   submitted_at: string | null;
   created_at: string;
   updated_at: string;

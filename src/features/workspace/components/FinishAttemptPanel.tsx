@@ -5,14 +5,13 @@ import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { MAX_APPROACH_NOTE_CHARS } from "@/lib/constants";
 
-import type { SaveStatus } from "../use-attempt";
+import type { SaveStatus } from "../use-answers";
 import { ConfidenceRating } from "./ConfidenceRating";
+import { SaveStatusLine } from "./SaveStatusLine";
 
 interface FinishAttemptPanelProps {
   answeredCount: number;
   questionCount: number;
-  /** False once the attempt is submitted. */
-  isAttemptStep: boolean;
   saveStatus: SaveStatus;
   lastSavedAt: Date | null;
   isFinishing: boolean;
@@ -20,26 +19,10 @@ interface FinishAttemptPanelProps {
   onFinish: (confidence: number, approachNote: string) => void;
 }
 
-function saveStatusText(status: SaveStatus, lastSavedAt: Date | null): string {
-  switch (status) {
-    case "saving":
-      return "Saving…";
-    case "unsaved":
-      return "Unsaved changes. Saving automatically.";
-    case "error":
-      return "Couldn't save. Retrying…";
-    case "saved":
-      return lastSavedAt
-        ? `Saved at ${lastSavedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
-        : "All changes saved";
-  }
-}
-
 /** Under the question list: progress, confidence, approach note and Submit attempt. */
 export function FinishAttemptPanel({
   answeredCount,
   questionCount,
-  isAttemptStep,
   saveStatus,
   lastSavedAt,
   isFinishing,
@@ -50,19 +33,6 @@ export function FinishAttemptPanel({
   const [approachNote, setApproachNote] = useState("");
   const noteId = useId();
 
-  if (!isAttemptStep) {
-    return (
-      <section aria-labelledby="finish-attempt" className="border-t border-line p-4">
-        <h3 id="finish-attempt" className="text-sm font-semibold">
-          Attempt submitted
-        </h3>
-        <p role="status" className="mt-1 text-sm text-muted">
-          Your answers are saved and the AI tutor is unlocked.
-        </p>
-      </section>
-    );
-  }
-
   const allAnswered = answeredCount === questionCount;
   const canSubmit = allAnswered && confidence !== null && approachNote.trim() !== "" && !isFinishing;
 
@@ -72,7 +42,7 @@ export function FinishAttemptPanel({
         <h3 id="finish-attempt" className="text-sm font-semibold">
           Finish your attempt
         </h3>
-        <p className={`text-xs ${allAnswered ? "text-green-700 dark:text-green-400" : "text-muted"}`}>
+        <p className={`text-xs ${allAnswered ? "text-success" : "text-muted"}`}>
           {answeredCount} of {questionCount} answered
         </p>
       </div>
@@ -115,9 +85,7 @@ export function FinishAttemptPanel({
         <p className="-mt-2 text-xs text-muted">Answer every question to submit.</p>
       )}
 
-      <p role="status" aria-live="polite" className="text-xs text-muted">
-        {saveStatusText(saveStatus, lastSavedAt)}
-      </p>
+      <SaveStatusLine status={saveStatus} lastSavedAt={lastSavedAt} />
     </section>
   );
 }

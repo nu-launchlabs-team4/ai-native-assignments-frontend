@@ -31,10 +31,12 @@ src/
   features/
     workspace/             the student workspace feature
       components/          WorkspaceLoader (starts the submission), Workspace, WorkspaceShell,
-                           AssignmentPanel + QuestionList + FinishAttemptPanel (+ ConfidenceRating),
+                           AssignmentPanel + QuestionList + the step's panel (FinishAttemptPanel + ConfidenceRating,
+                           EvaluationPanel, FinishRevisionPanel),
                            AnswerPanel + AnswerEditor (CodeEditor | TextAnswer | MathAnswer),
                            StepStepper, StatusBar, ... (+ *.test.tsx)
-      use-attempt.ts       step 1 state: answers, autosave of changed answers every 30 s, submit
+      use-answers.ts       the answers through the steps: autosave of changed answers every 30 s in the
+                           attempt and the revision, submitting the attempt, the evaluation and the revision
       submission-client.ts SubmissionClient: the real /submissions API, or the mock for the demo id
       mock-submission-client.ts  in-browser stand-in with the backend's rules, used only for "sample-1"
       map-submission.ts    SubmissionOut -> what the panes show (paragraphs, file names, answers)

@@ -43,6 +43,31 @@ describe("apiSubmissionClient", () => {
       body: { confidence: 3, approach_note: "Plan" },
     });
   });
+
+  it("saves the evaluation with POST", async () => {
+    await apiSubmissionClient.saveEvaluation("s-1", { verdict: "correct", test_case: "f(1) is 1" });
+
+    expect(apiFetch).toHaveBeenCalledWith("/submissions/s-1/evaluation", {
+      method: "POST",
+      body: { verdict: "correct", test_case: "f(1) is 1" },
+    });
+  });
+
+  it("saves revision answers with PUT and passes keepalive through", async () => {
+    await apiSubmissionClient.saveRevisionAnswers("s-1", { q2: "y" }, { keepalive: true });
+
+    expect(apiFetch).toHaveBeenCalledWith("/submissions/s-1/revision/answers", {
+      method: "PUT",
+      body: { answers: { q2: "y" } },
+      keepalive: true,
+    });
+  });
+
+  it("hands in the revision with POST", async () => {
+    await apiSubmissionClient.finishRevision("s-1");
+
+    expect(apiFetch).toHaveBeenCalledWith("/submissions/s-1/revision", { method: "POST" });
+  });
 });
 
 describe("submissionClientFor", () => {

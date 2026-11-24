@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Panel } from "@/components/ui/Panel";
 import { ANSWER_TYPE_LABELS, AnswerType } from "@/lib/constants";
 
@@ -10,6 +12,8 @@ interface AnswerPanelProps {
   answer: string;
   onAnswerChange: (value: string) => void;
   readOnly?: boolean;
+  /** A control between the question and the editor, such as the revision's version switch. */
+  toolbar?: ReactNode;
 }
 
 function countWords(text: string): number {
@@ -37,6 +41,7 @@ export function AnswerPanel({
   answer,
   onAnswerChange,
   readOnly = false,
+  toolbar,
 }: AnswerPanelProps) {
   return (
     <Panel
@@ -54,6 +59,7 @@ export function AnswerPanel({
           </p>
         ))}
       </div>
+      {toolbar && <div className="border-b border-line px-4 py-2">{toolbar}</div>}
       <div className="min-h-0 flex-1">
         <AnswerEditor
           question={question}

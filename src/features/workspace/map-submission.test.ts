@@ -2,7 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { AnswerType, Step } from "@/lib/constants";
 
-import { fileNameFor, initialAnswers, isAnswered, toParagraphs, toWorkspaceAssignment } from "./map-submission";
+import {
+  attemptAnswers,
+  fileNameFor,
+  initialAnswers,
+  isAnswered,
+  toParagraphs,
+  toWorkspaceAssignment,
+} from "./map-submission";
 import { buildSubmission } from "./testing";
 
 describe("toWorkspaceAssignment", () => {
@@ -28,6 +35,20 @@ describe("toWorkspaceAssignment", () => {
 });
 
 describe("initialAnswers", () => {
+  it("shows the revision from the revise step on, and keeps the attempt available", () => {
+    const submission = buildSubmission({
+      current_step: Step.REVISE,
+      attempt_answers: { q2: "first try" },
+      revision_answers: { q2: "second try" },
+    });
+
+    expect(initialAnswers(submission).q2).toBe("second try");
+    expect(initialAnswers({ ...submission, current_step: Step.EXPLAIN }).q2).toBe("second try");
+    expect(initialAnswers({ ...submission, current_step: Step.FEEDBACK }).q2).toBe("first try");
+    expect(attemptAnswers(submission).q2).toBe("first try");
+  });
+
+
   it("prefers saved answers over starter code", () => {
     const answers = initialAnswers(buildSubmission({ attempt_answers: { q1: "def mine(): pass" } }));
 
