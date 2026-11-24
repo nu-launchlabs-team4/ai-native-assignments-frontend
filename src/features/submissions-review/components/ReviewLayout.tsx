@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppearanceControl } from "@/components/AppearanceControl";
 
 interface ReviewLayoutProps {
   backHref: string;
@@ -23,7 +23,7 @@ export function ReviewLayout({ backHref, backLabel, eyebrow, title, children }: 
         >
           ← {backLabel}
         </Link>
-        <ThemeToggle />
+        <AppearanceControl />
       </div>
       <header className="flex flex-col gap-1">
         <p className="text-sm text-muted">{eyebrow}</p>

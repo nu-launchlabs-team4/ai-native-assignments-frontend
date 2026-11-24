@@ -180,5 +180,7 @@ export const CHAT_MAX_MESSAGE_LENGTH = 4000;
 // frontend only checks that one exists. It never reads or verifies the value.
 export const SESSION_COOKIES = ["access_token", "refresh_token"] as const;
 
-/** localStorage key that remembers the light or dark choice. */
+/** localStorage key that remembers a light or dark choice. Absent means "follow the device". */
 export const THEME_STORAGE_KEY = "theme";
+
+export const DARK_SCHEME_QUERY = "(prefers-color-scheme: dark)";

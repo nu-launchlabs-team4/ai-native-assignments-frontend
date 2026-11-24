@@ -24,7 +24,7 @@ export function QuestionList({ questions, selectedQuestionId, answeredIds, onSel
                 type="button"
                 onClick={() => onSelect(question.id)}
                 aria-current={isSelected ? "true" : undefined}
-                className={`flex w-full items-center justify-between gap-2 border-l-2 px-4 py-2 text-left text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 ${
+                className={`flex w-full items-center justify-between gap-2 border-l-2 px-4 py-2 text-left text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 pointer-coarse:min-h-11 ${
                   isSelected
                     ? "border-accent bg-surface-muted font-medium"
                     : "border-transparent hover:bg-surface-muted"

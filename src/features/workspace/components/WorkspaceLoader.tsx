@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 
+import { Button, buttonClassName } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api";
 import type { SubmissionOut } from "@/lib/api-types";
 import { ROUTES } from "@/lib/constants";
@@ -87,19 +88,8 @@ function LoadMessage({
       <h1 className="text-2xl font-semibold">{title}</h1>
       <p className="text-muted">{children}</p>
       <div className="flex gap-3">
-        {onRetry && (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
-          >
-            Try again
-          </button>
-        )}
-        <Link
-          href={ROUTES.STUDENT}
-          className="rounded-md px-4 py-2 text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
+        {onRetry && <Button onClick={onRetry}>Try again</Button>}
+        <Link href={ROUTES.STUDENT} className={buttonClassName({ variant: "plain" })}>
           Back to assignments
         </Link>
       </div>

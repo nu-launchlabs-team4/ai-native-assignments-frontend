@@ -1,34 +1,68 @@
 @import "tailwindcss";
 
-/* Dark mode is opt-in through the .dark class on <html> (see src/lib/theme.ts).
-   It does not follow the operating system. */
+/* Dark mode is the .dark class on <html>. It follows the device's light or dark
+   setting unless the person picks one in the appearance control (see src/lib/theme.ts). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Design tokens. Use them through Tailwind (bg-surface, border-line, text-muted,
-   bg-accent) instead of picking gray shades by hand. */
+/* Design tokens, named by role. Use them through Tailwind (bg-surface, text-muted,
+   border-field, bg-accent) instead of picking colors by hand. Every text pairing meets
+   WCAG AA (4.5:1) in both appearances; field borders meet 3:1. Values follow Apple's
+   Human Interface Guidelines: grouped grays, one tint, and semantic status colors. */
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #18181b;
+  /* The page behind everything (grouped background). */
+  --background: #f2f2f7;
+  /* Primary text: 16.8:1 on surface. */
+  --foreground: #1d1d1f;
+  /* The student's work and other content: the "paper". */
   --surface: #ffffff;
-  --surface-muted: #f4f4f5;
-  --line: #e4e4e7;
-  --muted: #71717a;
-  --accent: #2563eb;
+  /* Bars, sidebars and grouped rows. */
+  --surface-muted: #f2f2f7;
+  /* Separators between areas. Decorative only, never text. */
+  --line: #d1d1d6;
+  /* Borders of text fields and other controls: 4.2:1 on surface, 3.7:1 on surface-muted. */
+  --field: #7c7c80;
+  /* Secondary text: 6.0:1 on surface, 5.4:1 on surface-muted. */
+  --muted: #636366;
+  /* The tint: ink blue, the student's pen. 6.8:1 on surface. */
+  --accent: #2251c7;
+  /* Text on a filled tint: 6.8:1. */
   --accent-foreground: #ffffff;
+  /* Tinted buttons and selected rows: tint text on it is 5.9:1. */
+  --accent-soft: #e8eefb;
+  --success: #1e7b34;
+  --warning: #9a5b00;
+  --danger: #c9302c;
+  /* Tracks of segmented controls and other grouped controls: Apple's gray fill, visible
+     on both the page and a card. Icons on it: 4.7:1 or more. */
+  --fill: rgb(118 118 128 / 0.12);
+  /* The selected segment on a fill. */
+  --fill-selected: #ffffff;
 }
 
-/* Dark values follow VS Code's default dark theme, so the panes match the Monaco editor. */
 .dark {
   color-scheme: dark;
-  --background: #1e1e1e;
-  --foreground: #e4e4e7;
-  --surface: #1e1e1e;
-  --surface-muted: #252526;
-  --line: #333333;
-  --muted: #a1a1aa;
-  --accent: #3b82f6;
-  --accent-foreground: #ffffff;
+  --background: #000000;
+  /* 15.6:1 on surface. */
+  --foreground: #f5f5f7;
+  --surface: #1c1c1e;
+  --surface-muted: #2c2c2e;
+  --line: #38383a;
+  /* 4.1:1 on surface, 3.4:1 on surface-muted. */
+  --field: #7c7c80;
+  /* 7.7:1 on surface, 6.3:1 on surface-muted. */
+  --muted: #aeaeb2;
+  /* 6.3:1 on surface. */
+  --accent: #6e9bff;
+  /* Dark text on the light tint: 6.7:1. White would be 2.7:1. */
+  --accent-foreground: #0b1530;
+  --accent-soft: #1a2440;
+  --success: #4fc26a;
+  --warning: #f2a93b;
+  --danger: #ff6b61;
+  --fill: rgb(118 118 128 / 0.24);
+  /* Lighter than the track, as in Apple's dark controls. Text on it: 5.5:1. */
+  --fill-selected: #636366;
 }
 
 @theme inline {
@@ -37,15 +71,54 @@
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-line: var(--line);
+  --color-field: var(--field);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-fill: var(--fill);
+  --color-fill-selected: var(--fill-selected);
+}
+
+@theme {
+  /* IBM Plex (src/lib/fonts.ts): Sans for text, Serif for titles, Mono for code.
+     The system fonts follow as fallbacks. */
+  --font-sans: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale, after Apple's text styles. In rem, so browser text-size and zoom
+     settings scale it. Use these (text-body, text-headline …) for new code. */
+  --text-large-title: 1.75rem;
+  --text-large-title--line-height: 2.125rem;
+  --text-large-title--font-weight: 600;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.75rem;
+  --text-title--font-weight: 600;
+  --text-headline: 0.9375rem;
+  --text-headline--line-height: 1.25rem;
+  --text-headline--font-weight: 600;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.375rem;
+  --text-callout: 0.875rem;
+  --text-callout--line-height: 1.25rem;
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.125rem;
+  /* The smallest size. Never go below it. */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Page and screen titles use the serif; everything else stays in the sans. */
+h1 {
+  font-family: var(--font-serif);
 }

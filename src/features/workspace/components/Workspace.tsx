@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppearanceControl } from "@/components/AppearanceControl";
 import { ChatPanel } from "@/features/chat/components/ChatPanel";
 import type { SubmissionOut } from "@/lib/api-types";
 import { Step } from "@/lib/constants";
@@ -54,7 +54,7 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
           <h1 className="truncate text-sm font-semibold">{assignment.title}</h1>
           <StepStepper currentStep={assignment.currentStep} />
           <div className="ml-auto">
-            <ThemeToggle />
+            <AppearanceControl />
           </div>
         </>
       }

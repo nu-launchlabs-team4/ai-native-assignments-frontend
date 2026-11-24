@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppearanceControl } from "@/components/AppearanceControl";
 import { ROUTES } from "@/lib/constants";
 
 import type { AssignmentSettings, SetupAssignment, SetupQuestion } from "../types";
@@ -42,7 +42,7 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
         >
           ← Professor dashboard
         </Link>
-        <ThemeToggle />
+        <AppearanceControl />
       </div>
 
       <header className="flex flex-col gap-1">

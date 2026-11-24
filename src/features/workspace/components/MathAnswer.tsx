@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { Button } from "@/components/ui/Button";
+
 import { MathField } from "./MathField";
 
 interface MathLine {
@@ -57,26 +59,23 @@ export function MathAnswer({ value, ariaLabel, onChange, readOnly = false }: Mat
               />
             </div>
             {!readOnly && lines.length > 1 && (
-              <button
-                type="button"
+              <Button
+                variant="plain"
+                size="icon"
                 onClick={() => update(lines.filter((other) => other.key !== line.key))}
                 aria-label={`Remove step ${index + 1}`}
-                className="inline-flex size-8 items-center justify-center rounded text-muted hover:bg-line hover:text-foreground focus-visible:outline-2"
+                className="text-muted hover:text-foreground"
               >
                 ×
-              </button>
+              </Button>
             )}
           </li>
         ))}
       </ol>
       {!readOnly && (
-        <button
-          type="button"
-          onClick={addLine}
-          className="self-start rounded border border-line px-3 py-1.5 text-sm hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
+        <Button variant="tinted" size="small" onClick={addLine} className="self-start">
           + Add step
-        </button>
+        </Button>
       )}
     </div>
   );

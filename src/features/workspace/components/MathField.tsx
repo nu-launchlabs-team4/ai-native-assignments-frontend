@@ -39,7 +39,7 @@ export function MathField({ initialValue, ariaLabel, onChange, readOnly = false 
 
       const mathField = new MathfieldElement();
       mathField.value = initialValueRef.current;
-      mathField.className = "block w-full rounded border border-line bg-surface px-3 py-2 text-lg";
+      mathField.className = "block w-full rounded-md border border-field bg-surface px-3 py-2 text-lg";
       mathField.addEventListener("input", () => onChangeRef.current(mathField.value));
       containerRef.current.append(mathField);
       fieldRef.current = mathField;

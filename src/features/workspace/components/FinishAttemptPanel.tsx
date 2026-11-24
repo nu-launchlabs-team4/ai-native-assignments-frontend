@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 
+import { Button } from "@/components/ui/Button";
 import { MAX_APPROACH_NOTE_CHARS } from "@/lib/constants";
 
 import type { SaveStatus } from "../use-attempt";
@@ -90,7 +91,7 @@ export function FinishAttemptPanel({
           rows={3}
           disabled={isFinishing}
           placeholder="A sentence or two about your plan."
-          className="resize-none rounded border border-line bg-surface px-3 py-2 text-sm placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="resize-none rounded-md border border-field bg-surface px-3 py-2 text-sm placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         />
         <p className="text-right text-xs text-muted">
           {approachNote.length} / {MAX_APPROACH_NOTE_CHARS}
@@ -98,19 +99,18 @@ export function FinishAttemptPanel({
       </div>
 
       {finishError && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
+        <p role="alert" className="text-sm text-danger">
           {finishError}
         </p>
       )}
 
-      <button
-        type="button"
+      <Button
         disabled={!canSubmit}
         onClick={() => confidence !== null && onFinish(confidence, approachNote)}
-        className="rounded bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full"
       >
         {isFinishing ? "Submitting…" : "Submit attempt"}
-      </button>
+      </Button>
       {!allAnswered && (
         <p className="-mt-2 text-xs text-muted">Answer every question to submit.</p>
       )}

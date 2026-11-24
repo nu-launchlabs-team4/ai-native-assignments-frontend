@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppearanceControl } from "@/components/AppearanceControl";
 import { ROUTES } from "@/lib/constants";
 
 interface PagePlaceholderProps {
@@ -21,7 +21,7 @@ export function PagePlaceholder({ title, description, children }: PagePlaceholde
         >
           ← Home
         </Link>
-        <ThemeToggle />
+        <AppearanceControl />
       </div>
       <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
       <p className="text-zinc-600 dark:text-zinc-400">{description}</p>

@@ -1,7 +1,7 @@
 import { WorkspaceShell } from "./WorkspaceShell";
 
 function Block({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded bg-line ${className}`} />;
+  return <div className={`motion-safe:animate-pulse rounded bg-line ${className}`} />;
 }
 
 /** Placeholder with the workspace's shape, shown while the assignment loads. */

@@ -12,7 +12,7 @@ interface QuestionEditorProps {
 const ANSWER_TYPES = Object.values(AnswerType);
 
 const FIELD_CLASS =
-  "rounded-md border border-line bg-surface px-3 py-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "rounded-md border border-field bg-surface px-3 py-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 /** Lets the professor correct one detected question: its text, answer type and language. */
 export function QuestionEditor({ question, questionNumber, onChange }: QuestionEditorProps) {

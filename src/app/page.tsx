@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppearanceControl } from "@/components/AppearanceControl";
 import { ROUTES } from "@/lib/constants";
 
 const ENTRY_LINKS = [
@@ -15,7 +15,7 @@ export default function HomePage() {
       <header className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-4">
           <h1 className="text-4xl font-semibold tracking-tight">AI-Native Assignments</h1>
-          <ThemeToggle />
+          <AppearanceControl />
         </div>
         <p className="text-lg text-zinc-600 dark:text-zinc-400">
           Students attempt, get feedback, evaluate, revise and explain their work, with an AI tutor that
