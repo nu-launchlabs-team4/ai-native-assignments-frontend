@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { ReviewPriority } from "@/lib/constants";
+import { ReviewPriority, SubmissionStatus } from "@/lib/constants";
 
 import { sortByReviewPriority } from "./sort";
-import { type SubmissionListItem, SubmissionStatus } from "./types";
+import type { SubmissionListItem } from "./types";
 
 function item(student_name: string, review_priority: ReviewPriority | null): SubmissionListItem {
   return { id: student_name, student_name, status: SubmissionStatus.SUBMITTED, submitted_at: null, review_priority };

@@ -1,7 +1,7 @@
-import { AnswerType, ChatRole, Step } from "@/lib/constants";
+import { AnswerType, ChatRole, EvaluationVerdict, Step } from "@/lib/constants";
 
 import { getMockSubmission } from "./mock-submissions";
-import { EvaluationVerdict, type SubmissionTrail, type TrailEntry, TrailEntryKind } from "./types";
+import { type SubmissionTrail, type TrailEntry, TrailEntryKind } from "./types";
 
 const ATTEMPT_CODE = 'def count_vowels(text):\n    count = 0\n    for ch in text.lower():\n        if ch in "aeiou":\n            count += 1\n    return count';
 

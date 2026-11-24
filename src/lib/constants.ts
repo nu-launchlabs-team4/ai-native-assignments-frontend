@@ -6,9 +6,9 @@ export const Step = {
   FEEDBACK: "feedback",
   EVALUATE: "evaluate",
   REVISE: "revise",
-  EXPLAIN: "explain",
+  EXPLAIN: "explain"
 } as const;
-export type Step = (typeof Step)[keyof typeof Step];
+export type Step = typeof Step[keyof typeof Step];
 
 /** The five steps in the order a student works through them. */
 export const STEP_ORDER: readonly Step[] = [
@@ -16,7 +16,7 @@ export const STEP_ORDER: readonly Step[] = [
   Step.FEEDBACK,
   Step.EVALUATE,
   Step.REVISE,
-  Step.EXPLAIN,
+  Step.EXPLAIN
 ];
 
 export const STEP_LABELS: Record<Step, string> = {
@@ -24,61 +24,69 @@ export const STEP_LABELS: Record<Step, string> = {
   [Step.FEEDBACK]: "Feedback",
   [Step.EVALUATE]: "Evaluate",
   [Step.REVISE]: "Revise",
-  [Step.EXPLAIN]: "Explain",
+  [Step.EXPLAIN]: "Explain"
 };
 
 /** How a question is answered. The PDF parser detects it, and the professor can correct it. */
 export const AnswerType = {
   CODE: "code",
   TEXT: "text",
-  MATH: "math",
+  MATH: "math"
 } as const;
-export type AnswerType = (typeof AnswerType)[keyof typeof AnswerType];
+export type AnswerType = typeof AnswerType[keyof typeof AnswerType];
 
 export const ANSWER_TYPE_LABELS: Record<AnswerType, string> = {
   [AnswerType.CODE]: "Code",
   [AnswerType.TEXT]: "Written",
-  [AnswerType.MATH]: "Math",
+  [AnswerType.MATH]: "Math"
 };
 
 export const AIPolicy = {
   PROHIBITED: "prohibited",
   PERMITTED: "permitted",
-  EXPECTED: "expected",
+  EXPECTED: "expected"
 } as const;
-export type AIPolicy = (typeof AIPolicy)[keyof typeof AIPolicy];
+export type AIPolicy = typeof AIPolicy[keyof typeof AIPolicy];
 
 export const HelpLevel = {
   HINTS: "hints",
   APPROACH: "approach",
-  CONCEPTS: "concepts",
+  CONCEPTS: "concepts"
 } as const;
-export type HelpLevel = (typeof HelpLevel)[keyof typeof HelpLevel];
+export type HelpLevel = typeof HelpLevel[keyof typeof HelpLevel];
 
 export const FinalCheck = {
   AI_INTERVIEW: "ai_interview",
-  QUESTIONNAIRE: "questionnaire",
+  QUESTIONNAIRE: "questionnaire"
 } as const;
-export type FinalCheck = (typeof FinalCheck)[keyof typeof FinalCheck];
+export type FinalCheck = typeof FinalCheck[keyof typeof FinalCheck];
 
 export const ReviewPriority = {
   ROUTINE: "routine",
   WORTH_REVIEWING: "worth_reviewing",
-  NEEDS_CONVERSATION: "needs_conversation",
+  NEEDS_CONVERSATION: "needs_conversation"
 } as const;
-export type ReviewPriority = (typeof ReviewPriority)[keyof typeof ReviewPriority];
+export type ReviewPriority = typeof ReviewPriority[keyof typeof ReviewPriority];
 
 export const Role = {
   STUDENT: "student",
-  PROFESSOR: "professor",
+  PROFESSOR: "professor"
 } as const;
-export type Role = (typeof Role)[keyof typeof Role];
+export type Role = typeof Role[keyof typeof Role];
 
 export const SubmissionStatus = {
   IN_PROGRESS: "in_progress",
-  SUBMITTED: "submitted",
+  SUBMITTED: "submitted"
 } as const;
-export type SubmissionStatus = (typeof SubmissionStatus)[keyof typeof SubmissionStatus];
+export type SubmissionStatus = typeof SubmissionStatus[keyof typeof SubmissionStatus];
+
+/** How the student judged the AI's feedback in the evaluate step. */
+export const EvaluationVerdict = {
+  CORRECT: "correct",
+  PARTLY_CORRECT: "partly_correct",
+  INCORRECT: "incorrect"
+} as const;
+export type EvaluationVerdict = typeof EvaluationVerdict[keyof typeof EvaluationVerdict];
 
 /** The student's confidence in their attempt, from 1 (not sure) to 5 (very sure). */
 export const CONFIDENCE_MIN = 1;
@@ -88,27 +96,38 @@ export const MAX_APPROACH_NOTE_CHARS = 1000;
 
 // Frontend-only values below.
 
+export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
+  [SubmissionStatus.IN_PROGRESS]: "In progress",
+  [SubmissionStatus.SUBMITTED]: "Submitted"
+};
+
+export const EVALUATION_VERDICT_LABELS: Record<EvaluationVerdict, string> = {
+  [EvaluationVerdict.CORRECT]: "Correct",
+  [EvaluationVerdict.PARTLY_CORRECT]: "Partly correct",
+  [EvaluationVerdict.INCORRECT]: "Incorrect"
+};
+
 export const REVIEW_PRIORITY_LABELS: Record<ReviewPriority, string> = {
   [ReviewPriority.ROUTINE]: "Routine",
   [ReviewPriority.WORTH_REVIEWING]: "Worth reviewing",
-  [ReviewPriority.NEEDS_CONVERSATION]: "Needs a conversation",
+  [ReviewPriority.NEEDS_CONVERSATION]: "Needs a conversation"
 };
 
 export const AI_POLICY_LABELS: Record<AIPolicy, string> = {
   [AIPolicy.PROHIBITED]: "Prohibited",
   [AIPolicy.PERMITTED]: "Permitted",
-  [AIPolicy.EXPECTED]: "Expected",
+  [AIPolicy.EXPECTED]: "Expected"
 };
 
 export const HELP_LEVEL_LABELS: Record<HelpLevel, string> = {
   [HelpLevel.HINTS]: "Hints only",
   [HelpLevel.APPROACH]: "Feedback on approach",
-  [HelpLevel.CONCEPTS]: "Concept explanations",
+  [HelpLevel.CONCEPTS]: "Concept explanations"
 };
 
 export const FINAL_CHECK_LABELS: Record<FinalCheck, string> = {
   [FinalCheck.AI_INTERVIEW]: "AI follow-up interview",
-  [FinalCheck.QUESTIONNAIRE]: "Fixed questionnaire",
+  [FinalCheck.QUESTIONNAIRE]: "Fixed questionnaire"
 };
 
 /** Languages a professor can pick for a code question. Ids are Monaco language ids. */
@@ -118,7 +137,7 @@ export const CODE_LANGUAGES = [
   { id: "javascript", label: "JavaScript" },
   { id: "typescript", label: "TypeScript" },
   { id: "c", label: "C" },
-  { id: "cpp", label: "C++" },
+  { id: "cpp", label: "C++" }
 ] as const;
 
 /** Language a question gets when the professor switches it to code. */
@@ -130,7 +149,7 @@ export const ROUTES = {
   STUDENT: "/student",
   PROFESSOR: "/professor",
   PROFESSOR_NEW_ASSIGNMENT: "/professor/assignments/new",
-  STATUS: "/status",
+  STATUS: "/status"
 } as const;
 
 /** URL of the student workspace for one assignment. */
@@ -140,7 +159,9 @@ export function studentAssignmentRoute(assignmentId: string): string {
 
 /** URL of the submissions table for one of the professor's assignments. */
 export function assignmentSubmissionsRoute(assignmentId: string): string {
-  return `${ROUTES.PROFESSOR}/assignments/${encodeURIComponent(assignmentId)}/submissions`;
+  return `${ROUTES.PROFESSOR}/assignments/${encodeURIComponent(
+    assignmentId
+  )}/submissions`;
 }
 
 /** URL of the reasoning summary for one submission. */
@@ -165,14 +186,14 @@ export const API_PATHS = {
   HEALTH: "/health",
   SUBMISSIONS: "/submissions",
   // TODO(singhsaravjit): confirm the path and body with backend #10 (AI chat endpoint).
-  AI_CHAT: "/ai/chat",
+  AI_CHAT: "/ai/chat"
 } as const;
 
 export const ChatRole = {
   STUDENT: "student",
-  ASSISTANT: "assistant",
+  ASSISTANT: "assistant"
 } as const;
-export type ChatRole = (typeof ChatRole)[keyof typeof ChatRole];
+export type ChatRole = typeof ChatRole[keyof typeof ChatRole];
 
 export const CHAT_MAX_MESSAGE_LENGTH = 4000;
 

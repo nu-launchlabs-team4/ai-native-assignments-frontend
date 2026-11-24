@@ -1,19 +1,7 @@
-import type { AnswerType, ChatRole, ReviewPriority, Step } from "@/lib/constants";
+import type { AnswerType, ChatRole, EvaluationVerdict, ReviewPriority, Step, SubmissionStatus } from "@/lib/constants";
 
 // Proposed shapes for BE#13 (submissions list and detail) and BE#12 (reasoning summary).
 // TODO(dineshbachchani1234): align with the backend schemas once BE#12 and BE#13 land (#11).
-
-// Values the backend will own. They move to lib/constants.ts once the backend adds them.
-export const SubmissionStatus = {
-  IN_PROGRESS: "in_progress",
-  SUBMITTED: "submitted",
-} as const;
-export type SubmissionStatus = (typeof SubmissionStatus)[keyof typeof SubmissionStatus];
-
-export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
-  [SubmissionStatus.IN_PROGRESS]: "In progress",
-  [SubmissionStatus.SUBMITTED]: "Submitted",
-};
 
 /** What the student did with one AI suggestion. */
 export const SuggestionJudgment = {
@@ -83,20 +71,6 @@ export interface SubmissionDetail {
 }
 
 // The full trail (#12). Proposed shape for the trail part of BE#13.
-
-/** How the student judged the AI's feedback in the evaluate step. */
-export const EvaluationVerdict = {
-  CORRECT: "correct",
-  PARTLY_CORRECT: "partly_correct",
-  INCORRECT: "incorrect",
-} as const;
-export type EvaluationVerdict = (typeof EvaluationVerdict)[keyof typeof EvaluationVerdict];
-
-export const EVALUATION_VERDICT_LABELS: Record<EvaluationVerdict, string> = {
-  [EvaluationVerdict.CORRECT]: "Correct",
-  [EvaluationVerdict.PARTLY_CORRECT]: "Partly correct",
-  [EvaluationVerdict.INCORRECT]: "Incorrect",
-};
 
 export const TrailEntryKind = {
   ATTEMPT: "attempt",
