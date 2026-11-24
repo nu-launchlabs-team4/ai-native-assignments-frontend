@@ -33,7 +33,10 @@ vi.mock("./CodeEditor", () => ({ CodeEditor: FakeEditor }));
 vi.mock("./MathAnswer", () => ({ MathAnswer: FakeEditor }));
 
 // The AI tutor panel uses the router, which only exists inside the Next.js app.
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/student/assignments/sample-1",
+}));
 
 const submission = buildSubmission();
 // The demo assignment's question ids.

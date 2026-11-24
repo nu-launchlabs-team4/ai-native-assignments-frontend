@@ -33,6 +33,27 @@
   --success: #1e7b34;
   --warning: #9a5b00;
   --danger: #c9302c;
+
+  /* Northeastern brand palette, for the landing page only. Red is kept off app
+     screens because it's close to --danger and would read as an error there. */
+  --brand: #c8102e;
+  /* White on red: 5.9:1. */
+  --brand-foreground: #ffffff;
+  --brand-page: #ffffff;
+  /* 21:1 on brand-page, 18.6:1 on brand-soft. */
+  --brand-ink: #000000;
+  /* 8.9:1 on brand-page. */
+  --brand-muted: #4a4a4a;
+  /* Card and bar separators. Decorative only. */
+  --brand-line: #e2e2e2;
+  /* The step strip. Red circles on it: 5.2:1. */
+  --brand-soft: #fceef0;
+  /* Icon tiles. Red icons on them: 5.2:1. */
+  --brand-tile: #fceef0;
+  /* Small action labels: red in light (5.9:1); white in dark, where red is 3.6:1. */
+  --brand-action: #c8102e;
+  /* Keyboard focus ring for every control, landing and app: 21:1 on white. */
+  --focus: #000000;
   /* Tracks of segmented controls and other grouped controls: Apple's gray fill, visible
      on both the page and a card. Icons on it: 4.7:1 or more. */
   --fill: rgb(118 118 128 / 0.12);
@@ -60,6 +81,20 @@
   --success: #4fc26a;
   --warning: #f2a93b;
   --danger: #ff6b61;
+
+  --brand: #c8102e;
+  --brand-foreground: #ffffff;
+  --brand-page: #000000;
+  --brand-ink: #ffffff;
+  /* 10.6:1 on brand-page. */
+  --brand-muted: #b8b8b8;
+  --brand-line: #3a3a3a;
+  /* Red circles on it: 3.2:1 (non-text, needs 3:1). */
+  --brand-soft: #1f0a0e;
+  /* Red icons on it: 3.1:1 (non-text). */
+  --brand-tile: #2a0d13;
+  --brand-action: #ffffff;
+  --focus: #ffffff;
   --fill: rgb(118 118 128 / 0.24);
   /* Lighter than the track, as in Apple's dark controls. Text on it: 5.5:1. */
   --fill-selected: #636366;
@@ -79,6 +114,16 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-page: var(--brand-page);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-line: var(--brand-line);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-tile: var(--brand-tile);
+  --color-brand-action: var(--brand-action);
+  --color-focus: var(--focus);
   --color-fill: var(--fill);
   --color-fill-selected: var(--fill-selected);
 }
@@ -89,6 +134,11 @@
   --font-sans: var(--font-plex-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* The landing page's hero heading. Scales with the window between 36 and 52 px. */
+  --text-display: clamp(2.25rem, 1.5rem + 3vw, 3.25rem);
+  --text-display--line-height: 1.1;
+  --text-display--font-weight: 700;
 
   /* Type scale, after Apple's text styles. In rem, so browser text-size and zoom
      settings scale it. Use these (text-body, text-headline …) for new code. */

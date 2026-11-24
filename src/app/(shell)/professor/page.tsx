@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { PagePlaceholder } from "@/components/PagePlaceholder";
+import { ShellPage } from "@/features/app-shell/components/ShellPage";
 import { MOCK_REVIEW_ASSIGNMENT_ID } from "@/features/submissions-review/mock-submissions";
 import { assignmentSubmissionsRoute, ROUTES } from "@/lib/constants";
 
@@ -13,8 +13,8 @@ const LINK_CLASS =
 // TODO(dineshbachchani1234): list the professor's real assignments once the backend has them (#11).
 export default function ProfessorPage() {
   return (
-    <PagePlaceholder
-      title="Professor dashboard"
+    <ShellPage
+      title="Assignments"
       description="Set up an assignment from your PDF, or review the sample assignment's submissions."
     >
       <div className="flex flex-wrap gap-3">
@@ -31,6 +31,6 @@ export default function ProfessorPage() {
           Review submissions
         </Link>
       </div>
-    </PagePlaceholder>
+    </ShellPage>
   );
 }

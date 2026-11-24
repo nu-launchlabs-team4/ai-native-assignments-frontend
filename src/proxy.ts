@@ -18,5 +18,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Pages that need a signed-in user. Must be literal strings so Next.js can read them at build time.
-  matcher: ["/student/:path*", "/professor/:path*"],
+  matcher: ["/student/:path*", "/professor/:path*", "/profile/:path*"],
 };

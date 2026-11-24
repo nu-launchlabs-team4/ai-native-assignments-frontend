@@ -12,7 +12,7 @@ export const plexSans = IBM_Plex_Sans({
 
 export const plexSerif = IBM_Plex_Serif({
   subsets: ["latin"],
-  weight: ["500", "600"],
+  weight: ["500", "600", "700"],
   variable: "--font-plex-serif",
 });
 

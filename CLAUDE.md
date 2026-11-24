@@ -21,14 +21,23 @@ Next.js 16 differs from older versions. For example, `middleware.ts` is now `pro
 ```
 src/
   app/
-    layout.tsx, page.tsx   landing page with links to Login, Student and Professor
-    login/page.tsx         placeholder login form (wired to the backend in #3)
-    student/page.tsx       student landing page (links to the sample assignment)
+    layout.tsx, page.tsx   root layout; page.tsx renders the landing page
+    login/, signup/, forgot-password/, reset-password/
+                           the auth pages (the forms live in features/auth)
+    (shell)/               signed-in pages with the sidebar (AppShell): student/, professor/ and profile/
     student/assignments/[assignmentId]/
                            the five-step workspace: page.tsx, error.tsx, not-found.tsx
-    professor/page.tsx     placeholder for assignment setup and submissions
     status/page.tsx        calls /api/health and shows API and database status
   features/
+    app-shell/             AppShell (sidebar, phone menu, the /auth/me session check), ShellNav,
+                           SidebarMenuButton (the same menu as a panel on full-screen pages),
+                           nav-items.ts (menu per role), current-user.tsx (useCurrentUser)
+    profile/               ProfileView: account, password reset link, appearance, log out
+    auth/                  LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, LogoutButton,
+                           auth-client.ts (the /auth calls), validation.ts,
+                           next-path.ts (safe ?next= redirects)
+    landing/               the public landing page (Northeastern black, white and red): header, hero,
+                           StepStrip, two RoleCard links, footer
     workspace/             the student workspace feature
       components/          WorkspaceLoader (starts the submission), Workspace, WorkspaceShell,
                            AssignmentPanel + QuestionList + the step's panel (FinishAttemptPanel + ConfidenceRating,
@@ -42,7 +51,7 @@ src/
       map-submission.ts    SubmissionOut -> what the panes show (paragraphs, file names, answers)
       types.ts             WorkspaceAssignment, WorkspaceQuestion (code | text | math)
       mock-assignment.ts   the demo assignment, in the backend's AssignmentOut shape
-  components/              UI shared across features (PagePlaceholder, HealthStatus, AppearanceControl)
+  components/              UI shared across features (PagePlaceholder, HealthStatus, AppearanceControl, ProductMark)
     ui/                    small building blocks used everywhere (Button, SegmentedControl, Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend
@@ -59,7 +68,8 @@ src/
 
 - **The frontend never talks to Supabase.** There are no Supabase packages or keys here. Only the backend talks to Supabase.
 - **All data and auth go through the backend.** The browser calls `/api/*` on the frontend's own origin, and `next.config.ts` rewrites it to `NEXT_PUBLIC_API_URL`. The calls are same-origin, so there's no CORS, and the backend's cookies are first-party.
-- **Sessions live in httpOnly cookies** set by the backend's `/auth/*` endpoints (backend #4). The frontend never reads, stores or verifies tokens. `apiFetch` sends `credentials: "include"`.
+- **Sessions live in httpOnly cookies** set by the backend's `/auth/*` endpoints (backend #4). The frontend never reads, stores or verifies tokens. `apiFetch` sends `credentials: "include"`. When a call gets 401 (the access cookie lasts an hour), `apiFetch` calls `/auth/refresh` once and retries, so people stay logged in while they work.
+- **Roles come from the backend.** Sign-up has no role choice: the backend makes professors from its `PROFESSOR_EMAILS` allowlist. After log-in, `homeRouteFor(role)` picks the landing page.
 - `src/proxy.ts` only checks whether a session cookie exists, so it can redirect quickly. The backend does the real session and role check on every request.
 - Backend errors have the shape `{"error": {"code", "message", "request_id"}}`. `apiFetch` turns them into a typed `ApiError` with friendly messages for 401, 403 and 429.
 - `lib/constants.ts` mirrors `app/core/constants.py` in the backend. Change both together.
@@ -99,7 +109,7 @@ Team skills live in `.claude/skills/`. Use the one that matches the task.
 - Every backend call goes through `src/lib/api.ts`. Never use raw `fetch` to the backend, and never call Supabase.
 - Shared values come from `src/lib/constants.ts`. No magic strings.
 - **Design follows Apple's Human Interface Guidelines** (issue #36). Style with Tailwind, no inline style objects, and use the **design tokens** from `src/app/globals.css` instead of picking colors by hand:
-  - Colors: `bg-background`, `bg-surface` (content), `bg-surface-muted` (bars, sidebars), `text-foreground`, `text-muted` (secondary text), `border-line` (separators only), `border-field` (text fields and controls), `bg-accent` / `text-accent-foreground` (the main action), `bg-accent-soft` (tinted), `bg-fill` / `bg-fill-selected` (control tracks such as the segmented control, visible on both the page and a card), `text-success` / `text-warning` / `text-danger`. Every text pairing meets 4.5:1 in light and dark, and the comments in `globals.css` give the ratios.
+  - Colors: `bg-background`, `bg-surface` (content), `bg-surface-muted` (bars, sidebars), `text-foreground`, `text-muted` (secondary text), `border-line` (separators only), `border-field` (text fields and controls), `bg-accent` / `text-accent-foreground` (the main action), `bg-accent-soft` (tinted), `bg-fill` / `bg-fill-selected` (control tracks such as the segmented control, visible on both the page and a card), `text-success` / `text-warning` / `text-danger`, and `outline-focus` for every keyboard focus ring (black in light, white in dark). The `brand-*` tokens (Northeastern red #C8102E on black and white) are for the landing page only: on app screens red would read as `danger`. Every text pairing meets 4.5:1 in light and dark, and the comments in `globals.css` give the ratios.
   - Type: the **IBM Plex** family from `src/lib/fonts.ts`: Plex Sans for text (`font-sans`, the default), Plex Serif for titles (`font-serif`, which every `h1` uses), and Plex Mono for code (`font-mono`, and the Monaco editor). next/font self-hosts them, so there are no requests to Google. Sizes come from the scale `text-large-title`, `text-title`, `text-headline`, `text-body`, `text-callout`, `text-footnote` and `text-caption` (12 px, the minimum).
   - Controls: use `Button` (`filled` for the one main action, `tinted`, `plain`) and `SegmentedControl` from `src/components/ui`. They include a press state and 44 px touch targets (`pointer-coarse:`). A custom control needs both.
   - Motion stays brief and optional: guard repeating animations with `motion-safe:`.

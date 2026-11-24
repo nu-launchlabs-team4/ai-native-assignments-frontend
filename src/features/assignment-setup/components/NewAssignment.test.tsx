@@ -4,6 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 import { MOCK_DRAFT } from "../mock-draft";
 import { NewAssignment } from "./NewAssignment";
 
+// The sidebar menu button in the top bar reads the route.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/professor/assignments/new",
+}));
+
 vi.mock("../upload-pdf", () => ({
   uploadPdf: vi.fn(async (courseId: string, file: File) => ({ ...MOCK_DRAFT, course_id: courseId, source_pdf: file.name })),
 }));

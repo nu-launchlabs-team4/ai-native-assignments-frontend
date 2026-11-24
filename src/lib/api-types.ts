@@ -4,13 +4,14 @@ import type {
   EvaluationVerdict,
   FinalCheck,
   HelpLevel,
+  Role,
   Step,
   SubmissionStatus,
 } from "@/lib/constants";
 
 // Mirrors of the backend's response schemas, field names included, so no mapping
 // layer is needed between the API and the app. Keep in sync with
-// app/assignments/schemas.py and app/submissions/schemas.py in the backend.
+// app/assignments/schemas.py, app/submissions/schemas.py and app/users/schemas.py in the backend.
 
 /** QuestionOut */
 export interface QuestionOut {
@@ -74,4 +75,17 @@ export interface SubmissionOut {
   revision_answers: AnswerMap;
   /** The assignment and its questions, so the workspace needs one request. */
   assignment: AssignmentOut;
+}
+
+/** UserOut: the signed-in account. The role comes from the backend, never from the client. */
+export interface UserOut {
+  id: string;
+  email: string;
+  role: Role;
+}
+
+/** SignupOut. `user` is null while the email waits to be confirmed. */
+export interface SignupOut {
+  user: UserOut | null;
+  confirm_email: boolean;
 }
