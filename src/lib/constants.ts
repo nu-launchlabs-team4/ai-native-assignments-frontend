@@ -204,6 +204,7 @@ export const AUTOSAVE_INTERVAL_MS = 30_000;
 
 export const API_PATHS = {
   HEALTH: "/health",
+  ASSIGNMENTS: "/assignments",
   SUBMISSIONS: "/submissions",
   AUTH_SIGNUP: "/auth/signup",
   AUTH_LOGIN: "/auth/login",
