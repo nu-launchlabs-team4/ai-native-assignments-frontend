@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { AppearanceControl } from "@/components/AppearanceControl";
+import { SidebarMenuButton } from "@/features/app-shell/components/SidebarMenuButton";
 import { ChatPanel } from "@/features/chat/components/ChatPanel";
 import type { SubmissionOut } from "@/lib/api-types";
 import { Step } from "@/lib/constants";
@@ -51,6 +52,7 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
     <WorkspaceShell
       header={
         <>
+          <SidebarMenuButton />
           <h1 className="truncate text-sm font-semibold">{assignment.title}</h1>
           <StepStepper currentStep={assignment.currentStep} />
           <div className="ml-auto">

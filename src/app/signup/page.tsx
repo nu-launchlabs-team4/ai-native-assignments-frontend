@@ -1,0 +1,23 @@
+import type { Metadata } from "next";
+
+import { AuthFooterLink, AuthLayout } from "@/features/auth/components/AuthLayout";
+import { SignupForm } from "@/features/auth/components/SignupForm";
+import { ROUTES } from "@/lib/constants";
+
+export const metadata: Metadata = { title: "Create an account" };
+
+export default function SignupPage() {
+  return (
+    <AuthLayout
+      title="Create an account"
+      description="Work through each assignment in five steps, with an AI tutor that won't give away the answer."
+      footer={
+        <>
+          Already have an account? <AuthFooterLink href={ROUTES.LOGIN}>Log in</AuthFooterLink>
+        </>
+      }
+    >
+      <SignupForm />
+    </AuthLayout>
+  );
+}
