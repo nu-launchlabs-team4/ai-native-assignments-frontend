@@ -5,7 +5,7 @@ export type ButtonSize = "regular" | "small" | "icon";
 
 const BASE =
   "inline-flex shrink-0 select-none items-center justify-center gap-1.5 rounded-md font-medium transition " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent " +
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus " +
   // Press state (Apple: "Always include a press state for a custom button"), off under reduced motion.
   "active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 " +
   "disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100";

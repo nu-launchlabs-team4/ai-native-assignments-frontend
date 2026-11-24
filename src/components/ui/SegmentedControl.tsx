@@ -53,8 +53,8 @@ export function SegmentedControl<T extends string | number>({
             title={segment.icon ? segment.label : undefined}
             className={
               "flex h-7 min-w-8 flex-1 cursor-pointer items-center justify-center rounded-md px-2 text-footnote text-muted transition " +
-              "hover:text-foreground has-checked:bg-fill-selected has-checked:font-semibold has-checked:text-foreground has-checked:shadow-sm " +
-              "has-focus-visible:outline-2 has-focus-visible:outline-offset-1 has-focus-visible:outline-accent " +
+              "hover:text-foreground has-checked:bg-fill-selected has-checked:font-semibold has-checked:text-foreground has-checked:shadow-sm has-checked:ring-1 has-checked:ring-field " +
+              "has-focus-visible:outline-2 has-focus-visible:outline-offset-1 has-focus-visible:outline-focus " +
               "active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 " +
               "has-disabled:cursor-default has-disabled:opacity-50 pointer-coarse:min-h-11"
             }
