@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ChatPanel } from "@/features/chat/components/ChatPanel";
@@ -9,8 +9,10 @@ import { ChatPanel } from "@/features/chat/components/ChatPanel";
 import type { Answers, WorkspaceAssignment } from "../types";
 import {
   useActivityTracking,
-  type ActivityEvent,
+  type ActivityEvent as BrowserActivityEvent,
 } from "../hooks/useActivityTracking";
+import type { ActivityEvent as ClientActivityEvent } from "../activity-client";
+import { mockActivityClient } from "../mock-activity-client";
 import { AnswerPanel } from "./AnswerPanel";
 import { AssignmentPanel } from "./AssignmentPanel";
 import { StatusBar } from "./StatusBar";
@@ -30,11 +32,12 @@ function initialAnswers(assignment: WorkspaceAssignment): Answers {
   );
 }
 
+const ACTIVITY_BATCH_INTERVAL_MS = 10_000;
+
 /**
- * The student's workspace for one assignment. Holds which question is open and
- * every answer, so switching questions never loses work.
+ * The student's workspace for one assignment.
+ * Holds the selected question and answers, and records activity events.
  */
-// TODO(akashshetty1997): save answers to the backend with autosave (#6).
 export function Workspace({ assignment }: WorkspaceProps) {
   const [selectedQuestionId, setSelectedQuestionId] = useState(
     assignment.questions[0].id,
@@ -46,6 +49,16 @@ export function Workspace({ assignment }: WorkspaceProps) {
 
   const [showActivityNotice, setShowActivityNotice] = useState(true);
 
+  // Use the mock client only for the sample assignment.
+  // The real API needs the actual submission ID, which is not available here yet.
+  const activityClient =
+    assignment.id === "sample-1" ? mockActivityClient : null;
+
+  const sessionIdRef = useRef<string | null>(null);
+  const pendingEventsRef = useRef<ClientActivityEvent[]>([]);
+  const sendingRef = useRef(false);
+  const endedRef = useRef(false);
+
   const questionIndex = assignment.questions.findIndex(
     (question) => question.id === selectedQuestionId,
   );
@@ -53,9 +66,143 @@ export function Workspace({ assignment }: WorkspaceProps) {
   const question = assignment.questions[questionIndex];
   const questionNumber = questionIndex + 1;
 
-  const handleActivity = useCallback((event: ActivityEvent) => {
-    console.log("Activity detected:", event);
-  }, []);
+  // Send queued events to the activity client.
+  const flushEvents = useCallback(
+    async (keepalive = false) => {
+      if (!activityClient) return;
+
+      const sessionId = sessionIdRef.current;
+
+      if (
+        !sessionId ||
+        pendingEventsRef.current.length === 0 ||
+        sendingRef.current
+      ) {
+        return;
+      }
+
+      const batch = pendingEventsRef.current.splice(0);
+      sendingRef.current = true;
+
+      try {
+        await activityClient.sendEvents(
+          sessionId,
+          batch,
+          keepalive ? { keepalive: true } : undefined,
+        );
+      } catch (error) {
+        // Restore failed events so a later batch can retry them.
+        pendingEventsRef.current = [
+          ...batch,
+          ...pendingEventsRef.current,
+        ];
+
+        console.error("Could not send activity events:", error);
+      } finally {
+        sendingRef.current = false;
+      }
+    },
+    [activityClient],
+  );
+
+  // Create a mock session when the sample assignment opens.
+  useEffect(() => {
+    if (!activityClient) return;
+
+    let cancelled = false;
+
+    void activityClient
+      .startSession(assignment.id)
+      .then(({ id }) => {
+        if (cancelled) {
+          void activityClient.endSession(id);
+          return;
+        }
+
+        sessionIdRef.current = id;
+        void flushEvents();
+      })
+      .catch((error) => {
+        console.error("Could not start activity session:", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activityClient, assignment.id, flushEvents]);
+
+  // Send accumulated events approximately every 10 seconds.
+  useEffect(() => {
+    if (!activityClient) return;
+
+    const intervalId = window.setInterval(() => {
+      void flushEvents();
+    }, ACTIVITY_BATCH_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [activityClient, flushEvents]);
+
+  // Flush remaining events and end the session when the page is leaving.
+  useEffect(() => {
+    const client = activityClient;
+
+    if (!client) return;
+
+    function handlePageHide() {
+      if (!client) return;
+
+      const sessionId = sessionIdRef.current;
+
+      if (!sessionId || endedRef.current) return;
+
+      endedRef.current = true;
+
+      void flushEvents(true).finally(() => {
+        void client.endSession(sessionId).catch((error) => {
+          console.error("Could not end activity session:", error);
+        });
+      });
+    }
+
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [activityClient, flushEvents]);
+
+  // Convert browser events into the activity-client format.
+  const handleActivity = useCallback(
+    (event: BrowserActivityEvent) => {
+      console.log("Activity detected:", event);
+
+      if (!activityClient) return;
+
+      let clientEvent: ClientActivityEvent;
+
+      if (event.type === "paste") {
+        clientEvent = {
+          type: "paste",
+          step: assignment.currentStep,
+          question_id: event.questionId,
+          occurred_at: event.timestamp,
+          detail: event.detail,
+        };
+      } else {
+        clientEvent = {
+          type: event.type,
+          step: assignment.currentStep,
+          question_id: event.questionId,
+          occurred_at: event.timestamp,
+        };
+      }
+
+      pendingEventsRef.current.push(clientEvent);
+    },
+    [activityClient, assignment.currentStep],
+  );
 
   const { recordPaste } = useActivityTracking({
     questionId: question.id,
@@ -89,10 +236,9 @@ export function Workspace({ assignment }: WorkspaceProps) {
               </p>
 
               <p className="mt-1 text-muted">
-                During this assignment, we record paste events and when you
-                switch away from or return to this tab. We record event
-                timestamps and relevant question IDs. We do not access your
-                clipboard contents, camera, or microphone.
+                We record paste events (size only), when you leave or return
+                to this tab, and saved versions of your answers. We do not
+                access your clipboard contents, camera, or microphone.
               </p>
             </div>
 
