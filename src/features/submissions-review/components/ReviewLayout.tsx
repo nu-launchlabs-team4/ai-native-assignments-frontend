@@ -21,15 +21,15 @@ export function ReviewLayout({ backHref, backLabel, eyebrow, title, children }: 
         <SidebarMenuButton />
         <Link
           href={backHref}
-          className="mr-auto text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="mr-auto text-callout text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
           ← {backLabel}
         </Link>
         <AppearanceControl />
       </div>
       <header className="flex flex-col gap-1">
-        <p className="text-sm text-muted">{eyebrow}</p>
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+        <p className="text-callout text-muted">{eyebrow}</p>
+        <h1 className="text-large-title">{title}</h1>
       </header>
       {children}
     </main>

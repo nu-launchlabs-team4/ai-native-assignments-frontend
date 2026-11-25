@@ -12,16 +12,16 @@ export function TrailEntryView({ entry }: { entry: TrailEntry }) {
   const headingId = `trail-${entry.id}`;
 
   return (
-    <article aria-labelledby={headingId} className="flex flex-col gap-2 rounded-md border border-line bg-surface p-4">
+    <article aria-labelledby={headingId} className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id={headingId} className="text-sm font-semibold">
+        <h2 id={headingId} className="text-headline">
           {title}
         </h2>
-        <p className="text-xs text-muted">
+        <p className="text-footnote text-muted">
           {STEP_LABELS[step]} step · <time dateTime={entry.created_at}>{formatDateTime(entry.created_at)}</time>
         </p>
       </div>
-      <div className="text-sm">{body}</div>
+      <div className="text-body">{body}</div>
     </article>
   );
 }
@@ -37,7 +37,7 @@ function describe(entry: TrailEntry): { title: string; step: Step; body: ReactNo
             <p>
               <span className="font-medium">Approach:</span> {entry.approach_note}
             </p>
-            <p className="text-muted">
+            <p className="text-callout text-muted">
               Confidence before the AI unlocked: {entry.confidence} of {CONFIDENCE_MAX}
             </p>
             {entry.answers.map((answer) => (
@@ -60,7 +60,7 @@ function describe(entry: TrailEntry): { title: string; step: Step; body: ReactNo
           <div className="flex flex-col gap-2">
             <p>{entry.reasoning}</p>
             <p>
-              <span className="font-medium">Test case:</span> <code className="font-mono text-xs">{entry.test_case}</code>
+              <span className="font-medium">Test case:</span> <code className="font-mono text-footnote">{entry.test_case}</code>
             </p>
           </div>
         ),
@@ -86,11 +86,11 @@ function describe(entry: TrailEntry): { title: string; step: Step; body: ReactNo
 function Answer({ answer }: { answer: TrailAnswer }) {
   return (
     <figure className="flex flex-col gap-1">
-      <figcaption className="text-xs font-medium text-muted">Question {answer.question_number}</figcaption>
+      <figcaption className="text-footnote font-medium text-muted">Question {answer.question_number}</figcaption>
       {answer.answer_type === AnswerType.TEXT ? (
         <p className="whitespace-pre-wrap">{answer.content}</p>
       ) : (
-        <pre className="overflow-x-auto rounded border border-line bg-surface-muted p-3 font-mono text-xs leading-5">{answer.content}</pre>
+        <pre className="overflow-x-auto rounded-lg border border-line bg-surface-muted p-3 font-mono text-footnote">{answer.content}</pre>
       )}
     </figure>
   );

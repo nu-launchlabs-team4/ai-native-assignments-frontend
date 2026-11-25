@@ -9,10 +9,10 @@ export function TimePerStep({ sessions }: { sessions: readonly WorkSession[] }) 
   const total = rows.reduce((sum, row) => sum + row.seconds, 0);
 
   return (
-    <table className="w-full max-w-md text-left text-sm">
+    <table className="w-full max-w-md text-left text-callout">
       <caption className="sr-only">Time per step</caption>
       <thead>
-        <tr className="border-b border-line text-muted">
+        <tr className="border-b border-line text-footnote text-muted">
           <th scope="col" className="py-2 font-medium">
             Step
           </th>
