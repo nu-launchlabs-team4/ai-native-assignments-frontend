@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api";
-import type { AnswerMap, SubmissionOut } from "@/lib/api-types";
+import type { AnswerMap, InterviewAnswer, SubmissionOut } from "@/lib/api-types";
 import { API_PATHS, type EvaluationVerdict } from "@/lib/constants";
 
 import { MOCK_ASSIGNMENT_ID } from "./mock-assignment";
@@ -14,6 +14,11 @@ export interface EvaluationBody {
   verdict: EvaluationVerdict;
   /** A test case or example that backs up the verdict. */
   test_case: string;
+}
+
+export interface ExplanationBody {
+  interview_answers: InterviewAnswer[];
+  ai_declaration: string;
 }
 
 type SaveOptions = { keepalive?: boolean };
@@ -32,6 +37,10 @@ export interface SubmissionClient {
   saveRevisionAnswers(submissionId: string, answers: AnswerMap, options?: SaveOptions): Promise<SubmissionOut>;
   /** Hand in the revision: moves the submission to the explain step. */
   finishRevision(submissionId: string): Promise<SubmissionOut>;
+  /** Step 5's follow-up questions, generated from the student's own work. */
+  getInterviewQuestions(submissionId: string): Promise<string[]>;
+  /** Answer the follow-up questions and declare AI use. This submits the submission for good. */
+  saveExplanation(submissionId: string, body: ExplanationBody): Promise<SubmissionOut>;
 }
 
 function submissionPath(submissionId: string, ...rest: string[]): string {
@@ -64,6 +73,11 @@ export const apiSubmissionClient: SubmissionClient = {
     }),
   finishRevision: (submissionId) =>
     apiFetch<SubmissionOut>(submissionPath(submissionId, "revision"), { method: "POST" }),
+  // TODO(akashshetty1997): confirm this path and shape with backend #11 (interview questions).
+  getInterviewQuestions: async (submissionId) =>
+    (await apiFetch<{ questions: string[] }>(submissionPath(submissionId, "interview-questions"))).questions,
+  saveExplanation: (submissionId, body) =>
+    apiFetch<SubmissionOut>(submissionPath(submissionId, "explanation"), { method: "POST", body }),
 };
 
 /** The demo assignment runs in the browser. Every real assignment uses the backend. */

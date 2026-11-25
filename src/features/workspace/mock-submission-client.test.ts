@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { ApiError } from "@/lib/api";
-import { Step } from "@/lib/constants";
+import { Step, SubmissionStatus } from "@/lib/constants";
 
 import { MOCK_ASSIGNMENT_ID } from "./mock-assignment";
 import { mockSubmissionClient as client, resetMockSubmissions } from "./mock-submission-client";
@@ -88,5 +88,25 @@ describe("mockSubmissionClient", () => {
     const explaining = await client.finishRevision(submission.id);
     expect(explaining.current_step).toBe(Step.EXPLAIN);
     await expect(client.saveRevisionAnswers(submission.id, { q3: "6" })).rejects.toMatchObject({ status: 409 });
+  });
+  it("submits the explanation in step 5, once, and offers three questions", async () => {
+    const submission = await feedbackStep();
+    await client.saveEvaluation(submission.id, { verdict: "correct", test_case: "x" });
+    await expect(
+      client.saveExplanation(submission.id, { interview_answers: [{ question: "q", answer: "a" }], ai_declaration: "d" }),
+    ).rejects.toMatchObject({ status: 409 });
+    await client.finishRevision(submission.id);
+
+    expect(await client.getInterviewQuestions(submission.id)).toHaveLength(3);
+    const body = { interview_answers: [{ question: "Why?", answer: "Because." }], ai_declaration: "Only the tutor." };
+    const submitted = await client.saveExplanation(submission.id, body);
+
+    expect(submitted.status).toBe(SubmissionStatus.SUBMITTED);
+    expect(submitted.submitted_at).not.toBeNull();
+    expect(submitted.interview_answers).toEqual(body.interview_answers);
+    await expect(client.saveExplanation(submission.id, body)).rejects.toMatchObject({
+      status: 409,
+      message: "This submission is already submitted",
+    });
   });
 });

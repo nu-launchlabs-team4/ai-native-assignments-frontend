@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError } from "@/lib/api";
 import type { SubmissionOut } from "@/lib/api-types";
-import { AUTOSAVE_INTERVAL_MS, Step } from "@/lib/constants";
+import { AUTOSAVE_INTERVAL_MS, Step, SubmissionStatus } from "@/lib/constants";
 
 import type { SubmissionClient } from "./submission-client";
 import { buildSubmission } from "./testing";
@@ -17,6 +17,8 @@ function fakeClient(overrides: Partial<SubmissionClient> = {}): SubmissionClient
     saveEvaluation: vi.fn(),
     saveRevisionAnswers: vi.fn().mockResolvedValue(buildSubmission({ current_step: Step.REVISE })),
     finishRevision: vi.fn().mockResolvedValue(buildSubmission({ current_step: Step.EXPLAIN })),
+    getInterviewQuestions: vi.fn().mockResolvedValue([]),
+    saveExplanation: vi.fn(),
     ...overrides,
   };
 }
@@ -190,5 +192,37 @@ describe("useAnswers", () => {
 
     expect(client.saveRevisionAnswers).not.toHaveBeenCalled();
     expect(client.saveAttemptAnswers).not.toHaveBeenCalled();
+  });
+  it("submits the explanation and reports that it worked", async () => {
+    const explaining = buildSubmission({ current_step: Step.EXPLAIN, revision_answers: { q1: "a", q2: "b", q3: "c" } });
+    const body = { interview_answers: [{ question: "Why?", answer: "Because." }], ai_declaration: "Used only this app's AI tutor." };
+    const submitted = { ...explaining, status: SubmissionStatus.SUBMITTED, submitted_at: "2026-11-25T12:00:00Z", ...body };
+    const client = fakeClient({ saveExplanation: vi.fn().mockResolvedValue(submitted) });
+    const { result } = renderHook(() => useAnswers(client, explaining));
+
+    let worked = false;
+    await act(async () => {
+      worked = await result.current.submitExplanation(body);
+    });
+
+    expect(worked).toBe(true);
+    expect(client.saveExplanation).toHaveBeenCalledWith("sub-1", body);
+    expect(result.current.submission.status).toBe(SubmissionStatus.SUBMITTED);
+  });
+
+  it("reports a failed explanation, keeping the error", async () => {
+    const explaining = buildSubmission({ current_step: Step.EXPLAIN });
+    const client = fakeClient({
+      saveExplanation: vi.fn().mockRejectedValue(new ApiError("This submission is already submitted", 409, "conflict", null)),
+    });
+    const { result } = renderHook(() => useAnswers(client, explaining));
+
+    let worked = true;
+    await act(async () => {
+      worked = await result.current.submitExplanation({ interview_answers: [], ai_declaration: "x" });
+    });
+
+    expect(worked).toBe(false);
+    expect(result.current.submitError).toBe("This submission is already submitted");
   });
 });

@@ -9,7 +9,7 @@ const STATUS_TEXT: Record<StepStatus, string> = {
 };
 
 const ITEM_STYLE: Record<StepStatus, string> = {
-  done: "text-green-700 dark:text-green-400",
+  done: "text-success",
   current: "rounded bg-accent px-2 py-0.5 font-medium text-accent-foreground",
   upcoming: "text-muted",
 };
@@ -22,11 +22,13 @@ function statusOf(index: number, currentIndex: number): StepStatus {
 
 interface StepStepperProps {
   currentStep: Step;
+  /** The submission is handed in, so every step, the last one included, is done. */
+  complete?: boolean;
 }
 
 /** Breadcrumb of the five steps showing where the student is. Display only until step navigation lands. */
-export function StepStepper({ currentStep }: StepStepperProps) {
-  const currentIndex = STEP_ORDER.indexOf(currentStep);
+export function StepStepper({ currentStep, complete = false }: StepStepperProps) {
+  const currentIndex = complete ? STEP_ORDER.length : STEP_ORDER.indexOf(currentStep);
 
   return (
     <nav aria-label="Assignment steps" className="min-w-0 overflow-x-auto">

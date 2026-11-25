@@ -7,7 +7,7 @@ import type { AnswerMap, SubmissionOut } from "@/lib/api-types";
 import { AUTOSAVE_INTERVAL_MS, type EvaluationVerdict, Step } from "@/lib/constants";
 
 import { initialAnswers, showsRevision } from "./map-submission";
-import type { SubmissionClient } from "./submission-client";
+import type { ExplanationBody, SubmissionClient } from "./submission-client";
 import type { Answers } from "./types";
 
 export type SaveStatus = "saved" | "saving" | "unsaved" | "error";
@@ -127,19 +127,21 @@ export function useAnswers(client: SubmissionClient, initialSubmission: Submissi
     setSaveStatus("saved");
   }, []);
 
-  /** Run a step action, saving changed answers first when the step has them. */
+  /** Run a step action, saving changed answers first when the step has them. Resolves to whether it worked. */
   const submit = useCallback(
-    async (action: () => Promise<SubmissionOut>, saveFirst: boolean) => {
+    async (action: () => Promise<SubmissionOut>, saveFirst: boolean): Promise<boolean> => {
       setIsSubmitting(true);
       setSubmitError(null);
       try {
         if (saveFirst && !(await save())) {
           setSubmitError(SAVE_FAILED_MESSAGE);
-          return;
+          return false;
         }
         moveTo(await action());
+        return true;
       } catch (error) {
         setSubmitError(error instanceof ApiError ? error.message : SUBMIT_FAILED_MESSAGE);
+        return false;
       } finally {
         setIsSubmitting(false);
       }
@@ -170,6 +172,12 @@ export function useAnswers(client: SubmissionClient, initialSubmission: Submissi
     [client, submit, submissionId],
   );
 
+  /** Step 5: answer the follow-up questions and declare AI use, which submits the submission. */
+  const submitExplanation = useCallback(
+    (body: ExplanationBody) => submit(() => client.saveExplanation(submissionId, body), false),
+    [client, submit, submissionId],
+  );
+
   return {
     submission,
     answers,
@@ -181,5 +189,6 @@ export function useAnswers(client: SubmissionClient, initialSubmission: Submissi
     finishAttempt,
     submitEvaluation,
     finishRevision,
+    submitExplanation,
   };
 }

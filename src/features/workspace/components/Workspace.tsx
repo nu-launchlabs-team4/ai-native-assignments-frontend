@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { AppearanceControl } from "@/components/AppearanceControl";
 import { type Segment, SegmentedControl } from "@/components/ui/SegmentedControl";
 import { SidebarMenuButton } from "@/features/app-shell/components/SidebarMenuButton";
 import { ChatPanel } from "@/features/chat/components/ChatPanel";
 import type { SubmissionOut } from "@/lib/api-types";
-import { Step } from "@/lib/constants";
+import { Step, SubmissionStatus } from "@/lib/constants";
 
 import { attemptAnswers, isAnswered, showsRevision, toWorkspaceAssignment } from "../map-submission";
 import type { SubmissionClient } from "../submission-client";
@@ -15,10 +15,13 @@ import { useAnswers } from "../use-answers";
 import { AnswerPanel } from "./AnswerPanel";
 import { AssignmentPanel } from "./AssignmentPanel";
 import { EvaluationPanel } from "./EvaluationPanel";
+import { ExplainStepNote } from "./ExplainStepNote";
 import { FinishAttemptPanel } from "./FinishAttemptPanel";
 import { FinishRevisionPanel } from "./FinishRevisionPanel";
+import { InterviewPanel } from "./InterviewPanel";
 import { StatusBar } from "./StatusBar";
 import { StepStepper } from "./StepStepper";
+import { SubmittedSummary } from "./SubmittedSummary";
 import { WorkspaceShell } from "./WorkspaceShell";
 
 type Version = "revision" | "attempt";
@@ -33,20 +36,6 @@ interface WorkspaceProps {
   initialSubmission: SubmissionOut;
 }
 
-/** After the revision: what comes next, until step 5 is built (#8). */
-function RevisionSubmitted() {
-  return (
-    <section aria-labelledby="revision-submitted" className="border-t border-line p-4">
-      <h3 id="revision-submitted" className="text-sm font-semibold">
-        Revision submitted
-      </h3>
-      <p role="status" className="mt-1 text-sm text-muted">
-        Both versions are saved. Step 5, explaining your work, comes next.
-      </p>
-    </section>
-  );
-}
-
 /**
  * The student's workspace for one submission: the questions, an editor per question,
  * the AI tutor, and the panel for the current step (attempt, evaluate or revise).
@@ -58,9 +47,12 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
   const originalAnswers = useMemo(() => attemptAnswers(submission), [submission]);
   const [selectedQuestionId, setSelectedQuestionId] = useState(assignment.questions[0].id);
   const [version, setVersion] = useState<Version>("revision");
+  const submissionId = submission.id;
+  const loadInterviewQuestions = useCallback(() => client.getInterviewQuestions(submissionId), [client, submissionId]);
 
   const step = submission.current_step;
   const isAttemptStep = step === Step.ATTEMPT;
+  const isSubmitted = submission.status === SubmissionStatus.SUBMITTED;
   const hasRevision = showsRevision(step);
   const showingAttempt = hasRevision && version === "attempt";
   const isEditable = (step === Step.ATTEMPT || step === Step.REVISE) && !showingAttempt;
@@ -103,8 +95,27 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
         onFinish={work.finishRevision}
       />
     ) : (
-      <RevisionSubmitted />
+      <ExplainStepNote submitted={isSubmitted} />
     );
+
+  // Step 5 closes the AI tutor: its pane holds the follow-up questions, then the summary.
+  const aiPanel = isSubmitted ? (
+    <SubmittedSummary
+      submittedAt={submission.submitted_at}
+      interviewAnswers={submission.interview_answers}
+      aiDeclaration={submission.ai_declaration}
+    />
+  ) : step === Step.EXPLAIN ? (
+    <InterviewPanel
+      submissionId={submission.id}
+      loadQuestions={loadInterviewQuestions}
+      isSubmitting={work.isSubmitting}
+      submitError={work.submitError}
+      onSubmit={work.submitExplanation}
+    />
+  ) : (
+    <ChatPanel submissionId={submission.id} attemptSaved={!isAttemptStep} />
+  );
 
   return (
     <WorkspaceShell
@@ -112,7 +123,7 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
         <>
           <SidebarMenuButton />
           <h1 className="truncate text-sm font-semibold">{assignment.title}</h1>
-          <StepStepper currentStep={assignment.currentStep} />
+          <StepStepper currentStep={assignment.currentStep} complete={isSubmitted} />
           <div className="ml-auto">
             <AppearanceControl />
           </div>
@@ -152,7 +163,7 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
           }
         />
       }
-      aiPanel={<ChatPanel submissionId={submission.id} attemptSaved={!isAttemptStep} />}
+      aiPanel={aiPanel}
       statusBar={
         <StatusBar
           question={question}
