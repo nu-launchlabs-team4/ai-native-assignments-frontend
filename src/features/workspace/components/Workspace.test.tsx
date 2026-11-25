@@ -130,15 +130,20 @@ describe("Workspace", () => {
     ).toBe("My explanation");
   });
 
-  it("detects paste events in the answer editor", () => {
+  it("detects paste events and records the character count", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     try {
       render(<Workspace assignment={assignment} />);
 
       const editor = screen.getByLabelText("Your answer to question 1");
+      const pastedText = "Hello, world!";
 
-      fireEvent.paste(editor);
+      fireEvent.paste(editor, {
+        clipboardData: {
+          getData: () => pastedText,
+        },
+      });
 
       expect(consoleSpy).toHaveBeenCalledWith(
         "Activity detected:",
@@ -146,6 +151,9 @@ describe("Workspace", () => {
           type: "paste",
           questionId: "q1",
           timestamp: expect.any(String),
+          detail: {
+            characters: 13,
+          },
         }),
       );
     } finally {
@@ -169,7 +177,7 @@ describe("Workspace", () => {
       expect(consoleSpy).toHaveBeenCalledWith(
         "Activity detected:",
         expect.objectContaining({
-          type: "tab_hidden",
+          type: "tab_leave",
           questionId: "q1",
           timestamp: expect.any(String),
         }),
@@ -199,7 +207,7 @@ describe("Workspace", () => {
       expect(consoleSpy).toHaveBeenCalledWith(
         "Activity detected:",
         expect.objectContaining({
-          type: "tab_visible",
+          type: "tab_return",
           questionId: "q1",
           timestamp: expect.any(String),
         }),
@@ -216,17 +224,14 @@ describe("Workspace", () => {
   it("allows the student to dismiss the activity notice", () => {
     render(<Workspace assignment={assignment} />);
 
-    // The notice should be visible initially.
     expect(screen.getByRole("note")).toBeDefined();
 
-    // Dismiss the notice.
     fireEvent.click(
       screen.getByRole("button", {
         name: "Dismiss activity monitoring notice",
       }),
     );
 
-    // The notice should no longer be visible.
     expect(screen.queryByRole("note")).toBeNull();
   });
 });

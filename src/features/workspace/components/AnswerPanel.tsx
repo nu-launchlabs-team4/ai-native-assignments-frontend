@@ -10,7 +10,7 @@ interface AnswerPanelProps {
   questionNumber: number;
   answer: string;
   onAnswerChange: (value: string) => void;
-  onPaste: () => void;
+  onPaste: (characters: number) => void;
 }
 
 function countWords(text: string): number {
@@ -39,6 +39,11 @@ export function AnswerPanel({
   onAnswerChange,
   onPaste,
 }: AnswerPanelProps) {
+  function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) {
+    const characters = event.clipboardData.getData("text/plain").length;
+    onPaste(characters);
+  }
+
   return (
     <Panel
       title={`Question ${questionNumber}`}
@@ -63,7 +68,7 @@ export function AnswerPanel({
         ))}
       </div>
 
-      <div className="min-h-0 flex-1" onPasteCapture={onPaste}>
+      <div className="min-h-0 flex-1" onPasteCapture={handlePaste}>
         <AnswerEditor
           question={question}
           value={answer}

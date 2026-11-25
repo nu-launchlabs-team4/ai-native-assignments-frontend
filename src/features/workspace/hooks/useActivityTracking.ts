@@ -1,11 +1,20 @@
 
 import { useCallback, useEffect } from "react";
 
-export type ActivityEvent = {
-  type: "paste" | "tab_hidden" | "tab_visible";
-  timestamp: string;
-  questionId?: string;
-};
+export type ActivityEvent =
+  | {
+      type: "paste";
+      timestamp: string;
+      questionId: string;
+      detail: {
+        characters: number;
+      };
+    }
+  | {
+      type: "tab_leave" | "tab_return";
+      timestamp: string;
+      questionId: string;
+    };
 
 interface UseActivityTrackingProps {
   questionId: string;
@@ -16,20 +25,26 @@ export function useActivityTracking({
   questionId,
   onActivity,
 }: UseActivityTrackingProps) {
-  // Called when the student pastes something into an answer editor.
-  const recordPaste = useCallback(() => {
-    onActivity({
-      type: "paste",
-      questionId,
-      timestamp: new Date().toISOString(),
-    });
-  }, [questionId, onActivity]);
+  // Record a paste event with only the number of characters pasted.
+  const recordPaste = useCallback(
+    (characters: number) => {
+      onActivity({
+        type: "paste",
+        questionId,
+        timestamp: new Date().toISOString(),
+        detail: {
+          characters,
+        },
+      });
+    },
+    [questionId, onActivity],
+  );
 
-  // Detect when the assignment page becomes hidden or visible.
+  // Detect when the student leaves or returns to the assignment tab.
   useEffect(() => {
     function handleVisibilityChange() {
       const eventType =
-        document.visibilityState === "hidden" ? "tab_hidden" : "tab_visible";
+        document.visibilityState === "hidden" ? "tab_leave" : "tab_return";
 
       onActivity({
         type: eventType,
@@ -40,7 +55,6 @@ export function useActivityTracking({
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Clean up the listener when the component unmounts or question changes.
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
