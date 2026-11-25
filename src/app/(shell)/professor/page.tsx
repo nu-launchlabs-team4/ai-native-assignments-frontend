@@ -2,35 +2,30 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ShellPage } from "@/features/app-shell/components/ShellPage";
+import { ProfessorDashboard } from "@/features/professor-dashboard/components/ProfessorDashboard";
 import { MOCK_REVIEW_ASSIGNMENT_ID } from "@/features/submissions-review/mock-submissions";
-import { assignmentSubmissionsRoute, ROUTES } from "@/lib/constants";
+import { assignmentSubmissionsRoute } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "Professor" };
 
-const LINK_CLASS =
-  "rounded-md px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2";
-
-// TODO(dineshbachchani1234): list the professor's real assignments once the backend has them (#11).
 export default function ProfessorPage() {
   return (
     <ShellPage
-      title="Assignments"
-      description="Set up an assignment from your PDF, or review the sample assignment's submissions."
+      title="Courses"
+      description={
+        <>
+          Add a course, upload an assignment PDF into it, and come back to your drafts.{" "}
+          {/* TODO(dineshbachchani1234): remove the sample link once the submissions table loads real data (#11). */}
+          <Link
+            href={assignmentSubmissionsRoute(MOCK_REVIEW_ASSIGNMENT_ID)}
+            className="text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            See sample submissions
+          </Link>
+        </>
+      }
     >
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href={ROUTES.PROFESSOR_NEW_ASSIGNMENT}
-          className={`${LINK_CLASS} bg-accent text-accent-foreground hover:opacity-90`}
-        >
-          Set up a new assignment
-        </Link>
-        <Link
-          href={assignmentSubmissionsRoute(MOCK_REVIEW_ASSIGNMENT_ID)}
-          className={`${LINK_CLASS} border border-line bg-surface hover:bg-surface-muted`}
-        >
-          Review submissions
-        </Link>
-      </div>
+      <ProfessorDashboard />
     </ShellPage>
   );
 }
