@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { buttonClassName } from "@/components/ui/Button";
 import { CONFIDENCE_MAX, submissionSessionsRoute, submissionTrailRoute } from "@/lib/constants";
 
 import { type ReasoningSummary, SUGGESTION_JUDGMENT_LABELS } from "../types";
@@ -24,13 +25,13 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
     <div className="flex flex-wrap gap-3">
       <Link
         href={submissionTrailRoute(submissionId)}
-        className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2"
+        className={buttonClassName({ variant: "filled" })}
       >
         Open the full trail
       </Link>
       <Link
         href={submissionSessionsRoute(submissionId)}
-        className="rounded-md border border-line bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2"
+        className={buttonClassName({ variant: "tinted" })}
       >
         See work sessions
       </Link>
@@ -40,7 +41,7 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
   if (!summary) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="text-muted">The summary appears after {studentName} submits the assignment.</p>
+        <p className="text-body text-muted">The summary appears after {studentName} submits the assignment.</p>
         {reviewLinks}
       </div>
     );
@@ -48,24 +49,24 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
 
   return (
     <div className="flex flex-col gap-8">
-      <section aria-labelledby="priority-heading" className="flex flex-col gap-3 rounded-md border border-line bg-surface-muted p-4">
+      <section aria-labelledby="priority-heading" className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 id="priority-heading" className="text-lg font-semibold">
+          <h2 id="priority-heading" className="text-title">
             Review priority
           </h2>
           <ReviewPriorityBadge priority={summary.review_priority} />
         </div>
-        <ul aria-label="Reasons for this priority" className="list-inside list-disc text-sm">
+        <ul aria-label="Reasons for this priority" className="list-inside list-disc text-body">
           {summary.priority_reasons.map((reason, index) => (
             <li key={index}>{reason}</li>
           ))}
         </ul>
       </section>
 
-      <dl className="grid gap-x-6 gap-y-5 text-sm sm:grid-cols-[12rem_minmax(0,1fr)]">
+      <dl className="grid gap-x-6 gap-y-5 rounded-xl border border-line bg-surface p-5 text-body sm:grid-cols-[12rem_minmax(0,1fr)]">
         <SummaryPart term="Initial approach">
           <p>{summary.initial_approach}</p>
-          <p className="mt-1 text-muted">
+          <p className="mt-1 text-callout text-muted">
             Confidence before the AI unlocked: {summary.confidence} of {CONFIDENCE_MAX}
           </p>
         </SummaryPart>
@@ -80,7 +81,7 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
                 <ul className="mt-1 flex flex-col gap-1">
                   {group.suggestions.map((suggestion, index) => (
                     <li key={index} className="flex flex-wrap items-baseline gap-2">
-                      <span className="rounded border border-line px-1.5 py-0.5 text-xs">
+                      <span className="rounded-full bg-fill px-2 py-0.5 text-caption font-medium">
                         {SUGGESTION_JUDGMENT_LABELS[suggestion.judgment]}
                       </span>
                       <span>{suggestion.text}</span>
@@ -94,7 +95,7 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
         <SummaryPart term="Revision change">{summary.revision_change}</SummaryPart>
         <SummaryPart term="Test cases used">
           {summary.test_cases.length > 0 ? (
-            <ul className="flex flex-col gap-1 font-mono text-xs">
+            <ul className="flex flex-col gap-1 font-mono text-footnote">
               {summary.test_cases.map((testCase, index) => (
                 <li key={index}>{testCase}</li>
               ))}
@@ -115,7 +116,7 @@ export function ReasoningSummaryView({ submissionId, studentName, summary }: Rea
 function SummaryPart({ term, children }: { term: string; children: ReactNode }) {
   return (
     <>
-      <dt className="font-semibold text-muted">{term}</dt>
+      <dt className="text-callout font-semibold text-muted">{term}</dt>
       <dd>{children}</dd>
     </>
   );

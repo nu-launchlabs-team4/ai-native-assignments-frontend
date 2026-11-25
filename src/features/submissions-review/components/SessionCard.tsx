@@ -40,27 +40,27 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
   const snapshots = session.events.filter((event) => event.type === ActivityEventType.SNAPSHOT).length;
 
   return (
-    <article aria-labelledby={headingId} className="flex flex-col gap-3 rounded-md border border-line bg-surface p-4">
+    <article aria-labelledby={headingId} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 id={headingId} className="font-semibold">
+        <h3 id={headingId} className="text-headline">
           Session {number}
         </h3>
-        <p className="text-sm text-muted">
+        <p className="text-footnote text-muted">
           <time dateTime={session.started_at}>{formatDateTime(session.started_at)}</time>
           {session.ended_at ? ` · ${duration}` : ` · Still open, ${duration} so far`}
         </p>
       </div>
 
-      <ul aria-label={`Steps in session ${number}`} className="flex flex-wrap gap-2 text-sm">
+      <ul aria-label={`Steps in session ${number}`} className="flex flex-wrap gap-2 text-footnote">
         {session.segments.map((segment) => (
-          <li key={segment.started_at} className="rounded border border-line bg-surface-muted px-2 py-0.5">
+          <li key={segment.started_at} className="rounded-full bg-fill px-2.5 py-0.5">
             {STEP_LABELS[segment.step]} {formatDuration(secondsBetween(segment.started_at, segment.ended_at))}
           </li>
         ))}
       </ul>
 
       {marked.length > 0 ? (
-        <ol aria-label={`Marked events in session ${number}`} className="flex flex-col gap-1 text-sm">
+        <ol aria-label={`Marked events in session ${number}`} className="flex flex-col gap-1 text-callout">
           {marked.map((event) => (
             <li key={event.id} className="flex flex-wrap gap-x-2">
               <time dateTime={event.created_at} className="text-muted">
@@ -72,10 +72,10 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
           ))}
         </ol>
       ) : (
-        <p className="text-sm text-muted">No marked events.</p>
+        <p className="text-callout text-muted">No marked events.</p>
       )}
 
-      <p className="text-xs text-muted">
+      <p className="text-footnote text-muted">
         {snapshots} {snapshots === 1 ? "snapshot" : "snapshots"} of the attempt saved
       </p>
     </article>
