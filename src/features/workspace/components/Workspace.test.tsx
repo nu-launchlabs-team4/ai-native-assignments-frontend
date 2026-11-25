@@ -39,12 +39,17 @@ vi.mock("next/navigation", () => ({
 }));
 
 const submission = buildSubmission();
+// The demo assignment's question ids.
+const [Q1, Q2, Q3] = ["q1", "q2", "q3"];
 
 function fakeClient(): SubmissionClient {
   return {
     start: vi.fn(),
     saveAttemptAnswers: vi.fn().mockResolvedValue(submission),
     finishAttempt: vi.fn().mockResolvedValue(buildSubmission({ current_step: Step.FEEDBACK })),
+    saveEvaluation: vi.fn(),
+    saveRevisionAnswers: vi.fn(),
+    finishRevision: vi.fn(),
   };
 }
 
@@ -110,7 +115,7 @@ describe("Workspace", () => {
     expect(screen.getByText("AI tutor is locked")).toBeDefined();
   });
 
-  it("submits the attempt, then makes answers read-only and unlocks the tutor", async () => {
+  it("submits the attempt, then makes answers read-only, unlocks the tutor and asks for an evaluation", async () => {
     const client = renderWorkspace();
     answer(1, "def count_vowels(text):\n    return 0");
     answer(2, "It loops over each letter.");
@@ -124,9 +129,51 @@ describe("Workspace", () => {
 
     expect(client.saveAttemptAnswers).toHaveBeenCalled();
     expect(client.finishAttempt).toHaveBeenCalledWith("sub-1", { confidence: 4, approach_note: "Count in a loop." });
-    expect(screen.getByText("Attempt submitted")).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Evaluate the feedback" })).toBeDefined();
     expect((screen.getByLabelText("Your answer to question 3") as HTMLTextAreaElement).readOnly).toBe(true);
     expect(screen.queryByText("AI tutor is locked")).toBeNull();
     expect(screen.getByLabelText("Message the AI tutor")).toBeDefined();
+  });
+  it("evaluates the feedback, revises with the attempt kept, then hands in the revision", async () => {
+    const attempt = { [Q1]: "def count_vowels(text):\n    return 0", [Q2]: "Loop.", [Q3]: "5n+5" };
+    const feedback = buildSubmission({ current_step: Step.FEEDBACK, attempt_answers: attempt });
+    const revising = { ...feedback, current_step: Step.REVISE, revision_answers: { ...attempt } };
+    const client = fakeClient();
+    vi.mocked(client.saveEvaluation).mockResolvedValue(revising);
+    vi.mocked(client.saveRevisionAnswers).mockResolvedValue(revising);
+    vi.mocked(client.finishRevision).mockResolvedValue({ ...revising, current_step: Step.EXPLAIN });
+    render(<Workspace client={client} initialSubmission={feedback} />);
+
+    fireEvent.click(screen.getByRole("radio", { name: "Partly" }));
+    fireEvent.change(screen.getByLabelText("Why? Give a test case or example that shows it"), {
+      target: { value: "AEIOU should give 5." },
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Submit evaluation" }));
+    });
+    expect(client.saveEvaluation).toHaveBeenCalledWith("sub-1", { verdict: "partly_correct", test_case: "AEIOU should give 5." });
+
+    // The revision starts as the attempt and can be edited; the original stays as it was.
+    answer(2, "Loop over each letter and count vowels.");
+    fireEvent.click(screen.getByRole("radio", { name: "Original attempt" }));
+    const original = screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement;
+    expect(original.value).toBe("Loop.");
+    expect(original.readOnly).toBe(true);
+    fireEvent.click(screen.getByRole("radio", { name: "Revision" }));
+    expect((screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement).value).toBe(
+      "Loop over each letter and count vowels.",
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Submit revision" }));
+    });
+    expect(client.saveRevisionAnswers).toHaveBeenCalledWith(
+      "sub-1",
+      { [Q2]: "Loop over each letter and count vowels." },
+      undefined,
+    );
+    expect(client.finishRevision).toHaveBeenCalledWith("sub-1");
+    expect(screen.getByText("Revision submitted")).toBeDefined();
+    expect((screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement).readOnly).toBe(true);
   });
 });

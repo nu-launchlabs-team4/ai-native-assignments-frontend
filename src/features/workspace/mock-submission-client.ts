@@ -1,5 +1,5 @@
 import { ApiError } from "@/lib/api";
-import type { SubmissionOut } from "@/lib/api-types";
+import type { AnswerMap, SubmissionOut } from "@/lib/api-types";
 import { Step, SubmissionStatus } from "@/lib/constants";
 
 import { hasText } from "./map-submission";
@@ -33,6 +33,25 @@ function getOwned(submissionId: string): SubmissionOut {
   return submission;
 }
 
+function requireStep(submission: SubmissionOut, ...steps: Step[]): void {
+  if (!steps.includes(submission.current_step)) {
+    throw notInStep(submission.current_step);
+  }
+}
+
+function requireKnownQuestions(submission: SubmissionOut, answers: AnswerMap): void {
+  const questionIds = new Set(submission.assignment.questions.map((q) => q.id));
+  if (Object.keys(answers).some((id) => !questionIds.has(id))) {
+    throw new ApiError(UNKNOWN_QUESTION, 422, "validation_error", null);
+  }
+}
+
+function requireEveryAnswered(submission: SubmissionOut, answers: AnswerMap): void {
+  if (!submission.assignment.questions.every((q) => hasText(answers[q.id]))) {
+    throw new ApiError(UNANSWERED, 422, "validation_error", null);
+  }
+}
+
 function update(submission: SubmissionOut): SubmissionOut {
   const updated = { ...submission, updated_at: new Date().toISOString() };
   submissions.set(updated.id, updated);
@@ -60,6 +79,10 @@ export const mockSubmissionClient: SubmissionClient = {
       confidence: null,
       approach_note: null,
       attempt_submitted_at: null,
+      evaluation_verdict: null,
+      evaluation_test_case: null,
+      interview_answers: null,
+      ai_declaration: null,
       submitted_at: null,
       created_at: now,
       updated_at: now,
@@ -72,28 +95,16 @@ export const mockSubmissionClient: SubmissionClient = {
   async saveAttemptAnswers(submissionId, answers) {
     await delay();
     const submission = getOwned(submissionId);
-    if (submission.current_step !== Step.ATTEMPT) {
-      throw notInStep(submission.current_step);
-    }
-    const questionIds = new Set(submission.assignment.questions.map((q) => q.id));
-    if (Object.keys(answers).some((id) => !questionIds.has(id))) {
-      throw new ApiError(UNKNOWN_QUESTION, 422, "validation_error", null);
-    }
+    requireStep(submission, Step.ATTEMPT);
+    requireKnownQuestions(submission, answers);
     return update({ ...submission, attempt_answers: { ...submission.attempt_answers, ...answers } });
   },
 
   async finishAttempt(submissionId, body) {
     await delay();
     const submission = getOwned(submissionId);
-    if (submission.current_step !== Step.ATTEMPT) {
-      throw notInStep(submission.current_step);
-    }
-    const everyAnswered = submission.assignment.questions.every((q) =>
-      hasText(submission.attempt_answers[q.id]),
-    );
-    if (!everyAnswered) {
-      throw new ApiError(UNANSWERED, 422, "validation_error", null);
-    }
+    requireStep(submission, Step.ATTEMPT);
+    requireEveryAnswered(submission, submission.attempt_answers);
     return update({
       ...submission,
       confidence: body.confidence,
@@ -101,6 +112,36 @@ export const mockSubmissionClient: SubmissionClient = {
       attempt_submitted_at: new Date().toISOString(),
       current_step: Step.FEEDBACK,
     });
+  },
+
+  async saveEvaluation(submissionId, body) {
+    await delay();
+    const submission = getOwned(submissionId);
+    requireStep(submission, Step.FEEDBACK, Step.EVALUATE);
+    return update({
+      ...submission,
+      evaluation_verdict: body.verdict,
+      evaluation_test_case: body.test_case,
+      // The revision starts as a copy of the attempt. The attempt itself stays as it was.
+      revision_answers: { ...submission.attempt_answers },
+      current_step: Step.REVISE,
+    });
+  },
+
+  async saveRevisionAnswers(submissionId, answers) {
+    await delay();
+    const submission = getOwned(submissionId);
+    requireStep(submission, Step.REVISE);
+    requireKnownQuestions(submission, answers);
+    return update({ ...submission, revision_answers: { ...submission.revision_answers, ...answers } });
+  },
+
+  async finishRevision(submissionId) {
+    await delay();
+    const submission = getOwned(submissionId);
+    requireStep(submission, Step.REVISE);
+    requireEveryAnswered(submission, submission.revision_answers);
+    return update({ ...submission, current_step: Step.EXPLAIN });
   },
 };
 

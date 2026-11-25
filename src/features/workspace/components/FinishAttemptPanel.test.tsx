@@ -6,7 +6,6 @@ import { FinishAttemptPanel } from "./FinishAttemptPanel";
 const BASE = {
   answeredCount: 3,
   questionCount: 3,
-  isAttemptStep: true,
   saveStatus: "saved" as const,
   lastSavedAt: null,
   isFinishing: false,
@@ -73,10 +72,4 @@ describe("FinishAttemptPanel", () => {
     expect(screen.getByText("Couldn't save. Retrying…")).toBeDefined();
   });
 
-  it("confirms the submission once the attempt is done", () => {
-    render(<FinishAttemptPanel {...BASE} isAttemptStep={false} onFinish={vi.fn()} />);
-
-    expect(screen.getByText("Attempt submitted")).toBeDefined();
-    expect(screen.queryByRole("button", { name: "Submit attempt" })).toBeNull();
-  });
 });
