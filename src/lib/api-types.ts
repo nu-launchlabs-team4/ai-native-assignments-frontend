@@ -13,6 +13,13 @@ import type {
 // layer is needed between the API and the app. Keep in sync with
 // app/assignments/schemas.py, app/submissions/schemas.py and app/users/schemas.py in the backend.
 
+/** CourseOut */
+export interface CourseOut {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
 /** QuestionOut */
 export interface QuestionOut {
   id: string;

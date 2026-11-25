@@ -36,6 +36,8 @@ src/
     auth/                  LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, LogoutButton,
                            auth-client.ts (the /auth calls), validation.ts,
                            next-path.ts (safe ?next= redirects)
+    professor-dashboard/   ProfessorDashboard (/professor): courses and their assignments, loaded in the browser,
+                           NewCourseForm, CourseCard (draft -> setup, published -> submissions)
     landing/               the public landing page (Northeastern black, white and red): header, hero,
                            StepStrip, two RoleCard links, footer
     workspace/             the student workspace feature

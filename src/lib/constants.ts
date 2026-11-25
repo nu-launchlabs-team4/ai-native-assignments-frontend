@@ -194,6 +194,16 @@ export function submissionTrailRoute(submissionId: string): string {
   return `${submissionSummaryRoute(submissionId)}/trail`;
 }
 
+/** URL of the setup page for one of the professor's draft assignments. */
+export function assignmentSetupRoute(assignmentId: string): string {
+  return `${ROUTES.PROFESSOR}/assignments/${encodeURIComponent(assignmentId)}`;
+}
+
+/** URL of the PDF upload that starts a new assignment in one course. */
+export function newAssignmentRoute(courseId: string): string {
+  return `${ROUTES.PROFESSOR_NEW_ASSIGNMENT}?course=${encodeURIComponent(courseId)}`;
+}
+
 /** URL of the work sessions timeline for one submission. */
 export function submissionSessionsRoute(submissionId: string): string {
   return `${submissionSummaryRoute(submissionId)}/sessions`;
@@ -205,6 +215,7 @@ export const AUTOSAVE_INTERVAL_MS = 30_000;
 export const API_PATHS = {
   HEALTH: "/health",
   ASSIGNMENTS: "/assignments",
+  COURSES: "/courses",
   SUBMISSIONS: "/submissions",
   AUTH_SIGNUP: "/auth/signup",
   AUTH_LOGIN: "/auth/login",
