@@ -17,6 +17,9 @@ import type {
 export interface CourseOut {
   id: string;
   title: string;
+  /** What students type to join, two groups of four such as "7K4Q-M2XP". Only the professor sees it. */
+  join_code: string;
+  student_count: number;
   created_at: string;
 }
 
