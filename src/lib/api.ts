@@ -1,3 +1,4 @@
+import { API_PATHS } from "@/lib/constants";
 import { env } from "@/lib/env";
 
 /** Every backend error response has this shape (see app/core/middleware.py). */
@@ -34,10 +35,31 @@ const RATE_LIMITED_MESSAGE = "Too many requests. Please wait a moment and try ag
 
 // In the browser, call the same-origin /api rewrite so the backend's httpOnly
 // session cookies are sent automatically. Server code has no origin to resolve
-// /api against, so it calls the backend directly.
-// TODO(akashshetty1997): forward the session cookie on server-side calls (#3).
+// /api against, so it calls the backend directly, without the session: only
+// public routes (like /health) are called from the server.
 function baseUrl(): string {
   return typeof window === "undefined" ? env.apiUrl : "/api";
+}
+
+const AUTH_PATH_PREFIX = "/auth/";
+
+// One refresh at a time: when several calls get 401 together, they all wait for it.
+let refreshInFlight: Promise<boolean> | null = null;
+
+/** Swap the refresh cookie for a new session. Resolves to whether it worked. */
+function refreshSession(): Promise<boolean> {
+  refreshInFlight ??= fetch(`${baseUrl()}${API_PATHS.AUTH_REFRESH}`, {
+    method: "POST",
+    credentials: "include",
+  })
+    .then(
+      (response) => response.ok,
+      () => false,
+    )
+    .finally(() => {
+      refreshInFlight = null;
+    });
+  return refreshInFlight;
 }
 
 /**
@@ -56,21 +78,30 @@ export async function apiFetch<T>(path: string, init: ApiRequestInit = {}): Prom
     requestBody = JSON.stringify(body);
   }
 
-  let response: Response;
-  try {
-    response = await fetch(`${baseUrl()}${path}`, {
-      ...rest,
-      headers: requestHeaders,
-      body: requestBody,
-      credentials: "include",
-    });
-  } catch {
-    // fetch only rejects on network failures.
-    throw new ApiError(NETWORK_ERROR_MESSAGE, 0, "network_error", null);
+  const send = async (): Promise<Response> => {
+    try {
+      return await fetch(`${baseUrl()}${path}`, {
+        ...rest,
+        headers: requestHeaders,
+        body: requestBody,
+        credentials: "include",
+      });
+    } catch {
+      // fetch only rejects on network failures.
+      throw new ApiError(NETWORK_ERROR_MESSAGE, 0, "network_error", null);
+    }
+  };
+
+  const isAuthCall = path.startsWith(AUTH_PATH_PREFIX);
+  let response = await send();
+  // The access cookie lasts an hour. When it has run out, refresh once and retry,
+  // so people stay logged in while they work. Auth calls report their own 401s.
+  if (response.status === 401 && !isAuthCall && typeof window !== "undefined" && (await refreshSession())) {
+    response = await send();
   }
 
   if (!response.ok) {
-    throw await toApiError(response);
+    throw await toApiError(response, isAuthCall);
   }
   if (response.status === 204) {
     return undefined as T;
@@ -78,23 +109,24 @@ export async function apiFetch<T>(path: string, init: ApiRequestInit = {}): Prom
   return (await response.json()) as T;
 }
 
-async function toApiError(response: Response): Promise<ApiError> {
+async function toApiError(response: Response, isAuthCall: boolean): Promise<ApiError> {
   const backendError = await readBackendError(response);
   const code = backendError?.code ?? `http_${response.status}`;
   const requestId = backendError?.request_id ?? response.headers.get("X-Request-ID");
 
   return new ApiError(
-    friendlyMessage(response.status, backendError?.message),
+    friendlyMessage(response.status, backendError?.message, isAuthCall),
     response.status,
     code,
     requestId,
   );
 }
 
-function friendlyMessage(status: number, backendMessage: string | undefined): string {
+function friendlyMessage(status: number, backendMessage: string | undefined, isAuthCall: boolean): string {
   switch (status) {
     case 401:
-      return UNAUTHORIZED_MESSAGE;
+      // On log-in the backend says what went wrong ("Wrong email or password").
+      return isAuthCall ? (backendMessage ?? UNAUTHORIZED_MESSAGE) : UNAUTHORIZED_MESSAGE;
     case 403:
       // The backend explains what is locked, e.g. "Save your attempt first".
       return backendMessage ?? FORBIDDEN_FALLBACK_MESSAGE;

@@ -1,237 +1,223 @@
-
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { getMockAssignment, MOCK_ASSIGNMENT_ID } from "../mock-assignment";
+import { Step } from "@/lib/constants";
+
+import type { ActivityClient } from "../activity-client";
+import type { SubmissionClient } from "../submission-client";
+import { buildSubmission } from "../testing";
 import { Workspace } from "./Workspace";
 
 // Monaco and MathLive can't run in jsdom, so stand in plain fields with the same accessible names.
-vi.mock("./CodeEditor", () => ({
-  CodeEditor: ({
+// vi.hoisted makes the fake available to vi.mock, which runs before the rest of the file.
+const { FakeEditor } = vi.hoisted(() => ({
+  FakeEditor: ({
     value,
     ariaLabel,
     onChange,
+    readOnly,
   }: {
     value: string;
     ariaLabel: string;
-    onChange?: (v: string) => void;
+    onChange?: (value: string) => void;
+    readOnly?: boolean;
   }) => (
     <textarea
       aria-label={ariaLabel}
       value={value}
+      readOnly={readOnly}
       onChange={(event) => onChange?.(event.target.value)}
     />
   ),
 }));
-
-vi.mock("./MathAnswer", () => ({
-  MathAnswer: ({ ariaLabel }: { ariaLabel: string }) => (
-    <div role="group" aria-label={`${ariaLabel} (math)`} />
-  ),
-}));
+vi.mock("./CodeEditor", () => ({ CodeEditor: FakeEditor }));
+vi.mock("./MathAnswer", () => ({ MathAnswer: FakeEditor }));
 
 // The AI tutor panel uses the router, which only exists inside the Next.js app.
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/student/assignments/sample-1",
 }));
 
-const assignment = getMockAssignment(MOCK_ASSIGNMENT_ID)!;
+const submission = buildSubmission();
+// The demo assignment's question ids.
+const [Q1, Q2, Q3] = ["q1", "q2", "q3"];
+
+function fakeClient(): SubmissionClient {
+  return {
+    start: vi.fn(),
+    saveAttemptAnswers: vi.fn().mockResolvedValue(submission),
+    finishAttempt: vi.fn().mockResolvedValue(buildSubmission({ current_step: Step.FEEDBACK })),
+    saveEvaluation: vi.fn(),
+    saveRevisionAnswers: vi.fn(),
+    finishRevision: vi.fn(),
+  };
+}
+
+function fakeActivityClient(): ActivityClient {
+  return {
+    startSession: vi.fn().mockResolvedValue({ id: "w-1", submission_id: "sub-1", started_at: "", ended_at: null }),
+    sendEvents: vi.fn().mockResolvedValue(undefined),
+    endSession: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
+function renderWorkspace(client = fakeClient(), activityClient = fakeActivityClient()) {
+  render(<Workspace client={client} activityClient={activityClient} initialSubmission={submission} />);
+  return client;
+}
 
 function openQuestion(number: number) {
   const list = screen.getByRole("navigation", { name: "Questions" });
+  fireEvent.click(within(list).getByRole("button", { name: new RegExp(`^Question ${number}`) }));
+}
 
-  fireEvent.click(
-    within(list).getByRole("button", {
-      name: new RegExp(`^Question ${number}`),
-    }),
-  );
+function answer(number: number, value: string) {
+  openQuestion(number);
+  fireEvent.change(screen.getByLabelText(`Your answer to question ${number}`), { target: { value } });
 }
 
 describe("Workspace", () => {
   it("shows the title, the steps and the three panes", () => {
-    render(<Workspace assignment={assignment} />);
+    renderWorkspace();
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: assignment.title }),
-    ).toBeDefined();
-    expect(
-      screen.getByRole("navigation", { name: "Assignment steps" }),
-    ).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1, name: submission.assignment.title })).toBeDefined();
+    expect(screen.getByRole("navigation", { name: "Assignment steps" })).toBeDefined();
     expect(screen.getByRole("region", { name: "Assignment" })).toBeDefined();
     expect(screen.getByRole("region", { name: "Question 1" })).toBeDefined();
     expect(screen.getByRole("region", { name: "AI tutor" })).toBeDefined();
   });
 
-  it("lists every question with its answer type", () => {
-    render(<Workspace assignment={assignment} />);
-
-    const items = within(
-      screen.getByRole("navigation", { name: "Questions" }),
-    ).getAllByRole("button");
-
-    expect(items.map((item) => item.textContent)).toEqual([
-      "Question 1Code",
-      "Question 2Written",
-      "Question 3Math",
-    ]);
-  });
-
   it("opens the code question first, with its starter code and file name", () => {
-    render(<Workspace assignment={assignment} />);
+    renderWorkspace();
 
-    const editor = screen.getByLabelText(
-      "Your answer to question 1",
-    ) as HTMLTextAreaElement;
-
-    expect(editor.value).toBe(assignment.questions[0].starterAnswer);
+    const editor = screen.getByLabelText("Your answer to question 1") as HTMLTextAreaElement;
+    expect(editor.value).toContain("def count_vowels");
     expect(screen.getByText("solution.py")).toBeDefined();
     expect(screen.getByText("Question 1 of 3")).toBeDefined();
   });
 
-  it("shows a text box for the written question and counts words", () => {
-    render(<Workspace assignment={assignment} />);
-    openQuestion(2);
-
-    const answer = screen.getByLabelText("Your answer to question 2");
-
-    fireEvent.change(answer, {
-      target: { value: "It loops over each letter" },
-    });
-
-    expect(screen.getByText("5 words")).toBeDefined();
-  });
-
-  it("shows the math editor for the math question", () => {
-    render(<Workspace assignment={assignment} />);
-    openQuestion(3);
-
-    expect(
-      screen.getByRole("group", {
-        name: "Your answer to question 3 (math)",
-      }),
-    ).toBeDefined();
-  });
-
   it("keeps each answer when switching between questions", () => {
-    render(<Workspace assignment={assignment} />);
-    openQuestion(2);
-
-    fireEvent.change(screen.getByLabelText("Your answer to question 2"), {
-      target: { value: "My explanation" },
-    });
+    renderWorkspace();
+    answer(2, "My explanation");
 
     openQuestion(1);
     openQuestion(2);
 
-    expect(
-      (screen.getByLabelText(
-        "Your answer to question 2",
-      ) as HTMLTextAreaElement).value,
-    ).toBe("My explanation");
+    expect((screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement).value).toBe("My explanation");
   });
 
-  it("detects paste events and records the character count", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  it("ticks questions off as they are answered, ignoring untouched starter code", () => {
+    renderWorkspace();
+    expect(screen.getByText("0 of 3 answered")).toBeDefined();
 
-    try {
-      render(<Workspace assignment={assignment} />);
+    answer(2, "It loops over each letter");
 
-      const editor = screen.getByLabelText("Your answer to question 1");
-      const pastedText = "Hello, world!";
-
-      fireEvent.paste(editor, {
-        clipboardData: {
-          getData: () => pastedText,
-        },
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Activity detected:",
-        expect.objectContaining({
-          type: "paste",
-          questionId: "q1",
-          timestamp: expect.any(String),
-          detail: {
-            characters: 13,
-          },
-        }),
-      );
-    } finally {
-      consoleSpy.mockRestore();
-    }
+    expect(screen.getByText("1 of 3 answered")).toBeDefined();
+    const list = screen.getByRole("navigation", { name: "Questions" });
+    expect(within(list).getByRole("button", { name: /^Question 2/ }).textContent).toContain("answered");
   });
 
-  it("records when the student switches away from the assignment tab", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  it("keeps the AI tutor locked during the attempt", () => {
+    renderWorkspace();
 
-    try {
-      render(<Workspace assignment={assignment} />);
-
-      Object.defineProperty(document, "visibilityState", {
-        configurable: true,
-        value: "hidden",
-      });
-
-      fireEvent(document, new Event("visibilitychange"));
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Activity detected:",
-        expect.objectContaining({
-          type: "tab_leave",
-          questionId: "q1",
-          timestamp: expect.any(String),
-        }),
-      );
-    } finally {
-      consoleSpy.mockRestore();
-      Object.defineProperty(document, "visibilityState", {
-        configurable: true,
-        value: "visible",
-      });
-    }
+    expect(screen.getByText("AI tutor is locked")).toBeDefined();
   });
 
-  it("records when the student returns to the assignment tab", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  it("submits the attempt, then makes answers read-only, unlocks the tutor and asks for an evaluation", async () => {
+    const client = renderWorkspace();
+    answer(1, "def count_vowels(text):\n    return 0");
+    answer(2, "It loops over each letter.");
+    answer(3, "5n+5");
+    fireEvent.click(screen.getByRole("radio", { name: "4" }));
+    fireEvent.change(screen.getByLabelText("How did you approach it?"), { target: { value: "Count in a loop." } });
 
-    try {
-      render(<Workspace assignment={assignment} />);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Submit attempt" }));
+    });
 
-      Object.defineProperty(document, "visibilityState", {
-        configurable: true,
-        value: "visible",
-      });
-
-      fireEvent(document, new Event("visibilitychange"));
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Activity detected:",
-        expect.objectContaining({
-          type: "tab_return",
-          questionId: "q1",
-          timestamp: expect.any(String),
-        }),
-      );
-    } finally {
-      consoleSpy.mockRestore();
-      Object.defineProperty(document, "visibilityState", {
-        configurable: true,
-        value: "visible",
-      });
-    }
+    expect(client.saveAttemptAnswers).toHaveBeenCalled();
+    expect(client.finishAttempt).toHaveBeenCalledWith("sub-1", { confidence: 4, approach_note: "Count in a loop." });
+    expect(screen.getByRole("heading", { name: "Evaluate the feedback" })).toBeDefined();
+    expect((screen.getByLabelText("Your answer to question 3") as HTMLTextAreaElement).readOnly).toBe(true);
+    expect(screen.queryByText("AI tutor is locked")).toBeNull();
+    expect(screen.getByLabelText("Message the AI tutor")).toBeDefined();
   });
+  it("evaluates the feedback, revises with the attempt kept, then hands in the revision", async () => {
+    const attempt = { [Q1]: "def count_vowels(text):\n    return 0", [Q2]: "Loop.", [Q3]: "5n+5" };
+    const feedback = buildSubmission({ current_step: Step.FEEDBACK, attempt_answers: attempt });
+    const revising = { ...feedback, current_step: Step.REVISE, revision_answers: { ...attempt } };
+    const client = fakeClient();
+    vi.mocked(client.saveEvaluation).mockResolvedValue(revising);
+    vi.mocked(client.saveRevisionAnswers).mockResolvedValue(revising);
+    vi.mocked(client.finishRevision).mockResolvedValue({ ...revising, current_step: Step.EXPLAIN });
+    render(<Workspace client={client} activityClient={fakeActivityClient()} initialSubmission={feedback} />);
 
-  it("allows the student to dismiss the activity notice", () => {
-    render(<Workspace assignment={assignment} />);
+    fireEvent.click(screen.getByRole("radio", { name: "Partly" }));
+    fireEvent.change(screen.getByLabelText("Why? Give a test case or example that shows it"), {
+      target: { value: "AEIOU should give 5." },
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Submit evaluation" }));
+    });
+    expect(client.saveEvaluation).toHaveBeenCalledWith("sub-1", { verdict: "partly_correct", test_case: "AEIOU should give 5." });
 
-    expect(screen.getByRole("note")).toBeDefined();
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Dismiss activity monitoring notice",
-      }),
+    // The revision starts as the attempt and can be edited; the original stays as it was.
+    answer(2, "Loop over each letter and count vowels.");
+    fireEvent.click(screen.getByRole("radio", { name: "Original attempt" }));
+    const original = screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement;
+    expect(original.value).toBe("Loop.");
+    expect(original.readOnly).toBe(true);
+    fireEvent.click(screen.getByRole("radio", { name: "Revision" }));
+    expect((screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement).value).toBe(
+      "Loop over each letter and count vowels.",
     );
 
-    expect(screen.queryByRole("note")).toBeNull();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Submit revision" }));
+    });
+    expect(client.saveRevisionAnswers).toHaveBeenCalledWith(
+      "sub-1",
+      { [Q2]: "Loop over each letter and count vowels." },
+      undefined,
+    );
+    expect(client.finishRevision).toHaveBeenCalledWith("sub-1");
+    expect(screen.getByText("Revision submitted")).toBeDefined();
+    expect((screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement).readOnly).toBe(true);
+  });
+
+  it("says what the professor sees, until the student dismisses it", () => {
+    renderWorkspace();
+
+    const notice = screen.getByRole("complementary", { name: /What your professor sees/ });
+    expect(notice.textContent).toContain("never the text");
+
+    fireEvent.click(within(notice).getByRole("button", { name: "Got it" }));
+    expect(screen.queryByRole("complementary", { name: /What your professor sees/ })).toBeNull();
+  });
+
+  it("starts a work session for the submission and records the size of a paste", async () => {
+    vi.useFakeTimers();
+    try {
+      const activityClient = fakeActivityClient();
+      renderWorkspace(fakeClient(), activityClient);
+      await act(async () => {});
+      expect(activityClient.startSession).toHaveBeenCalledWith(submission.id);
+
+      fireEvent.paste(screen.getByLabelText("Your answer to question 1"), {
+        clipboardData: { getData: () => "print('hi')" },
+      });
+      await act(async () => {
+        vi.advanceTimersByTime(10_000);
+      });
+
+      expect(activityClient.sendEvents).toHaveBeenCalledWith(
+        "w-1",
+        [expect.objectContaining({ type: "paste", question_id: Q1, detail: { characters: 11 } })],
+        { keepalive: false },
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

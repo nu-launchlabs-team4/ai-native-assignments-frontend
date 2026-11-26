@@ -1,70 +1,50 @@
+import { type ActivityClient, type ActivityEvent, apiActivityClient } from "./activity-client";
+import { MOCK_ASSIGNMENT_ID } from "./mock-assignment";
 
-import {
-  apiActivityClient,
-  type ActivityClient,
-  type ActivityEvent,
-  type StartSessionResponse,
-} from "./activity-client";
+interface MockSession {
+  submissionId: string;
+  endedAt: string | null;
+  events: ActivityEvent[];
+}
 
-// In-memory store for mock activity sessions.
-const sessions = new Map<
-  string,
-  {
-    submissionId: string;
-    startedAt: string;
-    events: ActivityEvent[];
-    endedAt: string | null;
-  }
->();
+export interface MockActivityClient extends ActivityClient {
+  /** What was recorded, for tests. */
+  sessions: Map<string, MockSession>;
+}
 
-export const mockActivityClient: ActivityClient = {
-  async startSession(submissionId): Promise<StartSessionResponse> {
-    const id = `mock-session-${submissionId}-${Date.now()}`;
-    const startedAt = new Date().toISOString();
+/** An in-memory stand-in for the sample assignment, with the backend's rules. */
+export function createMockActivityClient(): MockActivityClient {
+  const sessions = new Map<string, MockSession>();
+  let nextId = 1;
 
-    sessions.set(id, {
-      submissionId,
-      startedAt,
-      events: [],
-      endedAt: null,
-    });
+  return {
+    sessions,
+    async startSession(submissionId) {
+      const now = new Date().toISOString();
+      // Like the backend, a new session ends any the student left open in another tab.
+      for (const session of sessions.values()) {
+        if (session.submissionId === submissionId && !session.endedAt) session.endedAt = now;
+      }
+      const id = `mock-session-${nextId++}`;
+      sessions.set(id, { submissionId, endedAt: null, events: [] });
+      return { id, submission_id: submissionId, started_at: now, ended_at: null };
+    },
+    async sendEvents(sessionId, events) {
+      const session = sessions.get(sessionId);
+      if (!session) throw new Error("Session not found");
+      if (session.endedAt) throw new Error("This session has ended. Start a new one");
+      session.events.push(...events);
+    },
+    async endSession(sessionId) {
+      const session = sessions.get(sessionId);
+      if (session && !session.endedAt) session.endedAt = new Date().toISOString();
+    },
+  };
+}
 
-    return {
-      id,
-      started_at: startedAt,
-    };
-  },
+const mockActivityClient = createMockActivityClient();
 
-  async sendEvents(sessionId, events) {
-    const session = sessions.get(sessionId);
-
-    if (!session) {
-      throw new Error(`Mock session not found: ${sessionId}`);
-    }
-
-    if (session.endedAt) {
-      throw new Error(`Mock session has already ended: ${sessionId}`);
-    }
-
-    session.events.push(...events);
-  },
-
-  async endSession(sessionId) {
-    const session = sessions.get(sessionId);
-
-    if (!session) {
-      throw new Error(`Mock session not found: ${sessionId}`);
-    }
-
-    session.endedAt = new Date().toISOString();
-  },
-};
-
-// Select the mock client for the sample assignment.
-export function activityClientFor(
-  assignmentId: string,
-): ActivityClient {
-  return assignmentId === "sample-1"
-    ? mockActivityClient
-    : apiActivityClient;
+/** The sample assignment records to memory; every other assignment to the backend. */
+export function activityClientFor(assignmentId: string): ActivityClient {
+  return assignmentId === MOCK_ASSIGNMENT_ID ? mockActivityClient : apiActivityClient;
 }

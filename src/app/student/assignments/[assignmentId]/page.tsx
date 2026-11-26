@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { Workspace } from "@/features/workspace/components/Workspace";
+import { WorkspaceLoader } from "@/features/workspace/components/WorkspaceLoader";
 import { WorkspaceSkeleton } from "@/features/workspace/components/WorkspaceSkeleton";
-import { getMockAssignment } from "@/features/workspace/mock-assignment";
 
 export const metadata: Metadata = { title: "Workspace" };
 
@@ -14,17 +12,13 @@ export default function WorkspacePage({ params }: WorkspacePageProps) {
   // Reading params happens at request time, so it streams in behind Suspense.
   return (
     <Suspense fallback={<WorkspaceSkeleton />}>
-      <WorkspaceLoader params={params} />
+      <WorkspaceForParams params={params} />
     </Suspense>
   );
 }
 
-async function WorkspaceLoader({ params }: Pick<WorkspacePageProps, "params">) {
+async function WorkspaceForParams({ params }: Pick<WorkspacePageProps, "params">) {
   const { assignmentId } = await params;
-  // TODO(akashshetty1997): load the assignment from the backend once BE#9 lands (#6).
-  const assignment = getMockAssignment(assignmentId);
-  if (!assignment) {
-    notFound();
-  }
-  return <Workspace assignment={assignment} />;
+  // The submission is started in the browser, so the backend's session cookie goes with it.
+  return <WorkspaceLoader assignmentId={assignmentId} />;
 }

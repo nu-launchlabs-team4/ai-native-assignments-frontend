@@ -1,285 +1,174 @@
-
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppearanceControl } from "@/components/AppearanceControl";
+import { type Segment, SegmentedControl } from "@/components/ui/SegmentedControl";
+import { SidebarMenuButton } from "@/features/app-shell/components/SidebarMenuButton";
 import { ChatPanel } from "@/features/chat/components/ChatPanel";
+import type { SubmissionOut } from "@/lib/api-types";
+import { Step, SubmissionStatus } from "@/lib/constants";
 
-import type { Answers, WorkspaceAssignment } from "../types";
-import {
-  useActivityTracking,
-  type ActivityEvent as BrowserActivityEvent,
-} from "../hooks/useActivityTracking";
-import type { ActivityEvent as ClientActivityEvent } from "../activity-client";
-import { mockActivityClient } from "../mock-activity-client";
+import type { ActivityClient } from "../activity-client";
+import { attemptAnswers, isAnswered, showsRevision, toWorkspaceAssignment } from "../map-submission";
+import type { SubmissionClient } from "../submission-client";
+import { useActivityTracking } from "../use-activity-tracking";
+import { useAnswers } from "../use-answers";
+import { ActivityNotice } from "./ActivityNotice";
 import { AnswerPanel } from "./AnswerPanel";
 import { AssignmentPanel } from "./AssignmentPanel";
+import { EvaluationPanel } from "./EvaluationPanel";
+import { FinishAttemptPanel } from "./FinishAttemptPanel";
+import { FinishRevisionPanel } from "./FinishRevisionPanel";
 import { StatusBar } from "./StatusBar";
 import { StepStepper } from "./StepStepper";
 import { WorkspaceShell } from "./WorkspaceShell";
 
+type Version = "revision" | "attempt";
+
+const VERSIONS: readonly Segment<Version>[] = [
+  { value: "revision", label: "Revision" },
+  { value: "attempt", label: "Original attempt" },
+];
+
 interface WorkspaceProps {
-  assignment: WorkspaceAssignment;
+  client: SubmissionClient;
+  activityClient: ActivityClient;
+  initialSubmission: SubmissionOut;
 }
 
-function initialAnswers(assignment: WorkspaceAssignment): Answers {
-  return Object.fromEntries(
-    assignment.questions.map((question) => [
-      question.id,
-      question.starterAnswer,
-    ]),
+/** After the revision: what comes next, until step 5 is built (#8). */
+function RevisionSubmitted() {
+  return (
+    <section aria-labelledby="revision-submitted" className="border-t border-line p-4">
+      <h3 id="revision-submitted" className="text-sm font-semibold">
+        Revision submitted
+      </h3>
+      <p role="status" className="mt-1 text-sm text-muted">
+        Both versions are saved. Step 5, explaining your work, comes next.
+      </p>
+    </section>
   );
 }
-
-const ACTIVITY_BATCH_INTERVAL_MS = 10_000;
 
 /**
- * The student's workspace for one assignment.
- * Holds the selected question and answers, and records activity events.
+ * The student's workspace for one submission: the questions, an editor per question,
+ * the AI tutor, and the panel for the current step (attempt, evaluate or revise).
  */
-export function Workspace({ assignment }: WorkspaceProps) {
-  const [selectedQuestionId, setSelectedQuestionId] = useState(
-    assignment.questions[0].id,
-  );
-
-  const [answers, setAnswers] = useState<Answers>(() =>
-    initialAnswers(assignment),
-  );
-
+export function Workspace({ client, activityClient, initialSubmission }: WorkspaceProps) {
+  const work = useAnswers(client, initialSubmission);
+  const { submission, answers } = work;
+  const assignment = useMemo(() => toWorkspaceAssignment(submission), [submission]);
+  const originalAnswers = useMemo(() => attemptAnswers(submission), [submission]);
+  const [selectedQuestionId, setSelectedQuestionId] = useState(assignment.questions[0].id);
+  const [version, setVersion] = useState<Version>("revision");
   const [showActivityNotice, setShowActivityNotice] = useState(true);
 
-  // Use the mock client only for the sample assignment.
-  // The real API needs the actual submission ID, which is not available here yet.
-  const activityClient =
-    assignment.id === "sample-1" ? mockActivityClient : null;
+  const step = submission.current_step;
+  const isAttemptStep = step === Step.ATTEMPT;
+  const hasRevision = showsRevision(step);
+  const showingAttempt = hasRevision && version === "attempt";
+  const isEditable = (step === Step.ATTEMPT || step === Step.REVISE) && !showingAttempt;
 
-  const sessionIdRef = useRef<string | null>(null);
-  const pendingEventsRef = useRef<ClientActivityEvent[]>([]);
-  const sendingRef = useRef(false);
-  const endedRef = useRef(false);
-
-  const questionIndex = assignment.questions.findIndex(
-    (question) => question.id === selectedQuestionId,
+  const answeredIds = useMemo(
+    () =>
+      new Set(
+        assignment.questions
+          .filter((question) => isAnswered(answers[question.id], question.starterAnswer))
+          .map((question) => question.id),
+      ),
+    [answers, assignment.questions],
   );
 
+  const questionIndex = assignment.questions.findIndex((question) => question.id === selectedQuestionId);
   const question = assignment.questions[questionIndex];
   const questionNumber = questionIndex + 1;
+  const shownAnswer = showingAttempt ? originalAnswers[question.id] : answers[question.id];
 
-  // Send queued events to the activity client.
-  const flushEvents = useCallback(
-    async (keepalive = false) => {
-      if (!activityClient) return;
-
-      const sessionId = sessionIdRef.current;
-
-      if (
-        !sessionId ||
-        pendingEventsRef.current.length === 0 ||
-        sendingRef.current
-      ) {
-        return;
-      }
-
-      const batch = pendingEventsRef.current.splice(0);
-      sendingRef.current = true;
-
-      try {
-        await activityClient.sendEvents(
-          sessionId,
-          batch,
-          keepalive ? { keepalive: true } : undefined,
-        );
-      } catch (error) {
-        // Restore failed events so a later batch can retry them.
-        pendingEventsRef.current = [
-          ...batch,
-          ...pendingEventsRef.current,
-        ];
-
-        console.error("Could not send activity events:", error);
-      } finally {
-        sendingRef.current = false;
-      }
-    },
-    [activityClient],
-  );
-
-  // Create a mock session when the sample assignment opens.
-  useEffect(() => {
-    if (!activityClient) return;
-
-    let cancelled = false;
-
-    void activityClient
-      .startSession(assignment.id)
-      .then(({ id }) => {
-        if (cancelled) {
-          void activityClient.endSession(id);
-          return;
-        }
-
-        sessionIdRef.current = id;
-        void flushEvents();
-      })
-      .catch((error) => {
-        console.error("Could not start activity session:", error);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activityClient, assignment.id, flushEvents]);
-
-  // Send accumulated events approximately every 10 seconds.
-  useEffect(() => {
-    if (!activityClient) return;
-
-    const intervalId = window.setInterval(() => {
-      void flushEvents();
-    }, ACTIVITY_BATCH_INTERVAL_MS);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [activityClient, flushEvents]);
-
-  // Flush remaining events and end the session when the page is leaving.
-  useEffect(() => {
-    const client = activityClient;
-
-    if (!client) return;
-
-    function handlePageHide() {
-      if (!client) return;
-
-      const sessionId = sessionIdRef.current;
-
-      if (!sessionId || endedRef.current) return;
-
-      endedRef.current = true;
-
-      void flushEvents(true).finally(() => {
-        void client.endSession(sessionId).catch((error) => {
-          console.error("Could not end activity session:", error);
-        });
-      });
-    }
-
-    window.addEventListener("pagehide", handlePageHide);
-
-    return () => {
-      window.removeEventListener("pagehide", handlePageHide);
-    };
-  }, [activityClient, flushEvents]);
-
-  // Convert browser events into the activity-client format.
-  const handleActivity = useCallback(
-    (event: BrowserActivityEvent) => {
-      console.log("Activity detected:", event);
-
-      if (!activityClient) return;
-
-      let clientEvent: ClientActivityEvent;
-
-      if (event.type === "paste") {
-        clientEvent = {
-          type: "paste",
-          step: assignment.currentStep,
-          question_id: event.questionId,
-          occurred_at: event.timestamp,
-          detail: event.detail,
-        };
-      } else {
-        clientEvent = {
-          type: event.type,
-          step: assignment.currentStep,
-          question_id: event.questionId,
-          occurred_at: event.timestamp,
-        };
-      }
-
-      pendingEventsRef.current.push(clientEvent);
-    },
-    [activityClient, assignment.currentStep],
-  );
-
+  const tracking = submission.status !== SubmissionStatus.SUBMITTED;
   const { recordPaste } = useActivityTracking({
+    client: activityClient,
+    submissionId: submission.id,
+    step,
     questionId: question.id,
-    onActivity: handleActivity,
+    enabled: tracking,
   });
+
+  const progress = { answeredCount: answeredIds.size, questionCount: assignment.questions.length };
+  const stepPanel =
+    step === Step.ATTEMPT ? (
+      <FinishAttemptPanel
+        {...progress}
+        saveStatus={work.saveStatus}
+        lastSavedAt={work.lastSavedAt}
+        isFinishing={work.isSubmitting}
+        finishError={work.submitError}
+        onFinish={work.finishAttempt}
+      />
+    ) : step === Step.FEEDBACK || step === Step.EVALUATE ? (
+      <EvaluationPanel isSubmitting={work.isSubmitting} submitError={work.submitError} onSubmit={work.submitEvaluation} />
+    ) : step === Step.REVISE ? (
+      <FinishRevisionPanel
+        {...progress}
+        saveStatus={work.saveStatus}
+        lastSavedAt={work.lastSavedAt}
+        isSubmitting={work.isSubmitting}
+        submitError={work.submitError}
+        onFinish={work.finishRevision}
+      />
+    ) : (
+      <RevisionSubmitted />
+    );
 
   return (
     <WorkspaceShell
       header={
         <>
-          <h1 className="truncate text-sm font-semibold">
-            {assignment.title}
-          </h1>
-
+          <SidebarMenuButton />
+          <h1 className="truncate text-sm font-semibold">{assignment.title}</h1>
           <StepStepper currentStep={assignment.currentStep} />
-
           <div className="ml-auto">
-            <ThemeToggle />
+            <AppearanceControl />
           </div>
         </>
       }
-      notice={
-        showActivityNotice ? (
-          <div
-            role="note"
-            className="flex shrink-0 items-start gap-3 border-b border-line bg-surface-muted px-4 py-3 text-sm"
-          >
-            <div className="flex-1">
-              <p className="font-semibold">
-                Activity monitoring notice
-              </p>
-
-              <p className="mt-1 text-muted">
-                We record paste events (size only), when you leave or return
-                to this tab, and saved versions of your answers. We do not
-                access your clipboard contents, camera, or microphone.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowActivityNotice(false)}
-              aria-label="Dismiss activity monitoring notice"
-              className="shrink-0 rounded p-1 text-muted hover:bg-surface hover:text-foreground"
-            >
-              ×
-            </button>
-          </div>
-        ) : null
-      }
+      notice={tracking && showActivityNotice && <ActivityNotice onDismiss={() => setShowActivityNotice(false)} />}
       instructions={
         <AssignmentPanel
           instructions={assignment.instructions}
           questions={assignment.questions}
           selectedQuestionId={selectedQuestionId}
+          answeredIds={answeredIds}
           onSelectQuestion={setSelectedQuestionId}
+          footer={stepPanel}
         />
       }
       editor={
         <AnswerPanel
-          key={question.id}
+          // A new key per question, step and version gives a fresh editor that starts from the
+          // right answer, and remounts it read-only when the step or the version changes.
+          key={`${question.id}-${step}-${version}`}
           question={question}
           questionNumber={questionNumber}
-          answer={answers[question.id]}
-          onAnswerChange={(value) =>
-            setAnswers((current) => ({
-              ...current,
-              [question.id]: value,
-            }))
-          }
+          answer={shownAnswer}
+          onAnswerChange={(value) => work.setAnswer(question.id, value)}
+          readOnly={!isEditable}
           onPaste={recordPaste}
+          toolbar={
+            hasRevision && (
+              <SegmentedControl
+                legend="Which version to show"
+                hideLegend
+                segments={VERSIONS}
+                value={version}
+                onChange={setVersion}
+                className="max-w-xs"
+              />
+            )
+          }
         />
       }
-      aiPanel={
-        // TODO(singhsaravjit): pass the real submission and attempt state once autosave lands (#6).
-        <ChatPanel submissionId={null} attemptSaved={false} />
-      }
+      aiPanel={<ChatPanel submissionId={submission.id} attemptSaved={!isAttemptStep} />}
       statusBar={
         <StatusBar
           question={question}

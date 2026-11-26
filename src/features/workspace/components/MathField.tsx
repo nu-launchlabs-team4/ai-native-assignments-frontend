@@ -1,5 +1,6 @@
 "use client";
 
+import type { MathfieldElement } from "mathlive";
 import { useEffect, useRef, useState } from "react";
 
 interface MathFieldProps {
@@ -7,15 +8,16 @@ interface MathFieldProps {
   initialValue: string;
   ariaLabel: string;
   onChange: (latex: string) => void;
+  readOnly?: boolean;
 }
 
 /**
  * One visual equation editor (MathLive). Students build math with the keyboard or
  * the on-screen math keyboard, and the value is LaTeX.
  */
-export function MathField({ initialValue, ariaLabel, onChange }: MathFieldProps) {
+export function MathField({ initialValue, ariaLabel, onChange, readOnly = false }: MathFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const fieldRef = useRef<HTMLElement | null>(null);
+  const fieldRef = useRef<MathfieldElement | null>(null);
   // Read once at mount. Afterwards the field owns its value, so prop changes must not reset it.
   const initialValueRef = useRef(initialValue);
   const onChangeRef = useRef(onChange);
@@ -37,7 +39,7 @@ export function MathField({ initialValue, ariaLabel, onChange }: MathFieldProps)
 
       const mathField = new MathfieldElement();
       mathField.value = initialValueRef.current;
-      mathField.className = "block w-full rounded border border-line bg-surface px-3 py-2 text-lg";
+      mathField.className = "block w-full rounded-md border border-field bg-surface px-3 py-2 text-lg";
       mathField.addEventListener("input", () => onChangeRef.current(mathField.value));
       containerRef.current.append(mathField);
       fieldRef.current = mathField;
@@ -55,6 +57,11 @@ export function MathField({ initialValue, ariaLabel, onChange }: MathFieldProps)
   useEffect(() => {
     fieldRef.current?.setAttribute("aria-label", ariaLabel);
   }, [ariaLabel, isReady]);
+
+  // MathLive's documented switch is the read-only attribute.
+  useEffect(() => {
+    fieldRef.current?.toggleAttribute("read-only", readOnly);
+  }, [readOnly, isReady]);
 
   return (
     <div ref={containerRef}>

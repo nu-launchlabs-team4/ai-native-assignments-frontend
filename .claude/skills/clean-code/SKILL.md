@@ -115,6 +115,18 @@ Use the design tokens from `src/app/globals.css`. They switch automatically betw
 <p className="text-zinc-600 dark:text-zinc-400">...</p>
 ```
 
+Use the shared controls instead of styling buttons by hand. They follow Apple's guidelines: a press state, 44 px touch targets, and colors that pass contrast in both appearances.
+
+```tsx
+// Good
+<Button onClick={submit}>Submit attempt</Button>
+<Button variant="plain" size="icon" aria-label="Remove step 2">×</Button>
+<SegmentedControl legend="How confident are you?" segments={levels} value={value} onChange={setValue} />
+
+// Bad: no press state, no touch size, and a color pairing nobody checked
+<button className="rounded bg-blue-600 px-4 py-2 text-white">Submit</button>
+```
+
 ## Accessible markup
 
 Every input has a label. Clickable things are buttons or links. Images have alt text. Focus is visible.

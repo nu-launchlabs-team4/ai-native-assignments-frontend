@@ -1,5 +1,6 @@
 import { useId, type FormEvent, type KeyboardEvent } from "react";
 
+import { Button } from "@/components/ui/Button";
 import { CHAT_MAX_MESSAGE_LENGTH } from "@/lib/constants";
 
 interface ChatComposerProps {
@@ -42,15 +43,11 @@ export function ChatComposer({ draft, onDraftChange, onSend, isSending }: ChatCo
         maxLength={CHAT_MAX_MESSAGE_LENGTH}
         rows={3}
         placeholder="Ask the tutor…"
-        className="resize-none rounded-md border border-line bg-surface px-3 py-2 text-sm placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="resize-none rounded-md border border-field bg-surface px-3 py-2 text-sm placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       />
-      <button
-        type="submit"
-        disabled={!canSend}
-        className="self-end rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={!canSend} className="self-end">
         {isSending ? "Sending…" : "Send"}
-      </button>
+      </Button>
     </form>
   );
 }

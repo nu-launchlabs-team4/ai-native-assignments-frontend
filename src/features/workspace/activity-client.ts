@@ -1,17 +1,17 @@
-
 import { apiFetch } from "@/lib/api";
-import type { Step } from "@/lib/constants";
+import { API_PATHS, type Step } from "@/lib/constants";
 
-// Activity events recorded by the student's workspace.
+/**
+ * What the workspace records while a student works (backend #14). A paste keeps only its
+ * size, never the text. Answer snapshots are recorded by the backend on every save.
+ */
 export type ActivityEvent =
   | {
       type: "paste";
       step: Step;
       question_id: string;
       occurred_at: string;
-      detail: {
-        characters: number;
-      };
+      detail: { characters: number };
     }
   | {
       type: "tab_leave" | "tab_return";
@@ -20,59 +20,42 @@ export type ActivityEvent =
       occurred_at: string;
     };
 
-// Response returned when a work session is created.
-export interface StartSessionResponse {
+/** The backend's WorkSessionOut. */
+export interface WorkSession {
   id: string;
+  submission_id: string;
   started_at: string;
+  ended_at: string | null;
 }
 
-// Options for sending events, including page-exit requests.
-export interface SendEventsOptions {
+export interface SendOptions {
+  /** Lets the request finish after the page closes. */
   keepalive?: boolean;
 }
 
-// Defines the operations supported by an activity client.
 export interface ActivityClient {
-  startSession(submissionId: string): Promise<StartSessionResponse>;
-
-  sendEvents(
-    sessionId: string,
-    events: ActivityEvent[],
-    options?: SendEventsOptions,
-  ): Promise<void>;
-
-  endSession(sessionId: string): Promise<void>;
+  startSession(submissionId: string): Promise<WorkSession>;
+  sendEvents(sessionId: string, events: ActivityEvent[], options?: SendOptions): Promise<void>;
+  endSession(sessionId: string, options?: SendOptions): Promise<void>;
 }
 
-// Real API implementation.
-// These endpoint paths are provisional and must be confirmed with backend #14.
+/** The most events the backend takes in one request (its MAX_EVENTS_PER_BATCH). */
+export const MAX_EVENTS_PER_BATCH = 100;
+
 export const apiActivityClient: ActivityClient = {
-  async startSession(submissionId) {
-    return apiFetch<StartSessionResponse>(
-      `/submissions/${encodeURIComponent(submissionId)}/sessions`,
-      {
-        method: "POST",
-      },
-    );
-  },
-
-  async sendEvents(sessionId, events, options) {
-    await apiFetch<void>(
-      `/sessions/${encodeURIComponent(sessionId)}/events`,
-      {
-        method: "POST",
-        body: { events },
-        keepalive: options?.keepalive,
-      },
-    );
-  },
-
-  async endSession(sessionId) {
-    await apiFetch<void>(
-      `/sessions/${encodeURIComponent(sessionId)}/end`,
-      {
-        method: "POST",
-      },
-    );
-  },
+  startSession: (submissionId) =>
+    apiFetch<WorkSession>(`${API_PATHS.SUBMISSIONS}/${encodeURIComponent(submissionId)}/sessions`, {
+      method: "POST",
+    }),
+  sendEvents: (sessionId, events, options) =>
+    apiFetch<void>(`${API_PATHS.SESSIONS}/${encodeURIComponent(sessionId)}/events`, {
+      method: "POST",
+      body: { events },
+      keepalive: options?.keepalive,
+    }),
+  endSession: (sessionId, options) =>
+    apiFetch<void>(`${API_PATHS.SESSIONS}/${encodeURIComponent(sessionId)}/end`, {
+      method: "POST",
+      keepalive: options?.keepalive,
+    }),
 };
