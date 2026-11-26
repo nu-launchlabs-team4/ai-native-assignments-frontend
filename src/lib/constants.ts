@@ -228,8 +228,8 @@ export const API_PATHS = {
   AUTH_ME: "/auth/me",
   AUTH_FORGOT_PASSWORD: "/auth/forgot-password",
   AUTH_RESET_PASSWORD: "/auth/reset-password",
-  // TODO(singhsaravjit): confirm the path and body with backend #10 (AI chat endpoint).
-  AI_CHAT: "/ai/chat"
+  // The tutor chat is per submission: POST /ai/submissions/{id}/chat (see features/chat/api.ts).
+  AI_SUBMISSIONS: "/ai/submissions",
 } as const;
 
 export const ChatRole = {

@@ -1,19 +1,28 @@
 import { apiFetch } from "@/lib/api";
-import { API_PATHS } from "@/lib/constants";
+import { API_PATHS, ChatRole } from "@/lib/constants";
 
 import type { ChatMessage } from "./types";
 
-interface SendChatMessageBody {
-  submission_id: string;
-  message: string;
+/** The backend's ChatResponse (app/ai/schemas.py): the stored reply's id and its text. */
+interface ChatResponse {
+  message_id: string;
+  reply: string;
 }
 
 /**
  * Send a student message to the AI tutor and return the tutor's reply.
- * Throws ApiError: 403 while chat is locked (attempt not saved, or during the
- * interview) and 429 when the student hits the AI rate limit.
+ * Throws ApiError: 403 while chat is locked (outside the feedback, evaluate and
+ * revise steps), 429 when the student hits the AI rate limit, and 503 when the
+ * tutor is unavailable.
  */
-export function sendChatMessage(submissionId: string, message: string): Promise<ChatMessage> {
-  const body: SendChatMessageBody = { submission_id: submissionId, message };
-  return apiFetch<ChatMessage>(API_PATHS.AI_CHAT, { method: "POST", body });
+export async function sendChatMessage(submissionId: string, message: string): Promise<ChatMessage> {
+  const path = `${API_PATHS.AI_SUBMISSIONS}/${encodeURIComponent(submissionId)}/chat`;
+  const response = await apiFetch<ChatResponse>(path, { method: "POST", body: { message } });
+  return {
+    id: response.message_id,
+    role: ChatRole.ASSISTANT,
+    content: response.reply,
+    // The backend doesn't send the time, and the reply has just arrived.
+    created_at: new Date().toISOString(),
+  };
 }
