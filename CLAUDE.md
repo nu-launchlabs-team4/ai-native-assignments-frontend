@@ -43,10 +43,12 @@ src/
     workspace/             the student workspace feature
       components/          WorkspaceLoader (starts the submission), Workspace, WorkspaceShell,
                            AssignmentPanel + QuestionList + the step's panel (FinishAttemptPanel + ConfidenceRating,
-                           EvaluationPanel, FinishRevisionPanel),
+                           EvaluationPanel, FinishRevisionPanel, ExplainStepNote),
+                           InterviewPanel / SubmittedSummary (step 5, in place of the AI tutor),
                            AnswerPanel + AnswerEditor (CodeEditor | TextAnswer | MathAnswer),
                            StepStepper, StatusBar, ... (+ *.test.tsx)
       use-answers.ts       the answers through the steps: autosave of changed answers every 30 s in the
+      interview.ts         step 5: the AI use declaration sentence, and the interview draft kept in localStorage
                            attempt and the revision, submitting the attempt, the evaluation and the revision
       submission-client.ts SubmissionClient: the real /submissions API, or the mock for the demo id
       mock-submission-client.ts  in-browser stand-in with the backend's rules, used only for "sample-1"

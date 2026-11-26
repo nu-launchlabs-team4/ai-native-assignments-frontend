@@ -63,6 +63,20 @@ describe("apiSubmissionClient", () => {
     });
   });
 
+  it("gets the follow-up questions", async () => {
+    vi.mocked(apiFetch).mockResolvedValueOnce({ questions: ["Why?"] });
+
+    await expect(apiSubmissionClient.getInterviewQuestions("s-1")).resolves.toEqual(["Why?"]);
+    expect(apiFetch).toHaveBeenCalledWith("/submissions/s-1/interview-questions");
+  });
+
+  it("submits the explanation with POST", async () => {
+    const body = { interview_answers: [{ question: "Why?", answer: "Because." }], ai_declaration: "Only the tutor." };
+    await apiSubmissionClient.saveExplanation("s-1", body);
+
+    expect(apiFetch).toHaveBeenCalledWith("/submissions/s-1/explanation", { method: "POST", body });
+  });
+
   it("hands in the revision with POST", async () => {
     await apiSubmissionClient.finishRevision("s-1");
 

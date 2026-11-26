@@ -98,6 +98,9 @@ export const CONFIDENCE_MAX = 5;
 export const MAX_APPROACH_NOTE_CHARS = 1000;
 /** Mirrors MAX_TEST_CASE_CHARS in the backend's app/submissions/schemas.py: the evaluate step's reason. */
 export const MAX_TEST_CASE_CHARS = 10_000;
+/** Mirrors the backend's limits for step 5: one interview answer, and the AI use declaration. */
+export const MAX_INTERVIEW_ANSWER_CHARS = 10_000;
+export const MAX_AI_DECLARATION_CHARS = 5_000;
 
 // Frontend-only values below.
 

@@ -36,4 +36,10 @@ describe("StepStepper", () => {
     expect(feedback.textContent).toContain("completed");
     expect(revise.textContent).toContain("not started");
   });
+  it("marks every step done once the submission is handed in", () => {
+    render(<StepStepper currentStep={Step.EXPLAIN} complete />);
+
+    expect(screen.queryByText("(current step)")).toBeNull();
+    expect(screen.getAllByText("(completed)")).toHaveLength(5);
+  });
 });

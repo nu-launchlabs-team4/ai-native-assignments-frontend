@@ -12,6 +12,14 @@ const SUBMISSION_NOT_FOUND = "Submission not found";
 const ASSIGNMENT_NOT_FOUND = "Assignment not found";
 const UNANSWERED = "Answer every question before moving on";
 const UNKNOWN_QUESTION = "An answer is for a question that isn't in this assignment";
+const ALREADY_SUBMITTED = "This submission is already submitted";
+
+// Stand-ins for backend #11's generated questions, written for the demo assignment.
+const SAMPLE_INTERVIEW_QUESTIONS = [
+  "Walk through what your count_vowels function does with the input \"Sky!\". What does it return, and why?",
+  "What changed between your attempt and your revision, and what made you change it?",
+  "Your T(n) simplifies to 5n + 5. What would the work look like if the function also counted consonants?",
+];
 const MOCK_DELAY_MS = 300;
 
 /** Kept for the browser tab's lifetime, like a real submission between page visits. */
@@ -34,6 +42,9 @@ function getOwned(submissionId: string): SubmissionOut {
 }
 
 function requireStep(submission: SubmissionOut, ...steps: Step[]): void {
+  if (submission.status === SubmissionStatus.SUBMITTED) {
+    throw new ApiError(ALREADY_SUBMITTED, 409, "conflict", null);
+  }
   if (!steps.includes(submission.current_step)) {
     throw notInStep(submission.current_step);
   }
@@ -142,6 +153,25 @@ export const mockSubmissionClient: SubmissionClient = {
     requireStep(submission, Step.REVISE);
     requireEveryAnswered(submission, submission.revision_answers);
     return update({ ...submission, current_step: Step.EXPLAIN });
+  },
+
+  async getInterviewQuestions(submissionId) {
+    await delay();
+    getOwned(submissionId);
+    return [...SAMPLE_INTERVIEW_QUESTIONS];
+  },
+
+  async saveExplanation(submissionId, body) {
+    await delay();
+    const submission = getOwned(submissionId);
+    requireStep(submission, Step.EXPLAIN);
+    return update({
+      ...submission,
+      interview_answers: body.interview_answers,
+      ai_declaration: body.ai_declaration,
+      status: SubmissionStatus.SUBMITTED,
+      submitted_at: new Date().toISOString(),
+    });
   },
 };
 

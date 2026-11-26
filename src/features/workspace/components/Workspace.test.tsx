@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Step } from "@/lib/constants";
+import { Step, SubmissionStatus } from "@/lib/constants";
 
 import type { ActivityClient } from "../activity-client";
 import type { SubmissionClient } from "../submission-client";
@@ -42,6 +42,7 @@ vi.mock("next/navigation", () => ({
 const submission = buildSubmission();
 // The demo assignment's question ids.
 const [Q1, Q2, Q3] = ["q1", "q2", "q3"];
+const QUESTIONS = ["Why a loop?", "What changed in your revision?", "What would T(n) be for consonants?"];
 
 function fakeClient(): SubmissionClient {
   return {
@@ -51,6 +52,8 @@ function fakeClient(): SubmissionClient {
     saveEvaluation: vi.fn(),
     saveRevisionAnswers: vi.fn(),
     finishRevision: vi.fn(),
+    getInterviewQuestions: vi.fn().mockResolvedValue(QUESTIONS),
+    saveExplanation: vi.fn(),
   };
 }
 
@@ -182,8 +185,43 @@ describe("Workspace", () => {
       undefined,
     );
     expect(client.finishRevision).toHaveBeenCalledWith("sub-1");
-    expect(screen.getByText("Revision submitted")).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Explain your work" })).toBeDefined();
     expect((screen.getByLabelText("Your answer to question 2") as HTMLTextAreaElement).readOnly).toBe(true);
+  });
+  it("closes the tutor for step 5, then submits the follow-up answers and shows the summary", async () => {
+    window.localStorage.clear();
+    const answers = { [Q1]: "def f(): pass", [Q2]: "Loop.", [Q3]: "5n+5" };
+    const explaining = buildSubmission({ current_step: Step.EXPLAIN, attempt_answers: answers, revision_answers: answers });
+    const client = fakeClient();
+    vi.mocked(client.saveExplanation).mockImplementation(async (_id, body) => ({
+      ...explaining,
+      ...body,
+      status: SubmissionStatus.SUBMITTED,
+      submitted_at: "2026-11-25T12:00:00Z",
+    }));
+    render(<Workspace client={client} activityClient={fakeActivityClient()} initialSubmission={explaining} />);
+
+    expect(screen.queryByLabelText("Message the AI tutor")).toBeNull();
+    for (const [index, question] of QUESTIONS.entries()) {
+      fireEvent.change(await screen.findByLabelText(`${index + 1}. ${question}`), { target: { value: `Answer ${index + 1}` } });
+    }
+    fireEvent.click(screen.getByRole("radio", { name: "Only this app's AI tutor" }));
+    fireEvent.click(screen.getByRole("button", { name: "Submit assignment" }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Submit" }));
+    });
+
+    expect(client.saveExplanation).toHaveBeenCalledWith("sub-1", {
+      interview_answers: QUESTIONS.map((question, index) => ({ question, answer: `Answer ${index + 1}` })),
+      ai_declaration: "Used only this app's AI tutor.",
+    });
+    expect(screen.getByRole("heading", { name: "Your follow-up answers" })).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Submitted" })).toBeDefined();
+    const steps = screen.getByRole("navigation", { name: "Assignment steps" });
+    expect(within(steps).queryByText("(current step)")).toBeNull();
+    expect(within(steps).getAllByText("(completed)")).toHaveLength(5);
+    // Nothing is tracked after submitting, so the notice goes too.
+    expect(screen.queryByRole("complementary", { name: /What your professor sees/ })).toBeNull();
   });
 
   it("says what the professor sees, until the student dismisses it", () => {
