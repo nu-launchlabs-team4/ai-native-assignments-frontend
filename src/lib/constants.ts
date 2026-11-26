@@ -217,6 +217,7 @@ export const API_PATHS = {
   ASSIGNMENTS: "/assignments",
   COURSES: "/courses",
   SUBMISSIONS: "/submissions",
+  SESSIONS: "/sessions",
   AUTH_SIGNUP: "/auth/signup",
   AUTH_LOGIN: "/auth/login",
   AUTH_LOGOUT: "/auth/logout",
