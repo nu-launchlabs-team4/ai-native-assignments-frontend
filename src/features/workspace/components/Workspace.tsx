@@ -9,9 +9,12 @@ import { ChatPanel } from "@/features/chat/components/ChatPanel";
 import type { SubmissionOut } from "@/lib/api-types";
 import { Step, SubmissionStatus } from "@/lib/constants";
 
+import type { ActivityClient } from "../activity-client";
 import { attemptAnswers, isAnswered, showsRevision, toWorkspaceAssignment } from "../map-submission";
 import type { SubmissionClient } from "../submission-client";
+import { useActivityTracking } from "../use-activity-tracking";
 import { useAnswers } from "../use-answers";
+import { ActivityNotice } from "./ActivityNotice";
 import { AnswerPanel } from "./AnswerPanel";
 import { AssignmentPanel } from "./AssignmentPanel";
 import { EvaluationPanel } from "./EvaluationPanel";
@@ -33,6 +36,7 @@ const VERSIONS: readonly Segment<Version>[] = [
 
 interface WorkspaceProps {
   client: SubmissionClient;
+  activityClient: ActivityClient;
   initialSubmission: SubmissionOut;
 }
 
@@ -40,7 +44,7 @@ interface WorkspaceProps {
  * The student's workspace for one submission: the questions, an editor per question,
  * the AI tutor, and the panel for the current step (attempt, evaluate or revise).
  */
-export function Workspace({ client, initialSubmission }: WorkspaceProps) {
+export function Workspace({ client, activityClient, initialSubmission }: WorkspaceProps) {
   const work = useAnswers(client, initialSubmission);
   const { submission, answers } = work;
   const assignment = useMemo(() => toWorkspaceAssignment(submission), [submission]);
@@ -49,6 +53,7 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
   const [version, setVersion] = useState<Version>("revision");
   const submissionId = submission.id;
   const loadInterviewQuestions = useCallback(() => client.getInterviewQuestions(submissionId), [client, submissionId]);
+  const [showActivityNotice, setShowActivityNotice] = useState(true);
 
   const step = submission.current_step;
   const isAttemptStep = step === Step.ATTEMPT;
@@ -71,6 +76,15 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
   const question = assignment.questions[questionIndex];
   const questionNumber = questionIndex + 1;
   const shownAnswer = showingAttempt ? originalAnswers[question.id] : answers[question.id];
+
+  const tracking = !isSubmitted;
+  const { recordPaste } = useActivityTracking({
+    client: activityClient,
+    submissionId: submission.id,
+    step,
+    questionId: question.id,
+    enabled: tracking,
+  });
 
   const progress = { answeredCount: answeredIds.size, questionCount: assignment.questions.length };
   const stepPanel =
@@ -129,6 +143,7 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
           </div>
         </>
       }
+      notice={tracking && showActivityNotice && <ActivityNotice onDismiss={() => setShowActivityNotice(false)} />}
       instructions={
         <AssignmentPanel
           instructions={assignment.instructions}
@@ -149,6 +164,7 @@ export function Workspace({ client, initialSubmission }: WorkspaceProps) {
           answer={shownAnswer}
           onAnswerChange={(value) => work.setAnswer(question.id, value)}
           readOnly={!isEditable}
+          onPaste={recordPaste}
           toolbar={
             hasRevision && (
               <SegmentedControl

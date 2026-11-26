@@ -8,6 +8,7 @@ import { ApiError } from "@/lib/api";
 import type { SubmissionOut } from "@/lib/api-types";
 import { ROUTES } from "@/lib/constants";
 
+import { activityClientFor } from "../mock-activity-client";
 import { submissionClientFor } from "../submission-client";
 import { Workspace } from "./Workspace";
 import { WorkspaceSkeleton } from "./WorkspaceSkeleton";
@@ -58,7 +59,7 @@ export function WorkspaceLoader({ assignmentId }: WorkspaceLoaderProps) {
     case "loading":
       return <WorkspaceSkeleton />;
     case "ready":
-      return <Workspace client={client} initialSubmission={state.submission} />;
+      return <Workspace client={client} activityClient={activityClientFor(assignmentId)} initialSubmission={state.submission} />;
     case "not-found":
       return (
         <LoadMessage title="Assignment not found">

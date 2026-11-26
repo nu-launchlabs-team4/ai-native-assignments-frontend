@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ClipboardEvent, ReactNode } from "react";
 
 import { Panel } from "@/components/ui/Panel";
 import { ANSWER_TYPE_LABELS, AnswerType } from "@/lib/constants";
@@ -14,6 +14,8 @@ interface AnswerPanelProps {
   readOnly?: boolean;
   /** A control between the question and the editor, such as the revision's version switch. */
   toolbar?: ReactNode;
+  /** Called with the size of each paste into the editor. The text itself is never read on. */
+  onPaste?: (characters: number) => void;
 }
 
 function countWords(text: string): number {
@@ -42,7 +44,12 @@ export function AnswerPanel({
   onAnswerChange,
   readOnly = false,
   toolbar,
+  onPaste,
 }: AnswerPanelProps) {
+  function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
+    if (!readOnly) onPaste?.(event.clipboardData.getData("text/plain").length);
+  }
+
   return (
     <Panel
       title={`Question ${questionNumber}`}
@@ -60,7 +67,8 @@ export function AnswerPanel({
         ))}
       </div>
       {toolbar && <div className="border-b border-line px-4 py-2">{toolbar}</div>}
-      <div className="min-h-0 flex-1">
+      {/* Capture, so pastes into Monaco's and MathLive's own inputs are seen too. */}
+      <div className="min-h-0 flex-1" onPasteCapture={handlePaste}>
         <AnswerEditor
           question={question}
           value={answer}

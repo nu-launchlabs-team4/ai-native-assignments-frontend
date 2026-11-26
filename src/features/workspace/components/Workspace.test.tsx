@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { Step, SubmissionStatus } from "@/lib/constants";
 
+import type { ActivityClient } from "../activity-client";
 import type { SubmissionClient } from "../submission-client";
 import { buildSubmission } from "../testing";
 import { Workspace } from "./Workspace";
@@ -56,8 +57,16 @@ function fakeClient(): SubmissionClient {
   };
 }
 
-function renderWorkspace(client = fakeClient()) {
-  render(<Workspace client={client} initialSubmission={submission} />);
+function fakeActivityClient(): ActivityClient {
+  return {
+    startSession: vi.fn().mockResolvedValue({ id: "w-1", submission_id: "sub-1", started_at: "", ended_at: null }),
+    sendEvents: vi.fn().mockResolvedValue(undefined),
+    endSession: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
+function renderWorkspace(client = fakeClient(), activityClient = fakeActivityClient()) {
+  render(<Workspace client={client} activityClient={activityClient} initialSubmission={submission} />);
   return client;
 }
 
@@ -145,7 +154,7 @@ describe("Workspace", () => {
     vi.mocked(client.saveEvaluation).mockResolvedValue(revising);
     vi.mocked(client.saveRevisionAnswers).mockResolvedValue(revising);
     vi.mocked(client.finishRevision).mockResolvedValue({ ...revising, current_step: Step.EXPLAIN });
-    render(<Workspace client={client} initialSubmission={feedback} />);
+    render(<Workspace client={client} activityClient={fakeActivityClient()} initialSubmission={feedback} />);
 
     fireEvent.click(screen.getByRole("radio", { name: "Partly" }));
     fireEvent.change(screen.getByLabelText("Why? Give a test case or example that shows it"), {
@@ -190,7 +199,7 @@ describe("Workspace", () => {
       status: SubmissionStatus.SUBMITTED,
       submitted_at: "2026-11-25T12:00:00Z",
     }));
-    render(<Workspace client={client} initialSubmission={explaining} />);
+    render(<Workspace client={client} activityClient={fakeActivityClient()} initialSubmission={explaining} />);
 
     expect(screen.queryByLabelText("Message the AI tutor")).toBeNull();
     for (const [index, question] of QUESTIONS.entries()) {
@@ -211,5 +220,42 @@ describe("Workspace", () => {
     const steps = screen.getByRole("navigation", { name: "Assignment steps" });
     expect(within(steps).queryByText("(current step)")).toBeNull();
     expect(within(steps).getAllByText("(completed)")).toHaveLength(5);
+    // Nothing is tracked after submitting, so the notice goes too.
+    expect(screen.queryByRole("complementary", { name: /What your professor sees/ })).toBeNull();
+  });
+
+  it("says what the professor sees, until the student dismisses it", () => {
+    renderWorkspace();
+
+    const notice = screen.getByRole("complementary", { name: /What your professor sees/ });
+    expect(notice.textContent).toContain("never the text");
+
+    fireEvent.click(within(notice).getByRole("button", { name: "Got it" }));
+    expect(screen.queryByRole("complementary", { name: /What your professor sees/ })).toBeNull();
+  });
+
+  it("starts a work session for the submission and records the size of a paste", async () => {
+    vi.useFakeTimers();
+    try {
+      const activityClient = fakeActivityClient();
+      renderWorkspace(fakeClient(), activityClient);
+      await act(async () => {});
+      expect(activityClient.startSession).toHaveBeenCalledWith(submission.id);
+
+      fireEvent.paste(screen.getByLabelText("Your answer to question 1"), {
+        clipboardData: { getData: () => "print('hi')" },
+      });
+      await act(async () => {
+        vi.advanceTimersByTime(10_000);
+      });
+
+      expect(activityClient.sendEvents).toHaveBeenCalledWith(
+        "w-1",
+        [expect.objectContaining({ type: "paste", question_id: Q1, detail: { characters: 11 } })],
+        { keepalive: false },
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
