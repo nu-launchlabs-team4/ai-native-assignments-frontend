@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 
 import { resendConfirmation } from "../auth-client";
@@ -67,9 +68,9 @@ export function ResendConfirmation({ email }: ResendConfirmationProps) {
         {state.kind === "sent" && `Sent to ${email}. Check your inbox and spam folder.`}
       </p>
       {state.kind === "error" && (
-        <p role="alert" className="text-center text-footnote text-danger">
+        <ErrorMessage role="alert" className="justify-center text-footnote">
           {state.message}
-        </p>
+        </ErrorMessage>
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError, apiFetch } from "@/lib/api";
 import { API_PATHS } from "@/lib/constants";
 
@@ -83,7 +84,7 @@ export function HealthStatus() {
         <StatusRow label="API" state={result.api} />
         <StatusRow label="Database" state={result.database} />
       </dl>
-      {result.detail && <p className="text-sm text-red-700 dark:text-red-300">{result.detail}</p>}
+      {result.detail && <ErrorMessage className="text-sm">{result.detail}</ErrorMessage>}
       <button
         type="button"
         onClick={runCheck}

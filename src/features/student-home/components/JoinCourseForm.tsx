@@ -3,6 +3,7 @@
 import { type FormEvent, useId, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 import type { EnrollmentOut } from "@/lib/api-types";
 
@@ -74,9 +75,9 @@ export function JoinCourseForm({ onJoin }: JoinCourseFormProps) {
         </Button>
       </div>
       {error && (
-        <p id={errorId} role="alert" className="text-callout font-medium text-danger">
+        <ErrorMessage id={errorId} role="alert" className="text-callout font-medium">
           {error}
-        </p>
+        </ErrorMessage>
       )}
       <p role="status" className="text-callout text-muted">
         {joined && `Joined ${joined}. Its assignments are below.`}
