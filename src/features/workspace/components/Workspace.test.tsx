@@ -258,4 +258,18 @@ describe("Workspace", () => {
       vi.useRealTimers();
     }
   });
+
+  it("welcomes the student back when they reopen work in progress", () => {
+    const resumed = buildSubmission({ current_step: Step.EVALUATE, attempt_answers: { [Q1]: "def f(): pass" } });
+    render(<Workspace client={fakeClient()} activityClient={fakeActivityClient()} initialSubmission={resumed} />);
+
+    expect(screen.getByRole("complementary", { name: /Welcome back/ }).textContent).toContain("step 3 of 5: Evaluate");
+    expect(screen.getByRole("button", { name: "Save and pause" })).toBeDefined();
+  });
+
+  it("starts a fresh submission without the welcome", () => {
+    renderWorkspace();
+
+    expect(screen.queryByRole("complementary", { name: /Welcome back/ })).toBeNull();
+  });
 });

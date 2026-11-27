@@ -178,6 +178,9 @@ export function useAnswers(client: SubmissionClient, initialSubmission: Submissi
     [client, submit, submissionId],
   );
 
+  /** Pausing: save the open step's changes now. Resolves to false if the save failed. */
+  const saveNow = useCallback(() => (isEditable ? save() : Promise.resolve(true)), [isEditable, save]);
+
   return {
     submission,
     answers,
@@ -190,5 +193,6 @@ export function useAnswers(client: SubmissionClient, initialSubmission: Submissi
     submitEvaluation,
     finishRevision,
     submitExplanation,
+    saveNow,
   };
 }

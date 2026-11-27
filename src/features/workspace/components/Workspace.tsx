@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AppearanceControl } from "@/components/AppearanceControl";
 import { type Segment, SegmentedControl } from "@/components/ui/SegmentedControl";
@@ -22,6 +22,8 @@ import { ExplainStepNote } from "./ExplainStepNote";
 import { FinishAttemptPanel } from "./FinishAttemptPanel";
 import { FinishRevisionPanel } from "./FinishRevisionPanel";
 import { InterviewPanel } from "./InterviewPanel";
+import { PauseButton } from "./PauseButton";
+import { isResuming, ResumeBanner } from "./ResumeBanner";
 import { StatusBar } from "./StatusBar";
 import { StepStepper } from "./StepStepper";
 import { SubmittedSummary } from "./SubmittedSummary";
@@ -71,6 +73,18 @@ export function Workspace({ client, activityClient, initialSubmission }: Workspa
       ),
     [answers, assignment.questions],
   );
+
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const resuming = isResuming(submission, answeredIds.size);
+  // Next keeps a visited page alive and shows it again on return, so check for work in
+  // progress each time the workspace is shown (when this effect runs), not on every edit.
+  const resumingRef = useRef(resuming);
+  useEffect(() => {
+    resumingRef.current = resuming;
+  }, [resuming]);
+  useEffect(() => {
+    setShowResumeBanner(resumingRef.current);
+  }, []);
 
   const questionIndex = assignment.questions.findIndex((question) => question.id === selectedQuestionId);
   const question = assignment.questions[questionIndex];
@@ -138,12 +152,20 @@ export function Workspace({ client, activityClient, initialSubmission }: Workspa
           <SidebarMenuButton />
           <h1 className="truncate text-sm font-semibold">{assignment.title}</h1>
           <StepStepper currentStep={assignment.currentStep} complete={isSubmitted} />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
+            {!isSubmitted && <PauseButton onSave={work.saveNow} />}
             <AppearanceControl />
           </div>
         </>
       }
-      notice={tracking && showActivityNotice && <ActivityNotice onDismiss={() => setShowActivityNotice(false)} />}
+      notice={
+        <>
+          {showResumeBanner && !isSubmitted && (
+            <ResumeBanner submission={initialSubmission} onDismiss={() => setShowResumeBanner(false)} />
+          )}
+          {tracking && showActivityNotice && <ActivityNotice onDismiss={() => setShowActivityNotice(false)} />}
+        </>
+      }
       instructions={
         <AssignmentPanel
           instructions={assignment.instructions}
