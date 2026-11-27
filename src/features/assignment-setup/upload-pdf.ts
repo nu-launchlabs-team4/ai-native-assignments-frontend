@@ -4,10 +4,10 @@ import type { SetupAssignment } from "./types";
 const MOCK_PARSE_DELAY_MS = 1200;
 
 /**
- * Upload a PDF and get back the draft assignment the parser made from it: questions in
- * order, each with its answer type.
+ * The demo parse for the sample course: returns the sample draft as if the parser had
+ * read the PDF. Real courses start an empty draft instead (see new-draft.ts).
  */
-// TODO(dineshbachchani1234): POST the file to /assignments/pdf with apiFetch once BE#7 and BE#8 land (#4).
+// TODO(dineshbachchani1234): replace with the backend's parse once backend #8 lands (#4).
 export async function uploadPdf(courseId: string, file: File): Promise<SetupAssignment> {
   await new Promise((resolve) => setTimeout(resolve, MOCK_PARSE_DELAY_MS));
   return { ...MOCK_DRAFT, course_id: courseId, source_pdf: file.name };

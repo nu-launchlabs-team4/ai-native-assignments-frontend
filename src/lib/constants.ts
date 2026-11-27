@@ -71,6 +71,10 @@ export type ReviewPriority = typeof ReviewPriority[keyof typeof ReviewPriority];
 /** Largest PDF a professor can upload, in megabytes. */
 export const MAX_PDF_MB = 10;
 
+/** The backend's limits on an assignment (app/assignments/schemas.py). */
+export const MAX_ASSIGNMENT_TITLE_CHARS = 200;
+export const MAX_QUESTIONS = 100;
+
 export const Role = {
   STUDENT: "student",
   PROFESSOR: "professor"

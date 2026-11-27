@@ -13,10 +13,19 @@ const FALLBACK_ERROR = "Something went wrong reading this PDF. Try again.";
 interface PdfUploadProps {
   /** Uploads the file and moves on to the review. Throws if the upload fails. */
   onUpload: (file: File) => Promise<void>;
+  /** The button, and what it and the status line say while `onUpload` runs. */
+  submitLabel?: string;
+  pendingLabel?: string;
+  pendingStatus?: string;
 }
 
-/** Choose or drop the assignment PDF, then send it to be turned into questions. */
-export function PdfUpload({ onUpload }: PdfUploadProps) {
+/** Choose or drop the assignment PDF, then hand it on with `onUpload`. */
+export function PdfUpload({
+  onUpload,
+  submitLabel = "Turn into questions",
+  pendingLabel = "Reading your PDF…",
+  pendingStatus = "Finding each question and its answer type. This can take a minute.",
+}: PdfUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -104,10 +113,10 @@ export function PdfUpload({ onUpload }: PdfUploadProps) {
 
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={uploading}>
-          {uploading ? "Reading your PDF…" : "Turn into questions"}
+          {uploading ? pendingLabel : submitLabel}
         </Button>
         <p role="status" className="text-callout text-muted">
-          {uploading ? "Finding each question and its answer type. This can take a minute." : ""}
+          {uploading ? pendingStatus : ""}
         </p>
       </div>
     </form>

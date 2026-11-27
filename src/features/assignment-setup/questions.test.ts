@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { AnswerType, DEFAULT_CODE_LANGUAGE } from "@/lib/constants";
 
-import { isPromptMissing, withAnswerType } from "./questions";
+import { draftProblem, isPromptMissing, newQuestion, withAnswerType } from "./questions";
 import type { SetupQuestion } from "./types";
 
 const TEXT_QUESTION: SetupQuestion = {
@@ -38,5 +38,30 @@ describe("isPromptMissing", () => {
   it("treats blank text as missing", () => {
     expect(isPromptMissing({ ...TEXT_QUESTION, prompt: "   " })).toBe(true);
     expect(isPromptMissing(TEXT_QUESTION)).toBe(false);
+  });
+});
+
+describe("draftProblem", () => {
+  const question = { ...newQuestion(1), prompt: "Explain a loop." };
+
+  it("accepts a titled draft whose questions all have text", () => {
+    expect(draftProblem({ title: "Week 4", questions: [question] })).toBeNull();
+  });
+
+  it("names the first thing to fix", () => {
+    expect(draftProblem({ title: "  ", questions: [question] })).toBe("Give the assignment a title.");
+    expect(draftProblem({ title: "Week 4", questions: [] })).toBe("Add at least one question.");
+    expect(draftProblem({ title: "Week 4", questions: [question, newQuestion(2)] })).toBe(
+      "Fill in the text of every question.",
+    );
+  });
+});
+
+describe("newQuestion", () => {
+  it("makes an empty written question with its own id", () => {
+    const first = newQuestion(3);
+
+    expect(first).toMatchObject({ position: 3, prompt: "", answer_type: "text", language: null, starter_code: null });
+    expect(first.id).not.toBe(newQuestion(3).id);
   });
 });
