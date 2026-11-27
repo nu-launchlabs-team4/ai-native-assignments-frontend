@@ -265,6 +265,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sessions/{session_id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** End Session */
+        post: operations["end_session_sessions__session_id__end_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sessions/{session_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Events */
+        post: operations["add_events_sessions__session_id__events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/student/assignments": {
         parameters: {
             query?: never;
@@ -418,6 +452,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/submissions/{submission_id}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Submission Sessions */
+        get: operations["get_submission_sessions_submissions__submission_id__sessions_get"];
+        put?: never;
+        /** Start Session */
+        post: operations["start_session_submissions__submission_id__sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -427,6 +479,55 @@ export interface components {
          * @enum {string}
          */
         AIPolicy: "prohibited" | "permitted" | "expected";
+        /** ActivityEventIn */
+        ActivityEventIn: {
+            detail?: components["schemas"]["PasteDetail"] | null;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Question Id */
+            question_id?: string | null;
+            step: components["schemas"]["Step"];
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "paste" | "tab_leave" | "tab_return";
+        };
+        /** ActivityEventOut */
+        ActivityEventOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Detail */
+            detail: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Question Id */
+            question_id: string | null;
+            step: components["schemas"]["Step"];
+            type: components["schemas"]["ActivityEventType"];
+        };
+        /**
+         * ActivityEventType
+         * @description What a work session records. Signals that give the professor context, never flags.
+         * @enum {string}
+         */
+        ActivityEventType: "paste" | "tab_leave" | "tab_return" | "snapshot";
+        /** ActivityEventsIn */
+        ActivityEventsIn: {
+            /** Events */
+            events: components["schemas"]["ActivityEventIn"][];
+        };
         /**
          * AnswerType
          * @description How a question is answered. The frontend mirrors this in lib/constants.ts.
@@ -657,6 +758,11 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** PasteDetail */
+        PasteDetail: {
+            /** Characters */
+            characters: number;
+        };
         /** QuestionCreate */
         QuestionCreate: {
             answer_type: components["schemas"]["AnswerType"];
@@ -714,6 +820,20 @@ export interface components {
          * @enum {string}
          */
         Step: "attempt" | "feedback" | "evaluate" | "revise" | "explain";
+        /** StepSegmentOut */
+        StepSegmentOut: {
+            /**
+             * Ended At
+             * Format: date-time
+             */
+            ended_at: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            step: components["schemas"]["Step"];
+        };
         /**
          * StudentAssignmentOut
          * @description A published assignment in one of the student's courses, with their progress on it.
@@ -792,6 +912,20 @@ export interface components {
              */
             updated_at: string;
         };
+        /** SubmissionSessionsOut */
+        SubmissionSessionsOut: {
+            /** Assignment Title */
+            assignment_title: string;
+            /** Sessions */
+            sessions: components["schemas"]["WorkSessionDetailOut"][];
+            /** Student Name */
+            student_name: string;
+            /**
+             * Submission Id
+             * Format: uuid
+             */
+            submission_id: string;
+        };
         /** SubmissionStart */
         SubmissionStart: {
             /**
@@ -828,6 +962,45 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** WorkSessionDetailOut */
+        WorkSessionDetailOut: {
+            /** Ended At */
+            ended_at: string | null;
+            /** Events */
+            events: components["schemas"]["ActivityEventOut"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Segments */
+            segments: components["schemas"]["StepSegmentOut"][];
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+        };
+        /** WorkSessionOut */
+        WorkSessionOut: {
+            /** Ended At */
+            ended_at: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /**
+             * Submission Id
+             * Format: uuid
+             */
+            submission_id: string;
         };
     };
     responses: never;
@@ -1385,6 +1558,68 @@ export interface operations {
             };
         };
     };
+    end_session_sessions__session_id__end_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_events_sessions__session_id__events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivityEventsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_my_assignments_student_assignments_get: {
         parameters: {
             query?: never;
@@ -1669,6 +1904,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubmissionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_submission_sessions_submissions__submission_id__sessions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                submission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionSessionsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_session_submissions__submission_id__sessions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                submission_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkSessionOut"];
                 };
             };
             /** @description Validation Error */
