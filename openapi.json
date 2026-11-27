@@ -1,0 +1,2291 @@
+{
+  "components": {
+    "schemas": {
+      "AIPolicy": {
+        "enum": [
+          "prohibited",
+          "permitted",
+          "expected"
+        ],
+        "title": "AIPolicy",
+        "type": "string"
+      },
+      "AnswerType": {
+        "description": "How a question is answered. The frontend mirrors this in lib/constants.ts.",
+        "enum": [
+          "code",
+          "text",
+          "math"
+        ],
+        "title": "AnswerType",
+        "type": "string"
+      },
+      "AnswersSave": {
+        "description": "A draft save. Only the questions sent are changed, so autosave can send just one.",
+        "properties": {
+          "answers": {
+            "additionalProperties": {
+              "maxLength": 50000,
+              "type": "string"
+            },
+            "maxProperties": 100,
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "title": "Answers",
+            "type": "object"
+          }
+        },
+        "required": [
+          "answers"
+        ],
+        "title": "AnswersSave",
+        "type": "object"
+      },
+      "AssignmentCreate": {
+        "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/AIPolicy",
+            "default": "permitted"
+          },
+          "course_id": {
+            "format": "uuid",
+            "title": "Course Id",
+            "type": "string"
+          },
+          "final_check": {
+            "$ref": "#/components/schemas/FinalCheck",
+            "default": "ai_interview"
+          },
+          "help_level": {
+            "$ref": "#/components/schemas/HelpLevel",
+            "default": "hints"
+          },
+          "instructions": {
+            "default": "",
+            "maxLength": 20000,
+            "title": "Instructions",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionCreate"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Questions",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "questions",
+          "course_id"
+        ],
+        "title": "AssignmentCreate",
+        "type": "object"
+      },
+      "AssignmentOut": {
+        "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/AIPolicy"
+          },
+          "course_id": {
+            "format": "uuid",
+            "title": "Course Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "final_check": {
+            "$ref": "#/components/schemas/FinalCheck"
+          },
+          "help_level": {
+            "$ref": "#/components/schemas/HelpLevel"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "instructions": {
+            "title": "Instructions",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "source_pdf": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Pdf"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "course_id",
+          "title",
+          "instructions",
+          "source_pdf",
+          "ai_policy",
+          "help_level",
+          "final_check",
+          "published_at",
+          "created_at",
+          "questions"
+        ],
+        "title": "AssignmentOut",
+        "type": "object"
+      },
+      "AssignmentUpdate": {
+        "description": "PATCH /assignments/{id}: every field, with the questions replacing the old list in order.",
+        "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/AIPolicy",
+            "default": "permitted"
+          },
+          "final_check": {
+            "$ref": "#/components/schemas/FinalCheck",
+            "default": "ai_interview"
+          },
+          "help_level": {
+            "$ref": "#/components/schemas/HelpLevel",
+            "default": "hints"
+          },
+          "instructions": {
+            "default": "",
+            "maxLength": 20000,
+            "title": "Instructions",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionCreate"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Questions",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "questions"
+        ],
+        "title": "AssignmentUpdate",
+        "type": "object"
+      },
+      "AttemptFinish": {
+        "properties": {
+          "approach_note": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Approach Note",
+            "type": "string"
+          },
+          "confidence": {
+            "maximum": 5,
+            "minimum": 1,
+            "title": "Confidence",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "confidence",
+          "approach_note"
+        ],
+        "title": "AttemptFinish",
+        "type": "object"
+      },
+      "Body_upload_assignment_pdf_assignments__assignment_id__pdf_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_assignment_pdf_assignments__assignment_id__pdf_post",
+        "type": "object"
+      },
+      "ChatRequest": {
+        "description": "A student message sent to the AI tutor.",
+        "properties": {
+          "message": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "ChatRequest",
+        "type": "object"
+      },
+      "ChatResponse": {
+        "description": "The AI tutor reply and its stored message ID.",
+        "properties": {
+          "message_id": {
+            "format": "uuid",
+            "title": "Message Id",
+            "type": "string"
+          },
+          "reply": {
+            "title": "Reply",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message_id",
+          "reply"
+        ],
+        "title": "ChatResponse",
+        "type": "object"
+      },
+      "CourseCreate": {
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "CourseCreate",
+        "type": "object"
+      },
+      "CourseOut": {
+        "description": "A course as its professor sees it, with the code students join with.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "join_code": {
+            "title": "Join Code",
+            "type": "string"
+          },
+          "student_count": {
+            "default": 0,
+            "title": "Student Count",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "join_code",
+          "created_at"
+        ],
+        "title": "CourseOut",
+        "type": "object"
+      },
+      "EnrollmentOut": {
+        "description": "The course a student joined. It never includes the join code.",
+        "properties": {
+          "course_id": {
+            "format": "uuid",
+            "title": "Course Id",
+            "type": "string"
+          },
+          "course_title": {
+            "title": "Course Title",
+            "type": "string"
+          },
+          "joined_at": {
+            "format": "date-time",
+            "title": "Joined At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "course_id",
+          "course_title",
+          "joined_at"
+        ],
+        "title": "EnrollmentOut",
+        "type": "object"
+      },
+      "EvaluationSave": {
+        "properties": {
+          "test_case": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Test Case",
+            "type": "string"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/EvaluationVerdict"
+          }
+        },
+        "required": [
+          "verdict",
+          "test_case"
+        ],
+        "title": "EvaluationSave",
+        "type": "object"
+      },
+      "EvaluationVerdict": {
+        "description": "The student's judgement of the AI feedback in the evaluate step.",
+        "enum": [
+          "correct",
+          "partly_correct",
+          "incorrect"
+        ],
+        "title": "EvaluationVerdict",
+        "type": "string"
+      },
+      "ExplanationSave": {
+        "properties": {
+          "ai_declaration": {
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Ai Declaration",
+            "type": "string"
+          },
+          "interview_answers": {
+            "items": {
+              "$ref": "#/components/schemas/InterviewAnswer"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Interview Answers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "interview_answers",
+          "ai_declaration"
+        ],
+        "title": "ExplanationSave",
+        "type": "object"
+      },
+      "FinalCheck": {
+        "enum": [
+          "ai_interview",
+          "questionnaire"
+        ],
+        "title": "FinalCheck",
+        "type": "string"
+      },
+      "ForgotPasswordIn": {
+        "properties": {
+          "email": {
+            "maxLength": 320,
+            "minLength": 3,
+            "pattern": "^[^@\\s]+@[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "ForgotPasswordIn",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HelpLevel": {
+        "enum": [
+          "hints",
+          "approach",
+          "concepts"
+        ],
+        "title": "HelpLevel",
+        "type": "string"
+      },
+      "InterviewAnswer": {
+        "properties": {
+          "answer": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Answer",
+            "type": "string"
+          },
+          "question": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question",
+          "answer"
+        ],
+        "title": "InterviewAnswer",
+        "type": "object"
+      },
+      "JoinCourseIn": {
+        "properties": {
+          "code": {
+            "maxLength": 32,
+            "minLength": 4,
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "JoinCourseIn",
+        "type": "object"
+      },
+      "LoginIn": {
+        "properties": {
+          "email": {
+            "maxLength": 320,
+            "minLength": 3,
+            "pattern": "^[^@\\s]+@[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 72,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginIn",
+        "type": "object"
+      },
+      "QuestionCreate": {
+        "properties": {
+          "answer_type": {
+            "$ref": "#/components/schemas/AnswerType"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "prompt": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "starter_code": {
+            "anyOf": [
+              {
+                "maxLength": 50000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starter Code"
+          }
+        },
+        "required": [
+          "prompt",
+          "answer_type"
+        ],
+        "title": "QuestionCreate",
+        "type": "object"
+      },
+      "QuestionOut": {
+        "properties": {
+          "answer_type": {
+            "$ref": "#/components/schemas/AnswerType"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "prompt": {
+            "title": "Prompt",
+            "type": "string"
+          },
+          "starter_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starter Code"
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "prompt",
+          "answer_type",
+          "language",
+          "starter_code"
+        ],
+        "title": "QuestionOut",
+        "type": "object"
+      },
+      "ResetPasswordIn": {
+        "properties": {
+          "password": {
+            "maxLength": 72,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          },
+          "token_hash": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Token Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token_hash",
+          "password"
+        ],
+        "title": "ResetPasswordIn",
+        "type": "object"
+      },
+      "Role": {
+        "enum": [
+          "student",
+          "professor"
+        ],
+        "title": "Role",
+        "type": "string"
+      },
+      "SignupIn": {
+        "properties": {
+          "email": {
+            "maxLength": 320,
+            "minLength": 3,
+            "pattern": "^[^@\\s]+@[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 72,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "SignupIn",
+        "type": "object"
+      },
+      "SignupOut": {
+        "properties": {
+          "confirm_email": {
+            "title": "Confirm Email",
+            "type": "boolean"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "user",
+          "confirm_email"
+        ],
+        "title": "SignupOut",
+        "type": "object"
+      },
+      "Step": {
+        "enum": [
+          "attempt",
+          "feedback",
+          "evaluate",
+          "revise",
+          "explain"
+        ],
+        "title": "Step",
+        "type": "string"
+      },
+      "StudentAssignmentOut": {
+        "description": "A published assignment in one of the student's courses, with their progress on it.",
+        "properties": {
+          "course_id": {
+            "format": "uuid",
+            "title": "Course Id",
+            "type": "string"
+          },
+          "course_title": {
+            "title": "Course Title",
+            "type": "string"
+          },
+          "current_step": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Step"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SubmissionStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "submission_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "course_id",
+          "course_title",
+          "published_at",
+          "submission_id",
+          "status",
+          "current_step"
+        ],
+        "title": "StudentAssignmentOut",
+        "type": "object"
+      },
+      "SubmissionOut": {
+        "properties": {
+          "ai_declaration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Declaration"
+          },
+          "approach_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approach Note"
+          },
+          "assignment": {
+            "$ref": "#/components/schemas/AssignmentOut"
+          },
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "attempt_answers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "title": "Attempt Answers",
+            "type": "object"
+          },
+          "attempt_submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Submitted At"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_step": {
+            "$ref": "#/components/schemas/Step"
+          },
+          "evaluation_test_case": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Test Case"
+          },
+          "evaluation_verdict": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationVerdict"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "interview_answers": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/InterviewAnswer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interview Answers"
+          },
+          "revision_answers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "title": "Revision Answers",
+            "type": "object"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubmissionStatus"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "assignment_id",
+          "status",
+          "current_step",
+          "confidence",
+          "approach_note",
+          "attempt_submitted_at",
+          "evaluation_verdict",
+          "evaluation_test_case",
+          "interview_answers",
+          "ai_declaration",
+          "submitted_at",
+          "created_at",
+          "updated_at",
+          "attempt_answers",
+          "revision_answers",
+          "assignment"
+        ],
+        "title": "SubmissionOut",
+        "type": "object"
+      },
+      "SubmissionStart": {
+        "properties": {
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "assignment_id"
+        ],
+        "title": "SubmissionStart",
+        "type": "object"
+      },
+      "SubmissionStatus": {
+        "enum": [
+          "in_progress",
+          "submitted"
+        ],
+        "title": "SubmissionStatus",
+        "type": "string"
+      },
+      "UserOut": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "role"
+        ],
+        "title": "UserOut",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "APIKeyCookie": {
+        "in": "cookie",
+        "name": "access_token",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "title": "AI-Native Assignments API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/ai/submissions/{submission_id}/chat": {
+      "post": {
+        "description": "Send a message to the AI tutor for the student's submission.",
+        "operationId": "chat_ai_submissions__submission_id__chat_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Chat",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/assignments": {
+      "get": {
+        "operationId": "list_assignments_assignments_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Course Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "title": "Response List Assignments Assignments Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "List Assignments",
+        "tags": [
+          "assignments"
+        ]
+      },
+      "post": {
+        "operationId": "create_assignment_assignments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Create Assignment",
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/assignments/{assignment_id}": {
+      "get": {
+        "operationId": "get_assignment_assignments__assignment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Get Assignment",
+        "tags": [
+          "assignments"
+        ]
+      },
+      "patch": {
+        "operationId": "update_assignment_assignments__assignment_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Update Assignment",
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/assignments/{assignment_id}/pdf": {
+      "post": {
+        "operationId": "upload_assignment_pdf_assignments__assignment_id__pdf_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_assignment_pdf_assignments__assignment_id__pdf_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Upload Assignment Pdf",
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/assignments/{assignment_id}/publish": {
+      "post": {
+        "operationId": "publish_assignment_assignments__assignment_id__publish_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Publish Assignment",
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "operationId": "forgot_password_auth_forgot_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Forgot Password",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout_auth_logout_post",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "access_token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Access Token"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "me_auth_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "refresh_auth_refresh_post",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "refresh_token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Refresh Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Refresh",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "operationId": "reset_password_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset Password",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "operationId": "signup_auth_signup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Signup",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/courses": {
+      "get": {
+        "operationId": "list_courses_courses_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CourseOut"
+                  },
+                  "title": "Response List Courses Courses Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "List Courses",
+        "tags": [
+          "courses"
+        ]
+      },
+      "post": {
+        "operationId": "create_course_courses_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Create Course",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/courses/join": {
+      "post": {
+        "operationId": "join_course_courses_join_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCourseIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Join Course",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/student/assignments": {
+      "get": {
+        "operationId": "list_my_assignments_student_assignments_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StudentAssignmentOut"
+                  },
+                  "title": "Response List My Assignments Student Assignments Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "List My Assignments",
+        "tags": [
+          "student"
+        ]
+      }
+    },
+    "/submissions": {
+      "post": {
+        "operationId": "start_submission_submissions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmissionStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The student already had a submission; it is returned."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Start Submission",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}": {
+      "get": {
+        "operationId": "get_submission_submissions__submission_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Get Submission",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}/attempt": {
+      "post": {
+        "operationId": "finish_attempt_submissions__submission_id__attempt_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptFinish"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Finish Attempt",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}/attempt/answers": {
+      "put": {
+        "operationId": "save_attempt_answers_submissions__submission_id__attempt_answers_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswersSave"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Save Attempt Answers",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}/evaluation": {
+      "post": {
+        "operationId": "save_evaluation_submissions__submission_id__evaluation_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluationSave"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Save Evaluation",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}/explanation": {
+      "post": {
+        "operationId": "save_explanation_submissions__submission_id__explanation_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplanationSave"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Save Explanation",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}/revision": {
+      "post": {
+        "operationId": "finish_revision_submissions__submission_id__revision_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Finish Revision",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}/revision/answers": {
+      "put": {
+        "operationId": "save_revision_answers_submissions__submission_id__revision_answers_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswersSave"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Save Revision Answers",
+        "tags": [
+          "submissions"
+        ]
+      }
+    }
+  }
+}

@@ -1,101 +1,34 @@
-import type {
-  AIPolicy,
-  AnswerType,
-  EvaluationVerdict,
-  FinalCheck,
-  HelpLevel,
-  Role,
-  Step,
-  SubmissionStatus,
-} from "@/lib/constants";
+import type { components } from "./api-schema";
 
-// Mirrors of the backend's response schemas, field names included, so no mapping
-// layer is needed between the API and the app. Keep in sync with
-// app/assignments/schemas.py, app/submissions/schemas.py and app/users/schemas.py in the backend.
+// The backend's response schemas, generated from its OpenAPI schema into api-schema.ts
+// (run `npm run api-types` after the backend changes). Feature code imports these names,
+// so a renamed or removed field fails the type check instead of breaking a page.
 
-/** CourseOut */
-export interface CourseOut {
-  id: string;
-  title: string;
-  /** What students type to join, two groups of four such as "7K4Q-M2XP". Only the professor sees it. */
-  join_code: string;
-  student_count: number;
-  created_at: string;
-}
+type Schemas = components["schemas"];
 
-/** QuestionOut */
-export interface QuestionOut {
-  id: string;
-  /** 1-based order in the assignment. */
-  position: number;
-  prompt: string;
-  answer_type: AnswerType;
-  /** Monaco language id, such as "python". Set only for code questions. */
-  language: string | null;
-  starter_code: string | null;
-}
+/** A course as its professor sees it, with the code students join with. */
+export type CourseOut = Schemas["CourseOut"];
 
-export interface AssignmentSettings {
-  ai_policy: AIPolicy;
-  help_level: HelpLevel;
-  final_check: FinalCheck;
-}
+/** One question. `position` is 1-based; `language` is a Monaco id, set only for code questions. */
+export type QuestionOut = Schemas["QuestionOut"];
 
-/** AssignmentOut */
-export interface AssignmentOut extends AssignmentSettings {
-  id: string;
-  course_id: string;
-  title: string;
-  instructions: string;
-  source_pdf: string | null;
-  /** Null while the assignment is a draft. */
-  published_at: string | null;
-  created_at: string;
-  questions: readonly QuestionOut[];
-}
+/** An assignment with its questions. `published_at` is null while it's a draft. */
+export type AssignmentOut = Schemas["AssignmentOut"];
+
+/** The three AI settings a professor chooses for an assignment. */
+export type AssignmentSettings = Pick<AssignmentOut, "ai_policy" | "help_level" | "final_check">;
+
+/** One follow-up question and the student's answer (step 5). */
+export type InterviewAnswer = Schemas["InterviewAnswer"];
+
+/** A student's submission, with the assignment and its questions so the workspace needs one request. */
+export type SubmissionOut = Schemas["SubmissionOut"];
 
 /** Answers keyed by question id. Math answers are LaTeX lines separated by "\n". */
-export type AnswerMap = Record<string, string>;
+export type AnswerMap = SubmissionOut["attempt_answers"];
 
-/** InterviewAnswer: one follow-up question and the student's answer (step 5). */
-export interface InterviewAnswer {
-  question: string;
-  answer: string;
-}
+/** The signed-in account. The role comes from the backend, never from the client. */
+export type UserOut = Schemas["UserOut"];
 
-/** SubmissionOut */
-export interface SubmissionOut {
-  id: string;
-  assignment_id: string;
-  status: SubmissionStatus;
-  current_step: Step;
-  confidence: number | null;
-  approach_note: string | null;
-  attempt_submitted_at: string | null;
-  /** Step 3: the student's judgement of the AI feedback, and the test case or example behind it. */
-  evaluation_verdict: EvaluationVerdict | null;
-  evaluation_test_case: string | null;
-  /** Step 5. */
-  interview_answers: InterviewAnswer[] | null;
-  ai_declaration: string | null;
-  submitted_at: string | null;
-  created_at: string;
-  updated_at: string;
-  attempt_answers: AnswerMap;
-  revision_answers: AnswerMap;
-  /** The assignment and its questions, so the workspace needs one request. */
-  assignment: AssignmentOut;
-}
-
-/** UserOut: the signed-in account. The role comes from the backend, never from the client. */
-export interface UserOut {
-  id: string;
-  email: string;
-  role: Role;
-}
-
-/** SignupOut. `user` is null while the email waits to be confirmed. */
-export interface SignupOut {
-  user: UserOut | null;
-  confirm_email: boolean;
-}
+/** The sign-up result. `user` is null while the email waits to be confirmed. */
+export type SignupOut = Schemas["SignupOut"];
