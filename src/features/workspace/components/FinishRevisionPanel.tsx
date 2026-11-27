@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 
 import type { SaveStatus } from "../use-answers";
 import { SaveStatusLine } from "./SaveStatusLine";
@@ -44,9 +45,9 @@ export function FinishRevisionPanel({
       </div>
 
       {submitError && (
-        <p role="alert" className="text-sm text-danger">
+        <ErrorMessage role="alert" className="text-sm">
           {submitError}
-        </p>
+        </ErrorMessage>
       )}
 
       <Button disabled={!allAnswered || isSubmitting} onClick={onFinish} className="w-full">

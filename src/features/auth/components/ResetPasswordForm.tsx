@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 import { homeRouteFor, ROUTES } from "@/lib/constants";
 
@@ -77,9 +78,9 @@ export function ResetPasswordForm() {
         onChange={() => setError(undefined)}
       />
       {formError && (
-        <p role="alert" className="text-callout text-danger">
+        <ErrorMessage role="alert" className="text-callout">
           {formError}
-        </p>
+        </ErrorMessage>
       )}
       <Button type="submit" disabled={pending} className="h-10 w-full">
         {pending ? "Saving…" : "Save password and log in"}

@@ -5,6 +5,7 @@ import { type ReactNode, useEffect, useId, useState } from "react";
 
 import { ProductMark } from "@/components/ProductMark";
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { getMe } from "@/features/auth/auth-client";
 import { ApiError } from "@/lib/api";
 import type { UserOut } from "@/lib/api-types";
@@ -95,9 +96,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col">
           {state.status === "error" && (
             <div className="flex flex-wrap items-center gap-3 border-b border-line bg-surface px-4 py-3 sm:px-8">
-              <p role="alert" className="text-callout text-danger">
+              <ErrorMessage role="alert" className="text-callout">
                 {state.message}
-              </p>
+              </ErrorMessage>
               <Button
                 variant="tinted"
                 size="small"

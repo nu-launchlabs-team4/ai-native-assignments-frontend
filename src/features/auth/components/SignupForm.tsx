@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 import { homeRouteFor } from "@/lib/constants";
 
@@ -112,9 +113,9 @@ export function SignupForm() {
         Professors get professor access automatically when their email is on the course list.
       </p>
       {formError && (
-        <p role="alert" className="text-callout text-danger">
+        <ErrorMessage role="alert" className="text-callout">
           {formError}
-        </p>
+        </ErrorMessage>
       )}
       <Button type="submit" disabled={pending} className="h-10 w-full">
         {pending ? "Creating account…" : "Create account"}

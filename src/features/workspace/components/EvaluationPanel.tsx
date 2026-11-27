@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { type Segment, SegmentedControl } from "@/components/ui/SegmentedControl";
 import { EvaluationVerdict, MAX_TEST_CASE_CHARS } from "@/lib/constants";
 
@@ -66,9 +67,9 @@ export function EvaluationPanel({ isSubmitting, submitError, onSubmit }: Evaluat
       </div>
 
       {submitError && (
-        <p role="alert" className="text-sm text-danger">
+        <ErrorMessage role="alert" className="text-sm">
           {submitError}
-        </p>
+        </ErrorMessage>
       )}
 
       <Button

@@ -88,7 +88,7 @@ function PickerBody({ state, onRetry }: { state: LoadState; onRetry: () => void 
           You have no courses yet.{" "}
           <Link
             href={ROUTES.PROFESSOR}
-            className="text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="text-foreground underline underline-offset-4 hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >
             Add a course first
           </Link>

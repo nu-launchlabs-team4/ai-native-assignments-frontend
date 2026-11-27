@@ -5,58 +5,54 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Design tokens, named by role. Use them through Tailwind (bg-surface, text-muted,
-   border-field, bg-accent) instead of picking colors by hand. Every text pairing meets
-   WCAG AA (4.5:1) in both appearances; field borders meet 3:1. Values follow Apple's
-   Human Interface Guidelines: grouped grays, one tint, and semantic status colors. */
+   border-field, bg-accent) instead of picking colors by hand. Northeastern's palette:
+   black and white for actions, plain grays, and red for brand moments. Every text
+   pairing meets WCAG AA (4.5:1) in both appearances; field borders meet 3:1. */
 :root {
   color-scheme: light;
-  /* The page behind everything (grouped background). */
-  --background: #f2f2f7;
-  /* Primary text: 16.8:1 on surface. */
-  --foreground: #1d1d1f;
+  /* The page behind everything. */
+  --background: #f5f5f5;
+  /* Primary text: 18.9:1 on surface, 17.3:1 on background. */
+  --foreground: #111111;
   /* The student's work and other content: the "paper". */
   --surface: #ffffff;
   /* Bars, sidebars and grouped rows. */
-  --surface-muted: #f2f2f7;
+  --surface-muted: #f5f5f5;
   /* Separators between areas. Decorative only, never text. */
-  --line: #d1d1d6;
-  /* Borders of text fields and other controls: 4.2:1 on surface, 3.7:1 on surface-muted. */
-  --field: #7c7c80;
-  /* Secondary text: 6.0:1 on surface, 5.4:1 on surface-muted. */
-  --muted: #636366;
-  /* The tint: ink blue, the student's pen. 6.8:1 on surface. */
-  --accent: #2251c7;
-  /* Text on a filled tint: 6.8:1. */
+  --line: #d9d9d9;
+  /* Borders of text fields and other controls: 4.5:1 on surface, 4.2:1 on surface-muted. */
+  --field: #767676;
+  /* Secondary text: 6.7:1 on surface, 6.1:1 on surface-muted. */
+  --muted: #5c5c5c;
+  /* The main action: black, with white text (21:1). Also plain buttons and the student's
+     chat bubble. Links use foreground, underlined. */
+  --accent: #000000;
   --accent-foreground: #ffffff;
-  /* Tinted buttons and selected rows: tint text on it is 5.9:1. */
-  --accent-soft: #e8eefb;
+  /* Tinted buttons and selected rows: black text on it is 17.6:1. */
+  --accent-soft: #ebebeb;
   --success: #1e7b34;
   --warning: #9a5b00;
-  --danger: #c9302c;
+  /* Errors: 5.9:1 on surface. The same red as the brand, so an error always carries an
+     icon and words too (ErrorMessage), never color alone. */
+  --danger: #c8102e;
 
-  /* Northeastern brand palette, for the landing page only. Red is kept off app
-     screens because it's close to --danger and would read as an error there. */
+  /* Northeastern red, for brand moments: the current step, step numbers, the selected
+     question, link hover and the landing page. White on it: 5.9:1. */
   --brand: #c8102e;
-  /* White on red: 5.9:1. */
   --brand-foreground: #ffffff;
-  --brand-page: #ffffff;
-  /* 21:1 on brand-page, 18.6:1 on brand-soft. */
-  --brand-ink: #000000;
-  /* 8.9:1 on brand-page. */
-  --brand-muted: #4a4a4a;
-  /* Card and bar separators. Decorative only. */
-  --brand-line: #e2e2e2;
-  /* The step strip. Red circles on it: 5.2:1. */
+  /* Red text and borders: 5.9:1 on surface, 5.4:1 on surface-muted. */
+  --brand-text: #c8102e;
+  /* The landing page's step strip. Red circles on it: 5.2:1. */
   --brand-soft: #fceef0;
-  /* Icon tiles. Red icons on them: 5.2:1. */
+  /* The landing page's icon tiles. Red icons on them: 5.2:1. */
   --brand-tile: #fceef0;
-  /* Small action labels: red in light (5.9:1); white in dark, where red is 3.6:1. */
+  /* Small action labels: red in light (5.9:1); white in dark, where red is 3.1:1. */
   --brand-action: #c8102e;
-  /* Keyboard focus ring for every control, landing and app: 21:1 on white. */
+  /* Keyboard focus ring for every control: 21:1 on white. */
   --focus: #000000;
-  /* Tracks of segmented controls and other grouped controls: Apple's gray fill, visible
-     on both the page and a card. Icons on it: 4.7:1 or more. */
-  --fill: rgb(118 118 128 / 0.12);
+  /* Tracks of segmented controls and other grouped controls, visible on both the page
+     and a card. Icons on it: 4.7:1 or more. */
+  --fill: rgb(120 120 120 / 0.12);
   /* The selected segment on a fill. */
   --fill-selected: #ffffff;
 }
@@ -64,40 +60,40 @@
 .dark {
   color-scheme: dark;
   --background: #000000;
-  /* 15.6:1 on surface. */
-  --foreground: #f5f5f7;
-  --surface: #1c1c1e;
-  --surface-muted: #2c2c2e;
-  --line: #38383a;
-  /* 4.1:1 on surface, 3.4:1 on surface-muted. */
-  --field: #7c7c80;
-  /* 7.7:1 on surface, 6.3:1 on surface-muted. */
-  --muted: #aeaeb2;
-  /* 6.3:1 on surface. */
-  --accent: #6e9bff;
-  /* Dark text on the light tint: 6.7:1. White would be 2.7:1. */
-  --accent-foreground: #0b1530;
-  --accent-soft: #1a2440;
+  /* 16.6:1 on surface, 19.3:1 on background. */
+  --foreground: #f5f5f5;
+  --surface: #161616;
+  --surface-muted: #222222;
+  --line: #333333;
+  /* 4.2:1 on surface, 3.7:1 on surface-muted. */
+  --field: #7a7a7a;
+  /* 7.6:1 on surface, 6.7:1 on surface-muted. */
+  --muted: #a8a8a8;
+  /* White with black text (21:1). */
+  --accent: #ffffff;
+  --accent-foreground: #000000;
+  /* White text on it: 14.2:1. */
+  --accent-soft: #2b2b2b;
   --success: #4fc26a;
   --warning: #f2a93b;
+  /* 6.5:1 on surface. */
   --danger: #ff6b61;
 
+  /* Filled red with white text stays 5.9:1. */
   --brand: #c8102e;
   --brand-foreground: #ffffff;
-  --brand-page: #000000;
-  --brand-ink: #ffffff;
-  /* 10.6:1 on brand-page. */
-  --brand-muted: #b8b8b8;
-  --brand-line: #3a3a3a;
+  /* Northeastern red is 3.1:1 on the dark surface, too low for text, so red text is
+     lighter here: 6.0:1 on surface, 5.3:1 on surface-muted. */
+  --brand-text: #ff5c70;
   /* Red circles on it: 3.2:1 (non-text, needs 3:1). */
   --brand-soft: #1f0a0e;
   /* Red icons on it: 3.1:1 (non-text). */
   --brand-tile: #2a0d13;
   --brand-action: #ffffff;
   --focus: #ffffff;
-  --fill: rgb(118 118 128 / 0.24);
-  /* Lighter than the track, as in Apple's dark controls. Text on it: 5.5:1. */
-  --fill-selected: #636366;
+  --fill: rgb(120 120 120 / 0.24);
+  /* Lighter than the track. Text on it: 6.1:1. */
+  --fill-selected: #5c5c5c;
 }
 
 @theme inline {
@@ -116,10 +112,7 @@
   --color-danger: var(--danger);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
-  --color-brand-page: var(--brand-page);
-  --color-brand-ink: var(--brand-ink);
-  --color-brand-muted: var(--brand-muted);
-  --color-brand-line: var(--brand-line);
+  --color-brand-text: var(--brand-text);
   --color-brand-soft: var(--brand-soft);
   --color-brand-tile: var(--brand-tile);
   --color-brand-action: var(--brand-action);

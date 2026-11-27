@@ -10,7 +10,8 @@ const STATUS_TEXT: Record<StepStatus, string> = {
 
 const ITEM_STYLE: Record<StepStatus, string> = {
   done: "text-success",
-  current: "rounded bg-accent px-2 py-0.5 font-medium text-accent-foreground",
+  // Northeastern red marks where the student is.
+  current: "rounded bg-brand px-2 py-0.5 font-medium text-brand-foreground",
   upcoming: "text-muted",
 };
 
@@ -47,7 +48,7 @@ export function StepStepper({ currentStep, complete = false }: StepStepperProps)
                 </span>
               )}
               <span className={`flex items-center gap-1 ${ITEM_STYLE[status]}`}>
-                <span aria-hidden="true" className="tabular-nums">
+                <span aria-hidden="true" className={`tabular-nums ${status === "upcoming" ? "text-brand-text" : ""}`}>
                   {status === "done" ? "✓" : `${index + 1}`}
                 </span>
                 {STEP_LABELS[step]}

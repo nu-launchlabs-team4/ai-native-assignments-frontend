@@ -17,15 +17,15 @@ export function RoleCard({ href, title, description, action, icon }: RoleCardPro
     <Link
       href={href}
       className={
-        "group flex h-full flex-col gap-4 rounded-2xl border border-brand-line bg-brand-page p-6 shadow-xs transition-transform " +
-        "hover:border-brand-ink active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100 " +
+        "group flex h-full flex-col gap-4 rounded-2xl border border-line bg-surface p-6 shadow-xs transition-transform " +
+        "hover:border-foreground active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100 " +
         FOCUS_CLASS
       }
     >
       <span className="flex size-12 items-center justify-center rounded-xl bg-brand-tile text-brand">{icon}</span>
       <span className="flex flex-col gap-1">
-        <span className="text-title text-brand-ink">{title}</span>
-        <span className="text-body text-brand-muted">{description}</span>
+        <span className="text-title text-foreground">{title}</span>
+        <span className="text-body text-muted">{description}</span>
       </span>
       <span className="mt-auto flex items-center gap-1 text-callout font-semibold text-brand-action">
         {action}

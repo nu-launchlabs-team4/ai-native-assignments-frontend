@@ -3,6 +3,7 @@
 import { type DragEvent, type FormEvent, useId, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 import { MAX_PDF_MB } from "@/lib/constants";
 
@@ -106,9 +107,9 @@ export function PdfUpload({
         </p>
       )}
       {error && (
-        <p role="alert" className="text-callout font-medium text-danger">
+        <ErrorMessage role="alert" className="text-callout font-medium">
           {error}
-        </p>
+        </ErrorMessage>
       )}
 
       <div className="flex flex-wrap items-center gap-3">

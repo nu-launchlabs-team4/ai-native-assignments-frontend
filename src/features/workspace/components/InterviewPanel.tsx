@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Panel } from "@/components/ui/Panel";
 import { ApiError } from "@/lib/api";
 import { MAX_AI_DECLARATION_CHARS, MAX_INTERVIEW_ANSWER_CHARS } from "@/lib/constants";
@@ -172,9 +173,9 @@ export function InterviewPanel({ submissionId, loadQuestions, isSubmitting, subm
       )}
 
       {submitError && (
-        <p role="alert" className="text-sm text-danger">
+        <ErrorMessage role="alert" className="text-sm">
           {submitError}
-        </p>
+        </ErrorMessage>
       )}
 
       {questions.length > 0 &&

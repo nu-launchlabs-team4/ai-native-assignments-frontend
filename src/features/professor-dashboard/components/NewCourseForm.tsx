@@ -3,6 +3,7 @@
 import { type FormEvent, useId, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 
 const MAX_TITLE_LENGTH = 200; // The backend's limit (CourseCreate).
@@ -59,9 +60,9 @@ export function NewCourseForm({ onCreate }: NewCourseFormProps) {
         </Button>
       </div>
       {error && (
-        <p role="alert" className="text-callout font-medium text-danger">
+        <ErrorMessage role="alert" className="text-callout font-medium">
           {error}
-        </p>
+        </ErrorMessage>
       )}
     </form>
   );

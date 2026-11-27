@@ -22,7 +22,7 @@ function AssignmentRow({ assignment }: { assignment: AssignmentOut }) {
     <li className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3">
       <Link
         href={href}
-        className="font-medium text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="font-medium text-foreground underline underline-offset-4 hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
         {assignment.title}
       </Link>

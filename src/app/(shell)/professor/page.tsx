@@ -18,7 +18,7 @@ export default function ProfessorPage() {
           {/* TODO(dineshbachchani1234): remove the sample link once the submissions table loads real data (#11). */}
           <Link
             href={assignmentSubmissionsRoute(MOCK_REVIEW_ASSIGNMENT_ID)}
-            className="text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="text-foreground underline underline-offset-4 hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >
             See sample submissions
           </Link>

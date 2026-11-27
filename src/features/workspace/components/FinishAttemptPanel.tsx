@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { MAX_APPROACH_NOTE_CHARS } from "@/lib/constants";
 
 import type { SaveStatus } from "../use-answers";
@@ -69,9 +70,9 @@ export function FinishAttemptPanel({
       </div>
 
       {finishError && (
-        <p role="alert" className="text-sm text-danger">
+        <ErrorMessage role="alert" className="text-sm">
           {finishError}
-        </p>
+        </ErrorMessage>
       )}
 
       <Button

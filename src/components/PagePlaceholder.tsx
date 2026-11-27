@@ -17,7 +17,7 @@ export function PagePlaceholder({ title, description, children }: PagePlaceholde
       <div className="flex items-center justify-between">
         <Link
           href={ROUTES.HOME}
-          className="text-sm text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-sm text-muted underline-offset-4 hover:text-brand-text hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           ← Home
         </Link>
