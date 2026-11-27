@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 
 import { requestPasswordReset } from "../auth-client";
@@ -60,9 +61,9 @@ export function ForgotPasswordForm() {
         onChange={() => setError(undefined)}
       />
       {formError && (
-        <p role="alert" className="text-callout text-danger">
+        <ErrorMessage role="alert" className="text-callout">
           {formError}
-        </p>
+        </ErrorMessage>
       )}
       <Button type="submit" disabled={pending} className="h-10 w-full">
         {pending ? "Sending link…" : "Send reset link"}

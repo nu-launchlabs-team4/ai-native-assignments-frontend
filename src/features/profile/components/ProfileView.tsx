@@ -4,6 +4,7 @@ import { type ReactNode, useState } from "react";
 
 import { AppearanceControl } from "@/components/AppearanceControl";
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { useCurrentUser } from "@/features/app-shell/current-user";
 import { requestPasswordReset } from "@/features/auth/auth-client";
 import { LogoutButton } from "@/features/auth/components/LogoutButton";
@@ -71,9 +72,9 @@ export function ProfileView() {
             </p>
           )}
           {reset.status === "error" && (
-            <p role="alert" className="text-callout text-danger">
+            <ErrorMessage role="alert" className="text-callout">
               {reset.message}
-            </p>
+            </ErrorMessage>
           )}
         </div>
       </Section>

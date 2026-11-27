@@ -36,7 +36,7 @@ export function AuthFooterLink({ href, children }: { href: string; children: Rea
   return (
     <Link
       href={href}
-      className="font-medium text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center"
+      className="font-medium text-foreground underline underline-offset-4 hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center"
     >
       {children}
     </Link>

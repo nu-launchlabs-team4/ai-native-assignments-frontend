@@ -68,7 +68,7 @@ export function SubmissionsTable({ submissions }: SubmissionsTableProps) {
                     href={submissionSummaryRoute(submission.id)}
                     // Every row says "View summary", so screen readers also hear whose summary it is.
                     aria-label={`View summary for ${submission.student_name}`}
-                    className="font-medium text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                    className="font-medium text-foreground underline underline-offset-4 hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                   >
                     View summary
                   </Link>

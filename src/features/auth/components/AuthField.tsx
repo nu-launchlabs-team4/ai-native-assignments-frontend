@@ -2,6 +2,8 @@
 
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
+
 import { type AuthFieldName, EMAIL_MAX_CHARS, PASSWORD_MAX_CHARS, PASSWORD_MIN_CHARS } from "../validation";
 
 interface AuthFieldProps {
@@ -103,9 +105,9 @@ export function AuthField({
         )}
       </div>
       {error && (
-        <p id={errorId} className="text-footnote text-danger">
+        <ErrorMessage id={errorId} className="text-footnote">
           {error}
-        </p>
+        </ErrorMessage>
       )}
       {showRule && (
         // A checkmark as well as the color, so the met rule isn't shown by color alone.

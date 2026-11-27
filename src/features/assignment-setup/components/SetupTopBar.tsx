@@ -11,7 +11,7 @@ export function SetupTopBar() {
       <SidebarMenuButton />
       <Link
         href={ROUTES.PROFESSOR}
-        className="mr-auto text-callout text-muted underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="mr-auto text-callout text-muted underline-offset-4 hover:text-brand-text hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
         ← Professor dashboard
       </Link>

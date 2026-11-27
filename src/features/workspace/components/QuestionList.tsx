@@ -26,7 +26,7 @@ export function QuestionList({ questions, selectedQuestionId, answeredIds, onSel
                 aria-current={isSelected ? "true" : undefined}
                 className={`flex w-full items-center justify-between gap-2 border-l-2 px-4 py-2 text-left text-sm focus-visible:outline-2 focus-visible:-outline-offset-2 pointer-coarse:min-h-11 ${
                   isSelected
-                    ? "border-accent bg-surface-muted font-medium"
+                    ? "border-brand-text bg-surface-muted font-medium"
                     : "border-transparent hover:bg-surface-muted"
                 }`}
               >
@@ -34,7 +34,7 @@ export function QuestionList({ questions, selectedQuestionId, answeredIds, onSel
                   Question {index + 1}
                   {isAnswered && (
                     <>
-                      <span aria-hidden="true" className="text-green-700 dark:text-green-400">
+                      <span aria-hidden="true" className="text-success">
                         ✓
                       </span>
                       <span className="sr-only">(answered)</span>

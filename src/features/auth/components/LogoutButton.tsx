@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ApiError } from "@/lib/api";
 import { ROUTES } from "@/lib/constants";
 
@@ -31,9 +32,9 @@ export function LogoutButton({ className = "" }: { className?: string }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {error && (
-        <p role="alert" className="text-footnote text-danger">
+        <ErrorMessage role="alert" className="text-footnote">
           {error}
-        </p>
+        </ErrorMessage>
       )}
       <Button variant="plain" size="small" onClick={handleClick} disabled={pending} className="justify-start">
         Log out

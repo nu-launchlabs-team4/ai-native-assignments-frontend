@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 
 export type SetupAction = "save" | "publish";
 
@@ -63,9 +64,9 @@ export function SetupActions({ pending, published, canPublish, notice, error, on
         {notice ?? ""}
       </p>
       {error && (
-        <p role="alert" className="text-callout font-medium text-danger">
+        <ErrorMessage role="alert" className="text-callout font-medium">
           {error}
-        </p>
+        </ErrorMessage>
       )}
     </div>
   );

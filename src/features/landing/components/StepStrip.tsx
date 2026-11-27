@@ -33,7 +33,7 @@ export function StepStrip() {
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-callout font-semibold text-brand-foreground">
               {index + 1}
             </span>
-            <span className="text-body font-medium text-brand-ink sm:text-center">{LANDING_STEP_LABELS[step]}</span>
+            <span className="text-body font-medium text-foreground sm:text-center">{LANDING_STEP_LABELS[step]}</span>
           </li>
         ))}
       </ol>

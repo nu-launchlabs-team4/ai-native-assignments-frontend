@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ANSWER_TYPE_LABELS, AnswerType, CODE_LANGUAGES } from "@/lib/constants";
 
@@ -54,9 +55,9 @@ export function QuestionEditor({ question, questionNumber, onChange, onRemove }:
         className={TEXT_AREA_CLASS}
       />
       {promptMissing && (
-        <p id={`${idPrefix}-prompt-error`} className="text-callout font-medium text-danger">
+        <ErrorMessage id={`${idPrefix}-prompt-error`} className="text-callout font-medium">
           Question text is required.
-        </p>
+        </ErrorMessage>
       )}
 
       <div className="flex flex-wrap items-start gap-4">

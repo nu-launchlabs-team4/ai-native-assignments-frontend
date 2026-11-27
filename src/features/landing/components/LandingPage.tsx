@@ -28,7 +28,7 @@ const ROLES = [
 /** The public landing page, in Northeastern's black, white and red. */
 export function LandingPage() {
   return (
-    <div className="flex flex-1 flex-col bg-brand-page text-brand-ink">
+    <div className="flex flex-1 flex-col bg-surface text-foreground">
       <LandingHeader />
 
       <main className={`${CONTAINER_CLASS} flex flex-1 flex-col gap-12 py-12 sm:gap-16 sm:py-20`}>
@@ -37,7 +37,7 @@ export function LandingPage() {
             <span className="block">Show your work.</span>
             <span className="block">Sharpen your thinking.</span>
           </h1>
-          <p className="text-title font-normal text-brand-muted">
+          <p className="text-title font-normal text-muted">
             Work through assignments with an AI tutor that gives feedback without giving away the answer.
           </p>
         </div>
@@ -55,11 +55,11 @@ export function LandingPage() {
         </nav>
       </main>
 
-      <footer className="border-t border-brand-line">
+      <footer className="border-t border-line">
         <div className={`${CONTAINER_CLASS} py-6`}>
           <Link
             href={ROUTES.STATUS}
-            className={`text-footnote text-brand-muted underline-offset-4 hover:text-brand-ink hover:underline ${FOCUS_CLASS}`}
+            className={`text-footnote text-muted underline underline-offset-4 hover:text-brand-text ${FOCUS_CLASS}`}
           >
             System status
           </Link>
