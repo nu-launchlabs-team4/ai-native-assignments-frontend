@@ -59,7 +59,8 @@ src/
     ui/                    small building blocks used everywhere (Button, SegmentedControl, Panel)
   lib/
     api.ts                 apiFetch: the only way to call the backend
-    api-types.ts           QuestionOut, AssignmentOut, SubmissionOut: mirrors of the backend schemas
+    api-schema.ts          GENERATED from openapi.json by `npm run api-types`. Never edit it by hand.
+    api-types.ts           QuestionOut, AssignmentOut, SubmissionOut, ...: the generated schemas under the names the app uses
     constants.ts           enums mirrored from the backend (AnswerType is new, see backend #6), plus ROUTES, API_PATHS,
                            SESSION_COOKIES and THEME_STORAGE_KEY
     theme.ts               useTheme and setTheme (client only)
@@ -77,6 +78,7 @@ src/
 - `src/proxy.ts` only checks whether a session cookie exists, so it can redirect quickly. The backend does the real session and role check on every request.
 - Backend errors have the shape `{"error": {"code", "message", "request_id"}}`. `apiFetch` turns them into a typed `ApiError` with friendly messages for 401, 403 and 429.
 - `lib/constants.ts` mirrors `app/core/constants.py` in the backend. Change both together.
+- **API types are generated.** `openapi.json` (repo root) is a checked-in copy of the backend's schema, and `src/lib/api-schema.ts` is generated from it. When the backend's schemas change, run `npm run api-types:pull` with the backend running, then `npm run api-types`, and commit both files. CI fails if `api-schema.ts` doesn't match `openapi.json`, and `tsc` then points at every page a renamed field breaks.
 
 ## Commands
 
@@ -85,6 +87,7 @@ npm run dev            # http://localhost:3000 (or: docker compose up --build)
 npm run lint
 npm run typecheck      # next typegen, then tsc --noEmit
 npm test               # Vitest + React Testing Library
+npm run api-types      # regenerate src/lib/api-schema.ts from openapi.json (api-types:pull refreshes openapi.json from the backend)
 npm run build
 ```
 

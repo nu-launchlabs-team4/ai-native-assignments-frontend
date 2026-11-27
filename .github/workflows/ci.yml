@@ -31,6 +31,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # src/lib/api-schema.ts must match the checked-in openapi.json (run `npm run api-types`).
+      - name: API types up to date
+        run: npm run api-types:check
+
       - name: Type check
         run: npm run typecheck
 

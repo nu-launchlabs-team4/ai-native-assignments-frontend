@@ -22,6 +22,15 @@ await apiFetch<StepEntry>(`/submissions/${id}/attempt`, { method: "POST", body: 
 
 Never write raw `fetch` to the backend, and never hardcode `localhost:8010`.
 
+## Use the generated types
+
+Response types come from the backend's OpenAPI schema, so they can't drift:
+
+- Import them from `src/lib/api-types.ts` (`AssignmentOut`, `SubmissionOut`, `CourseOut`, `UserOut` ...), for example `apiFetch<AssignmentOut>(...)`. Never write your own interface for a backend response.
+- `src/lib/api-schema.ts` is generated: never edit it. For a schema the app doesn't use yet, add a line to `api-types.ts`: `export type EnrollmentOut = Schemas["EnrollmentOut"];`.
+- After a backend schema change: start the backend, run `npm run api-types:pull`, then `npm run api-types`, and commit `openapi.json` with `api-schema.ts`. Fix whatever `npm run typecheck` then reports.
+- A shape the backend hasn't built yet (a proposal, as in `features/submissions-review/types.ts`) stays a hand-written type in its feature folder until the endpoint exists.
+
 ## Show friendly messages
 
 ```tsx
