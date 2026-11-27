@@ -2,9 +2,9 @@ import Link from "next/link";
 
 import { SUBMISSION_STATUS_LABELS, submissionSummaryRoute } from "@/lib/constants";
 
-import { formatDateTime } from "../format";
 import { sortByReviewPriority } from "../sort";
 import type { SubmissionListItem } from "../types";
+import { LocalTime } from "./LocalTime";
 import { ReviewPriorityBadge } from "./ReviewPriorityBadge";
 
 interface SubmissionsTableProps {
@@ -51,7 +51,7 @@ export function SubmissionsTable({ submissions }: SubmissionsTableProps) {
                 <td className={CELL}>{SUBMISSION_STATUS_LABELS[submission.status]}</td>
                 <td className={CELL}>
                   {submission.submitted_at ? (
-                    <time dateTime={submission.submitted_at}>{formatDateTime(submission.submitted_at)}</time>
+                    <LocalTime iso={submission.submitted_at} />
                   ) : (
                     <span className="text-muted">Not yet</span>
                   )}

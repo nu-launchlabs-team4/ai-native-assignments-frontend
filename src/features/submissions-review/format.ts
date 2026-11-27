@@ -1,19 +1,24 @@
-// A fixed time zone keeps the server render and tests stable.
-// TODO(dineshbachchani1234): show the professor's own time zone once we store it (#11).
-const DATE_TIME = new Intl.DateTimeFormat("en-US", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "UTC",
-});
+// The server renders in UTC (it can't know the professor's zone); LocalTime switches to the
+// professor's own zone in the browser. Every time shows its zone, so neither is ambiguous.
+const SERVER_TIME_ZONE = "UTC";
 
-/** Format an ISO timestamp for display, such as "Nov 20, 2026, 6:30 PM UTC". */
-export function formatDateTime(iso: string): string {
-  return `${DATE_TIME.format(new Date(iso))} UTC`;
+const DATE_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZoneName: "short",
+};
+
+const TIME_OPTIONS: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit", timeZoneName: "short" };
+
+/** Format an ISO timestamp with its zone, such as "Nov 20, 2026, 6:30 PM UTC" or "…, 1:30 PM EST". */
+export function formatDateTime(iso: string, timeZone: string = SERVER_TIME_ZONE): string {
+  return new Intl.DateTimeFormat("en-US", { ...DATE_TIME_OPTIONS, timeZone }).format(new Date(iso));
 }
 
-const TIME = new Intl.DateTimeFormat("en-US", { timeStyle: "short", timeZone: "UTC" });
-
-/** Format an ISO timestamp as a time of day, such as "6:30 PM UTC". */
-export function formatTime(iso: string): string {
-  return `${TIME.format(new Date(iso))} UTC`;
+/** Format an ISO timestamp as a time of day with its zone, such as "6:30 PM UTC". */
+export function formatTime(iso: string, timeZone: string = SERVER_TIME_ZONE): string {
+  return new Intl.DateTimeFormat("en-US", { ...TIME_OPTIONS, timeZone }).format(new Date(iso));
 }

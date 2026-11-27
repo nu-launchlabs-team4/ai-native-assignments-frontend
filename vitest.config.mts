@@ -10,7 +10,8 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     // Placeholder so lib/env.ts loads, as in CI. Tests mock every backend call.
-    env: { NEXT_PUBLIC_API_URL: "http://localhost:8010" },
+    // TZ: times render in the browser's zone (LocalTime), so tests pin one.
+    env: { NEXT_PUBLIC_API_URL: "http://localhost:8010", TZ: "UTC" },
     setupFiles: ["./vitest.setup.ts"],
   },
 });
