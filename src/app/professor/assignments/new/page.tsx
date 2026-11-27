@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { CoursePicker } from "@/features/assignment-setup/components/CoursePicker";
 import { NewAssignment } from "@/features/assignment-setup/components/NewAssignment";
-import { MOCK_COURSE_ID } from "@/features/assignment-setup/mock-draft";
 
 export const metadata: Metadata = { title: "Set up assignment" };
 
@@ -19,6 +19,7 @@ export default function NewAssignmentPage({ searchParams }: NewAssignmentPagePro
 
 async function NewAssignmentLoader({ searchParams }: Pick<NewAssignmentPageProps, "searchParams">) {
   const { course } = await searchParams;
-  // The dashboard's "New assignment" passes ?course=. Without it, the draft goes into the sample course.
-  return <NewAssignment courseId={typeof course === "string" && course ? course : MOCK_COURSE_ID} />;
+  // The dashboard's "New assignment" passes ?course=. The sidebar's doesn't, so the professor picks one first.
+  // The sample course is ?course=course-1 (MOCK_COURSE_ID), which runs the demo without a backend.
+  return typeof course === "string" && course ? <NewAssignment courseId={course} /> : <CoursePicker />;
 }
