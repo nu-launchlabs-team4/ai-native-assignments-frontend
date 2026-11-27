@@ -10,6 +10,139 @@
         "title": "AIPolicy",
         "type": "string"
       },
+      "ActivityEventIn": {
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PasteDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "step": {
+            "$ref": "#/components/schemas/Step"
+          },
+          "type": {
+            "enum": [
+              "paste",
+              "tab_leave",
+              "tab_return"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "step",
+          "occurred_at"
+        ],
+        "title": "ActivityEventIn",
+        "type": "object"
+      },
+      "ActivityEventOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          },
+          "step": {
+            "$ref": "#/components/schemas/Step"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ActivityEventType"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "step",
+          "question_id",
+          "created_at",
+          "detail"
+        ],
+        "title": "ActivityEventOut",
+        "type": "object"
+      },
+      "ActivityEventType": {
+        "description": "What a work session records. Signals that give the professor context, never flags.",
+        "enum": [
+          "paste",
+          "tab_leave",
+          "tab_return",
+          "snapshot"
+        ],
+        "title": "ActivityEventType",
+        "type": "string"
+      },
+      "ActivityEventsIn": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityEventIn"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Events",
+            "type": "array"
+          }
+        },
+        "required": [
+          "events"
+        ],
+        "title": "ActivityEventsIn",
+        "type": "object"
+      },
       "AnswerType": {
         "description": "How a question is answered. The frontend mirrors this in lib/constants.ts.",
         "enum": [
@@ -525,6 +658,21 @@
         "title": "LoginIn",
         "type": "object"
       },
+      "PasteDetail": {
+        "properties": {
+          "characters": {
+            "maximum": 10000000,
+            "minimum": 0,
+            "title": "Characters",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "characters"
+        ],
+        "title": "PasteDetail",
+        "type": "object"
+      },
       "QuestionCreate": {
         "properties": {
           "answer_type": {
@@ -708,6 +856,30 @@
         ],
         "title": "Step",
         "type": "string"
+      },
+      "StepSegmentOut": {
+        "properties": {
+          "ended_at": {
+            "format": "date-time",
+            "title": "Ended At",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "step": {
+            "$ref": "#/components/schemas/Step"
+          }
+        },
+        "required": [
+          "step",
+          "started_at",
+          "ended_at"
+        ],
+        "title": "StepSegmentOut",
+        "type": "object"
       },
       "StudentAssignmentOut": {
         "description": "A published assignment in one of the student's courses, with their progress on it.",
@@ -947,6 +1119,38 @@
         "title": "SubmissionOut",
         "type": "object"
       },
+      "SubmissionSessionsOut": {
+        "properties": {
+          "assignment_title": {
+            "title": "Assignment Title",
+            "type": "string"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/WorkSessionDetailOut"
+            },
+            "title": "Sessions",
+            "type": "array"
+          },
+          "student_name": {
+            "title": "Student Name",
+            "type": "string"
+          },
+          "submission_id": {
+            "format": "uuid",
+            "title": "Submission Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "submission_id",
+          "assignment_title",
+          "student_name",
+          "sessions"
+        ],
+        "title": "SubmissionSessionsOut",
+        "type": "object"
+      },
       "SubmissionStart": {
         "properties": {
           "assignment_id": {
@@ -1030,6 +1234,94 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "WorkSessionDetailOut": {
+        "properties": {
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityEventOut"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/StepSegmentOut"
+            },
+            "title": "Segments",
+            "type": "array"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "started_at",
+          "ended_at",
+          "segments",
+          "events"
+        ],
+        "title": "WorkSessionDetailOut",
+        "type": "object"
+      },
+      "WorkSessionOut": {
+        "properties": {
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "submission_id": {
+            "format": "uuid",
+            "title": "Submission Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "started_at",
+          "ended_at"
+        ],
+        "title": "WorkSessionOut",
         "type": "object"
       }
     },
@@ -1822,6 +2114,98 @@
         "summary": "Health"
       }
     },
+    "/sessions/{session_id}/end": {
+      "post": {
+        "operationId": "end_session_sessions__session_id__end_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "End Session",
+        "tags": [
+          "sessions"
+        ]
+      }
+    },
+    "/sessions/{session_id}/events": {
+      "post": {
+        "operationId": "add_events_sessions__session_id__events_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityEventsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Add Events",
+        "tags": [
+          "sessions"
+        ]
+      }
+    },
     "/student/assignments": {
       "get": {
         "operationId": "list_my_assignments_student_assignments_get",
@@ -2284,6 +2668,100 @@
         "summary": "Save Revision Answers",
         "tags": [
           "submissions"
+        ]
+      }
+    },
+    "/submissions/{submission_id}/sessions": {
+      "get": {
+        "operationId": "get_submission_sessions_submissions__submission_id__sessions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionSessionsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Get Submission Sessions",
+        "tags": [
+          "sessions"
+        ]
+      },
+      "post": {
+        "operationId": "start_session_submissions__submission_id__sessions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkSessionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Start Session",
+        "tags": [
+          "sessions"
         ]
       }
     }

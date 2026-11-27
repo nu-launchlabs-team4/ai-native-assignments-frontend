@@ -14,42 +14,16 @@ function segmentSeconds(segment: StepSegment): number {
   return secondsBetween(segment.started_at, segment.ended_at);
 }
 
-/** When the session's time stops counting: its end, or its latest event while it's still open. */
-function sessionEnd(session: WorkSession): string {
-  return session.ended_at ?? session.events.at(-1)?.occurred_at ?? session.started_at;
-}
-
-/**
- * The stretches of a session spent in each step, from its events. The first step runs from
- * the session's start; a new step starts at its first event; the last runs to the session's end.
- * The backend saves the answers every 30 seconds while the student works, so the events are
- * close together and a switch is placed within about half a minute.
- */
-export function sessionSegments(session: WorkSession): StepSegment[] {
-  const end = sessionEnd(session);
-  const segments: StepSegment[] = [];
-  for (const event of session.events) {
-    const current = segments.at(-1);
-    if (!current) {
-      segments.push({ step: event.step, started_at: session.started_at, ended_at: end });
-    } else if (current.step !== event.step) {
-      current.ended_at = event.occurred_at;
-      segments.push({ step: event.step, started_at: event.occurred_at, ended_at: end });
-    }
-  }
-  return segments;
-}
-
-/** Time spent in a session, from its start to its end (or its latest event while open). */
+/** Time spent in a session: from its start to its end (or its latest activity while open), split by step. */
 export function sessionSeconds(session: WorkSession): number {
-  return sessionSegments(session).reduce((total, segment) => total + segmentSeconds(segment), 0);
+  return session.segments.reduce((total, segment) => total + segmentSeconds(segment), 0);
 }
 
 /** Total seconds in each step across all sessions, in step order, including steps never reached. */
 export function timePerStep(sessions: readonly WorkSession[]): { step: Step; seconds: number }[] {
   const totals = new Map<Step, number>(STEP_ORDER.map((step) => [step, 0]));
   for (const session of sessions) {
-    for (const segment of sessionSegments(session)) {
+    for (const segment of session.segments) {
       totals.set(segment.step, (totals.get(segment.step) ?? 0) + segmentSeconds(segment));
     }
   }

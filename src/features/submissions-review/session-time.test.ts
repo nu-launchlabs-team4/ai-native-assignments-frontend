@@ -2,61 +2,39 @@ import { describe, expect, it } from "vitest";
 
 import { Step } from "@/lib/constants";
 
-import { formatDuration, sessionSeconds, sessionSegments, timePerStep } from "./session-time";
-import { ActivityEventType, type WorkSession } from "./session-types";
+import { formatDuration, sessionSeconds, timePerStep } from "./session-time";
+import type { StepSegment, WorkSession } from "./session-types";
 
-let nextId = 0;
-function snapshot(step: Step, occurredAt: string): WorkSession["events"][number] {
-  nextId += 1;
-  return { id: `e${nextId}`, type: ActivityEventType.SNAPSHOT, step, occurred_at: occurredAt };
+function segment(step: Step, startedAt: string, endedAt: string): StepSegment {
+  return { step, started_at: startedAt, ended_at: endedAt };
 }
 
+// The backend sends the segments; the events don't affect the totals.
 const first: WorkSession = {
   id: "s1",
   started_at: "2026-11-19T22:00:00Z",
   ended_at: "2026-11-19T22:40:00Z",
-  events: [
-    snapshot(Step.ATTEMPT, "2026-11-19T22:05:00Z"),
-    snapshot(Step.ATTEMPT, "2026-11-19T22:20:00Z"),
-    snapshot(Step.FEEDBACK, "2026-11-19T22:25:00Z"),
+  segments: [
+    segment(Step.ATTEMPT, "2026-11-19T22:00:00Z", "2026-11-19T22:25:00Z"),
+    segment(Step.FEEDBACK, "2026-11-19T22:25:00Z", "2026-11-19T22:40:00Z"),
   ],
+  events: [],
 };
 const second: WorkSession = {
   id: "s2",
   started_at: "2026-11-20T17:40:00Z",
   ended_at: "2026-11-20T17:45:00Z",
-  events: [snapshot(Step.FEEDBACK, "2026-11-20T17:41:00Z")],
+  segments: [segment(Step.FEEDBACK, "2026-11-20T17:40:00Z", "2026-11-20T17:45:00Z")],
+  events: [],
 };
 
-describe("sessionSegments", () => {
-  it("starts at the session, switches step at the new step's first event and ends with the session", () => {
-    expect(sessionSegments(first)).toEqual([
-      { step: Step.ATTEMPT, started_at: "2026-11-19T22:00:00Z", ended_at: "2026-11-19T22:25:00Z" },
-      { step: Step.FEEDBACK, started_at: "2026-11-19T22:25:00Z", ended_at: "2026-11-19T22:40:00Z" },
-    ]);
-  });
-
-  it("ends an open session at its latest event", () => {
-    const open: WorkSession = {
-      ...first,
-      ended_at: null,
-      events: [snapshot(Step.ATTEMPT, "2026-11-19T22:05:00Z"), snapshot(Step.ATTEMPT, "2026-11-19T22:12:00Z")],
-    };
-
-    expect(sessionSegments(open)).toEqual([
-      { step: Step.ATTEMPT, started_at: "2026-11-19T22:00:00Z", ended_at: "2026-11-19T22:12:00Z" },
-    ]);
-    expect(sessionSeconds(open)).toBe(12 * 60);
-  });
-
-  it("has no segments before the first event", () => {
-    expect(sessionSegments({ ...first, ended_at: null, events: [] })).toEqual([]);
-  });
-});
-
 describe("sessionSeconds", () => {
-  it("counts from the session's start to its end", () => {
+  it("adds up the session's step segments", () => {
     expect(sessionSeconds(first)).toBe(40 * 60);
+  });
+
+  it("is zero before the first event, when there are no segments", () => {
+    expect(sessionSeconds({ ...first, ended_at: null, segments: [] })).toBe(0);
   });
 });
 

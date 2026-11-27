@@ -1,13 +1,13 @@
 import { STEP_LABELS, type Step } from "@/lib/constants";
 
-import { formatDuration, secondsBetween, sessionSeconds, sessionSegments } from "../session-time";
-import { type ActivityEvent, ActivityEventType, type WorkSession } from "../session-types";
+import { formatDuration, secondsBetween, sessionSeconds } from "../session-time";
+import { type ActivityEvent, ActivityEventType, pastedCharacters, type WorkSession } from "../session-types";
 import { LocalTime } from "./LocalTime";
 
 interface MarkedEvent {
   id: string;
   step: Step;
-  occurred_at: string;
+  created_at: string;
   text: string;
 }
 
@@ -20,12 +20,12 @@ function markedEvents(events: readonly ActivityEvent[]): MarkedEvent[] {
   let openLeave: MarkedEvent | null = null;
   for (const event of events) {
     if (event.type === ActivityEventType.PASTE) {
-      marked.push({ ...event, text: `Pasted ${event.detail.characters} characters` });
+      marked.push({ ...event, text: `Pasted ${pastedCharacters(event)} characters` });
     } else if (event.type === ActivityEventType.TAB_LEAVE) {
       openLeave = { ...event, text: "Left the tab" };
       marked.push(openLeave);
     } else if (event.type === ActivityEventType.TAB_RETURN && openLeave) {
-      openLeave.text = `Away from the tab for ${formatDuration(secondsBetween(openLeave.occurred_at, event.occurred_at))}`;
+      openLeave.text = `Away from the tab for ${formatDuration(secondsBetween(openLeave.created_at, event.created_at))}`;
       openLeave = null;
     }
   }
@@ -52,7 +52,7 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
       </div>
 
       <ul aria-label={`Steps in session ${number}`} className="flex flex-wrap gap-2 text-footnote">
-        {sessionSegments(session).map((segment) => (
+        {session.segments.map((segment) => (
           <li key={segment.started_at} className="rounded-full bg-fill px-2.5 py-0.5">
             {STEP_LABELS[segment.step]} {formatDuration(secondsBetween(segment.started_at, segment.ended_at))}
           </li>
@@ -63,7 +63,7 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
         <ol aria-label={`Marked events in session ${number}`} className="flex flex-col gap-1 text-callout">
           {marked.map((event) => (
             <li key={event.id} className="flex flex-wrap gap-x-2">
-              <LocalTime iso={event.occurred_at} show="time" className="text-muted" />
+              <LocalTime iso={event.created_at} show="time" className="text-muted" />
               <span className="text-muted">{STEP_LABELS[event.step]} step</span>
               <span>{event.text}</span>
             </li>
