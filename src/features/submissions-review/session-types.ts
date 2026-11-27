@@ -1,6 +1,7 @@
 import type { Step } from "@/lib/constants";
 
-// Proposed shapes for the session timeline. Agree on them with backend #14 before wiring the API.
+// The professor's read of backend #14, as proposed on that issue: sessions with their events.
+// Event fields match what the student workspace sends (features/workspace/activity-client.ts).
 
 /** What the student's browser logs during a session. These are signals for context, never flags. */
 export const ActivityEventType = {
@@ -14,7 +15,7 @@ export type ActivityEventType = (typeof ActivityEventType)[keyof typeof Activity
 interface ActivityEventBase {
   id: string;
   step: Step;
-  created_at: string;
+  occurred_at: string;
 }
 
 export type ActivityEvent = ActivityEventBase &
@@ -25,7 +26,7 @@ export type ActivityEvent = ActivityEventBase &
     | { type: typeof ActivityEventType.SNAPSHOT }
   );
 
-/** A stretch of a session spent on one step. The open segment ends at the latest activity. */
+/** A stretch of a session spent on one step, worked out from the events (see sessionSegments). */
 export interface StepSegment {
   step: Step;
   started_at: string;
@@ -38,8 +39,7 @@ export interface WorkSession {
   started_at: string;
   /** `null` while the session is still open. */
   ended_at: string | null;
-  segments: StepSegment[];
-  /** Oldest first. */
+  /** Oldest first. Each carries the step the student was on. */
   events: ActivityEvent[];
 }
 

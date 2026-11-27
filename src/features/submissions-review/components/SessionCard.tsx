@@ -1,13 +1,13 @@
 import { STEP_LABELS, type Step } from "@/lib/constants";
 
 import { formatDateTime, formatTime } from "../format";
-import { formatDuration, secondsBetween, sessionSeconds } from "../session-time";
+import { formatDuration, secondsBetween, sessionSeconds, sessionSegments } from "../session-time";
 import { type ActivityEvent, ActivityEventType, type WorkSession } from "../session-types";
 
 interface MarkedEvent {
   id: string;
   step: Step;
-  created_at: string;
+  occurred_at: string;
   text: string;
 }
 
@@ -25,7 +25,7 @@ function markedEvents(events: readonly ActivityEvent[]): MarkedEvent[] {
       openLeave = { ...event, text: "Left the tab" };
       marked.push(openLeave);
     } else if (event.type === ActivityEventType.TAB_RETURN && openLeave) {
-      openLeave.text = `Away from the tab for ${formatDuration(secondsBetween(openLeave.created_at, event.created_at))}`;
+      openLeave.text = `Away from the tab for ${formatDuration(secondsBetween(openLeave.occurred_at, event.occurred_at))}`;
       openLeave = null;
     }
   }
@@ -52,7 +52,7 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
       </div>
 
       <ul aria-label={`Steps in session ${number}`} className="flex flex-wrap gap-2 text-footnote">
-        {session.segments.map((segment) => (
+        {sessionSegments(session).map((segment) => (
           <li key={segment.started_at} className="rounded-full bg-fill px-2.5 py-0.5">
             {STEP_LABELS[segment.step]} {formatDuration(secondsBetween(segment.started_at, segment.ended_at))}
           </li>
@@ -63,8 +63,8 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
         <ol aria-label={`Marked events in session ${number}`} className="flex flex-col gap-1 text-callout">
           {marked.map((event) => (
             <li key={event.id} className="flex flex-wrap gap-x-2">
-              <time dateTime={event.created_at} className="text-muted">
-                {formatTime(event.created_at)}
+              <time dateTime={event.occurred_at} className="text-muted">
+                {formatTime(event.occurred_at)}
               </time>
               <span className="text-muted">{STEP_LABELS[event.step]} step</span>
               <span>{event.text}</span>
@@ -76,7 +76,7 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
       )}
 
       <p className="text-footnote text-muted">
-        {snapshots} {snapshots === 1 ? "snapshot" : "snapshots"} of the attempt saved
+        {snapshots} {snapshots === 1 ? "snapshot" : "snapshots"} of the answers saved
       </p>
     </article>
   );
