@@ -225,4 +225,44 @@ describe("useAnswers", () => {
     expect(worked).toBe(false);
     expect(result.current.submitError).toBe("This submission is already submitted");
   });
+
+  it("saves the changes right away when the student pauses", async () => {
+    const client = fakeClient();
+    const { result } = renderHook(() => useAnswers(client, SAVED));
+    act(() => result.current.setAnswer("q2", "Half done"));
+
+    let saved = false;
+    await act(async () => {
+      saved = await result.current.saveNow();
+    });
+
+    expect(saved).toBe(true);
+    expect(client.saveAttemptAnswers).toHaveBeenCalledWith("sub-1", { q2: "Half done" }, undefined);
+  });
+
+  it("reports a failed save when pausing, so the student isn't sent away", async () => {
+    const client = fakeClient({ saveAttemptAnswers: vi.fn().mockRejectedValue(new Error("offline")) });
+    const { result } = renderHook(() => useAnswers(client, SAVED));
+    act(() => result.current.setAnswer("q2", "Half done"));
+
+    let saved = true;
+    await act(async () => {
+      saved = await result.current.saveNow();
+    });
+
+    expect(saved).toBe(false);
+  });
+
+  it("has nothing to save when pausing outside the attempt and the revision", async () => {
+    const client = fakeClient();
+    const { result } = renderHook(() => useAnswers(client, buildSubmission({ current_step: Step.EVALUATE })));
+
+    let saved = false;
+    await act(async () => {
+      saved = await result.current.saveNow();
+    });
+
+    expect(saved).toBe(true);
+    expect(client.saveAttemptAnswers).not.toHaveBeenCalled();
+  });
 });
