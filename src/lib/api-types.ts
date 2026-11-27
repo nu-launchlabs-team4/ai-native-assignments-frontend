@@ -21,6 +21,12 @@ export type AssignmentSettings = Pick<AssignmentOut, "ai_policy" | "help_level" 
 /** One follow-up question and the student's answer (step 5). */
 export type InterviewAnswer = Schemas["InterviewAnswer"];
 
+/** A published assignment in one of the student's courses, with their progress (null until opened). */
+export type StudentAssignmentOut = Schemas["StudentAssignmentOut"];
+
+/** The course a student just joined. It never includes the join code. */
+export type EnrollmentOut = Schemas["EnrollmentOut"];
+
 /** A student's submission, with the assignment and its questions so the workspace needs one request. */
 export type SubmissionOut = Schemas["SubmissionOut"];
 
