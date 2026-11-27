@@ -55,6 +55,7 @@ export function Workspace({ client, activityClient, initialSubmission }: Workspa
   const [version, setVersion] = useState<Version>("revision");
   const submissionId = submission.id;
   const loadInterviewQuestions = useCallback(() => client.getInterviewQuestions(submissionId), [client, submissionId]);
+  const loadChatHistory = useCallback(() => client.getChatHistory(submissionId), [client, submissionId]);
   const [showActivityNotice, setShowActivityNotice] = useState(true);
 
   const step = submission.current_step;
@@ -142,7 +143,7 @@ export function Workspace({ client, activityClient, initialSubmission }: Workspa
       onSubmit={work.submitExplanation}
     />
   ) : (
-    <ChatPanel submissionId={submission.id} attemptSaved={!isAttemptStep} />
+    <ChatPanel submissionId={submission.id} attemptSaved={!isAttemptStep} loadHistory={loadChatHistory} />
   );
 
   return (

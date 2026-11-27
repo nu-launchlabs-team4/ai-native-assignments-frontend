@@ -17,6 +17,7 @@ function fakeClient(overrides: Partial<SubmissionClient> = {}): SubmissionClient
     saveEvaluation: vi.fn(),
     saveRevisionAnswers: vi.fn().mockResolvedValue(buildSubmission({ current_step: Step.REVISE })),
     finishRevision: vi.fn().mockResolvedValue(buildSubmission({ current_step: Step.EXPLAIN })),
+    getChatHistory: vi.fn().mockResolvedValue([]),
     getInterviewQuestions: vi.fn().mockResolvedValue([]),
     saveExplanation: vi.fn(),
     ...overrides,

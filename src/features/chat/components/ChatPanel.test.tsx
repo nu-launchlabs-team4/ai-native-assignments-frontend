@@ -1,10 +1,11 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError } from "@/lib/api";
 import { ChatRole, ROUTES } from "@/lib/constants";
 
 import { sendChatMessage } from "../api";
+import type { ChatMessage } from "../types";
 import { ChatPanel } from "./ChatPanel";
 
 const push = vi.fn();
@@ -25,8 +26,12 @@ beforeEach(() => {
   push.mockReset();
 });
 
-function renderUnlocked() {
-  render(<ChatPanel submissionId="sub-1" attemptSaved />);
+const noHistory = () => Promise.resolve([]);
+
+async function renderUnlocked(loadHistory: () => Promise<ChatMessage[]> = noHistory) {
+  render(<ChatPanel submissionId="sub-1" attemptSaved loadHistory={loadHistory} />);
+  // Let the conversation load.
+  await act(async () => {});
 }
 
 function typeAndSend(text: string) {
@@ -36,21 +41,21 @@ function typeAndSend(text: string) {
 
 describe("ChatPanel", () => {
   it("is locked until the attempt is saved", () => {
-    render(<ChatPanel submissionId="sub-1" attemptSaved={false} />);
+    render(<ChatPanel submissionId="sub-1" attemptSaved={false} loadHistory={noHistory} />);
 
     expect(screen.getByText("AI tutor is locked")).toBeDefined();
     expect(screen.queryByLabelText("Message the AI tutor")).toBeNull();
   });
 
   it("is locked when there is no submission yet", () => {
-    render(<ChatPanel submissionId={null} attemptSaved />);
+    render(<ChatPanel submissionId={null} attemptSaved loadHistory={noHistory} />);
 
     expect(screen.getByText("AI tutor is locked")).toBeDefined();
   });
 
   it("sends the message and shows the tutor's reply", async () => {
     sendMock.mockResolvedValue(REPLY);
-    renderUnlocked();
+    await renderUnlocked();
 
     typeAndSend("Why is my output off by one?");
 
@@ -63,7 +68,7 @@ describe("ChatPanel", () => {
     sendMock.mockRejectedValue(
       new ApiError("Too many requests. Please wait a moment and try again.", 429, "rate_limited", null),
     );
-    renderUnlocked();
+    await renderUnlocked();
 
     typeAndSend("Help again");
 
@@ -75,7 +80,7 @@ describe("ChatPanel", () => {
     sendMock.mockRejectedValue(
       new ApiError("Chat is closed during the AI interview.", 403, "forbidden", null),
     );
-    renderUnlocked();
+    await renderUnlocked();
 
     typeAndSend("Can you help?");
 
@@ -86,7 +91,7 @@ describe("ChatPanel", () => {
   it("sends without crypto.randomUUID, which plain-http origins lack", async () => {
     vi.stubGlobal("crypto", {});
     sendMock.mockResolvedValue(REPLY);
-    renderUnlocked();
+    await renderUnlocked();
 
     typeAndSend("First question");
     expect(await screen.findByText(REPLY.content)).toBeDefined();
@@ -96,10 +101,41 @@ describe("ChatPanel", () => {
 
   it("sends the student to login on 401", async () => {
     sendMock.mockRejectedValue(new ApiError("Your session has expired.", 401, "unauthorized", null));
-    renderUnlocked();
+    await renderUnlocked();
 
     typeAndSend("Hello");
 
     await vi.waitFor(() => expect(push).toHaveBeenCalledWith(ROUTES.LOGIN));
+  });
+
+  it("shows the conversation so far when it opens", async () => {
+    const question = { ...REPLY, id: "m-1", role: ChatRole.STUDENT, content: "Is my loop right?" };
+    await renderUnlocked(() => Promise.resolve([question, REPLY]));
+
+    expect(screen.getByText("Is my loop right?")).toBeDefined();
+    expect(screen.getByText(REPLY.content)).toBeDefined();
+    expect(screen.queryByText("Loading your conversation…")).toBeNull();
+  });
+
+  it("offers to try again when the conversation can't load", async () => {
+    const loadHistory = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce([REPLY]);
+    await renderUnlocked(loadHistory);
+
+    expect(screen.getByRole("alert").textContent).toBe("Couldn't load your conversation.");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    });
+
+    expect(loadHistory).toHaveBeenCalledTimes(2);
+    expect(screen.getByText(REPLY.content)).toBeDefined();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("doesn't load the conversation while the tutor is locked", () => {
+    const loadHistory = vi.fn().mockResolvedValue([]);
+    render(<ChatPanel submissionId="sub-1" attemptSaved={false} loadHistory={loadHistory} />);
+
+    expect(loadHistory).not.toHaveBeenCalled();
   });
 });
