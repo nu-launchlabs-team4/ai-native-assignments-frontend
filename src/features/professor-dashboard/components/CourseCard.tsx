@@ -5,6 +5,11 @@ import type { AssignmentOut } from "@/lib/api-types";
 import { assignmentSetupRoute, assignmentSubmissionsRoute, newAssignmentRoute } from "@/lib/constants";
 
 import type { DashboardCourse } from "../dashboard-client";
+import { JoinCode } from "./JoinCode";
+
+function studentCount(count: number): string {
+  return count === 1 ? "1 student" : `${count} students`;
+}
 
 const DATE = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" });
 
@@ -37,7 +42,7 @@ function AssignmentRow({ assignment }: { assignment: AssignmentOut }) {
   );
 }
 
-/** One course: its assignments, and a link to start a new one from a PDF. */
+/** One course: its join code, its assignments, and a link to start a new one from a PDF. */
 export function CourseCard({ course }: { course: DashboardCourse }) {
   const headingId = `course-${course.id}`;
 
@@ -51,7 +56,10 @@ export function CourseCard({ course }: { course: DashboardCourse }) {
           New assignment
         </Link>
       </div>
-      {/* TODO(dineshbachchani1234): show the course's join code with a Copy button once backend #35 lands (#44). */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
+        <JoinCode code={course.join_code} courseTitle={course.title} />
+        <span className="text-footnote text-muted">{studentCount(course.student_count)}</span>
+      </div>
       {course.assignments.length === 0 ? (
         <p className="text-callout text-muted">No assignments yet. Upload a PDF to start one.</p>
       ) : (

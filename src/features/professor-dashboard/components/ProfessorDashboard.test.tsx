@@ -12,6 +12,8 @@ vi.mock("../dashboard-client", () => ({ loadCourses: vi.fn(), createCourse: vi.f
 const COURSE: DashboardCourse = {
   id: "c1",
   title: "Intro to Programming",
+  join_code: "7K4Q-M2XP",
+  student_count: 1,
   created_at: "2026-11-20T00:00:00Z",
   assignments: [
     { ...MOCK_DRAFT, id: "a1", title: "Week 3 draft", published_at: null, created_at: "2026-11-21T10:00:00Z" },
@@ -45,6 +47,8 @@ describe("ProfessorDashboard", () => {
     expect(within(rows[1]).getByRole("link", { name: "Week 2" }).getAttribute("href")).toBe(
       "/professor/assignments/a2/submissions",
     );
+    expect(within(course).getByText("7K4Q-M2XP")).toBeDefined();
+    expect(within(course).getByText("1 student")).toBeDefined();
     expect(within(course).getByRole("link", { name: "New assignment" }).getAttribute("href")).toBe(
       "/professor/assignments/new?course=c1",
     );

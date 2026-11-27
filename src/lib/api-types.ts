@@ -17,6 +17,9 @@ import type {
 export interface CourseOut {
   id: string;
   title: string;
+  /** The code students type to join, such as "7K4Q-M2XP". */
+  join_code: string;
+  student_count: number;
   created_at: string;
 }
 
