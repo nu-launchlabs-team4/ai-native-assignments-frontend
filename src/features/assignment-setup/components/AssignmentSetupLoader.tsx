@@ -61,8 +61,8 @@ export function AssignmentSetupLoader({ assignmentId }: { assignmentId: string }
           <p role="status" className="sr-only">
             Loading the assignment…
           </p>
-          <div className="h-8 w-72 rounded bg-line motion-safe:animate-pulse" />
-          <div className="h-48 rounded bg-line motion-safe:animate-pulse" />
+          <div className="h-8 w-72 rounded-lg bg-line motion-safe:animate-pulse" />
+          <div className="h-48 rounded-xl bg-line motion-safe:animate-pulse" />
         </>
       )}
       {state.kind === "not-found" && (

@@ -1,3 +1,4 @@
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ANSWER_TYPE_LABELS, AnswerType, CODE_LANGUAGES } from "@/lib/constants";
 
 import { isPromptMissing, withAnswerType } from "../questions";
@@ -9,10 +10,13 @@ interface QuestionEditorProps {
   onChange: (question: SetupQuestion) => void;
 }
 
-const ANSWER_TYPES = Object.values(AnswerType);
+const ANSWER_TYPE_SEGMENTS = Object.values(AnswerType).map((value) => ({ value, label: ANSWER_TYPE_LABELS[value] }));
 
-const FIELD_CLASS =
-  "rounded-md border border-field bg-surface px-3 py-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+const FIELD_BASE =
+  "rounded-lg border border-field bg-surface text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+const TEXT_AREA_CLASS = `${FIELD_BASE} px-3 py-2 text-body`;
+// As tall as the segmented control beside it, and 44 px on touch screens.
+const SELECT_CLASS = `${FIELD_BASE} h-8 px-2 text-callout pointer-coarse:min-h-11`;
 
 /** Lets the professor correct one detected question: its text, answer type and language. */
 export function QuestionEditor({ question, questionNumber, onChange }: QuestionEditorProps) {
@@ -22,17 +26,12 @@ export function QuestionEditor({ question, questionNumber, onChange }: QuestionE
   const knownLanguage = CODE_LANGUAGES.some((language) => language.id === question.language);
 
   return (
-    <article aria-labelledby={`${idPrefix}-heading`} className="flex flex-col gap-3 rounded-md border border-line bg-surface p-4">
-      <div className="flex items-center justify-between gap-2">
-        <h3 id={`${idPrefix}-heading`} className="text-sm font-semibold">
-          Question {questionNumber}
-        </h3>
-        <span className="rounded border border-line px-1.5 py-0.5 text-xs text-muted">
-          {ANSWER_TYPE_LABELS[question.answer_type]}
-        </span>
-      </div>
+    <article aria-labelledby={`${idPrefix}-heading`} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-5">
+      <h3 id={`${idPrefix}-heading`} className="text-headline">
+        Question {questionNumber}
+      </h3>
 
-      <label htmlFor={`${idPrefix}-prompt`} className="text-sm font-medium">
+      <label htmlFor={`${idPrefix}-prompt`} className="text-footnote font-semibold">
         Question text
       </label>
       <textarea
@@ -42,43 +41,33 @@ export function QuestionEditor({ question, questionNumber, onChange }: QuestionE
         rows={4}
         aria-invalid={promptMissing}
         aria-describedby={promptMissing ? `${idPrefix}-prompt-error` : undefined}
-        className={`${FIELD_CLASS} leading-6`}
+        className={TEXT_AREA_CLASS}
       />
       {promptMissing && (
-        <p id={`${idPrefix}-prompt-error`} className="text-sm font-medium">
+        <p id={`${idPrefix}-prompt-error`} className="text-callout font-medium text-danger">
           Question text is required.
         </p>
       )}
 
-      <div className="flex flex-wrap gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor={`${idPrefix}-type`} className="text-sm font-medium">
-            Answer type
-          </label>
-          <select
-            id={`${idPrefix}-type`}
-            value={question.answer_type}
-            onChange={(event) => onChange(withAnswerType(question, event.target.value as AnswerType))}
-            className={FIELD_CLASS}
-          >
-            {ANSWER_TYPES.map((answerType) => (
-              <option key={answerType} value={answerType}>
-                {ANSWER_TYPE_LABELS[answerType]}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="flex flex-wrap items-start gap-4">
+        <SegmentedControl
+          legend="Answer type"
+          segments={ANSWER_TYPE_SEGMENTS}
+          value={question.answer_type}
+          onChange={(answerType) => onChange(withAnswerType(question, answerType))}
+          className="w-full max-w-xs"
+        />
 
         {question.answer_type === AnswerType.CODE && (
-          <div className="flex flex-col gap-1">
-            <label htmlFor={`${idPrefix}-language`} className="text-sm font-medium">
+          <div className="flex flex-col gap-2">
+            <label htmlFor={`${idPrefix}-language`} className="text-footnote font-semibold">
               Language
             </label>
             <select
               id={`${idPrefix}-language`}
               value={question.language ?? ""}
               onChange={(event) => onChange({ ...question, language: event.target.value })}
-              className={FIELD_CLASS}
+              className={SELECT_CLASS}
             >
               {!knownLanguage && question.language && (
                 <option value={question.language}>{question.language}</option>

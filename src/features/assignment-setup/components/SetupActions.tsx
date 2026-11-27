@@ -33,7 +33,7 @@ export function SetupActions({ pending, published, canPublish, notice, error, on
         <div className="flex flex-wrap items-center gap-3">
           {confirming ? (
             <>
-              <p className="text-sm font-medium">Publish now? Students will see it, and you can&apos;t edit it after.</p>
+              <p className="text-callout font-medium">Publish now? Students will see it, and you can&apos;t edit it after.</p>
               <Button
                 onClick={() => {
                   setConfirming(false);
@@ -54,16 +54,16 @@ export function SetupActions({ pending, published, canPublish, notice, error, on
               <Button disabled={busy || !canPublish} onClick={() => setConfirming(true)}>
                 {pending === "publish" ? "Publishing…" : "Publish"}
               </Button>
-              {!canPublish && <p className="text-sm text-muted">Add at least one question to publish.</p>}
+              {!canPublish && <p className="text-callout text-muted">Add at least one question to publish.</p>}
             </>
           )}
         </div>
       )}
-      <p role="status" className="text-sm text-muted">
+      <p role="status" className="text-callout text-muted">
         {notice ?? ""}
       </p>
       {error && (
-        <p role="alert" className="text-sm font-medium text-danger">
+        <p role="alert" className="text-callout font-medium text-danger">
           {error}
         </p>
       )}

@@ -68,11 +68,11 @@ export function PdfUpload({ onUpload }: PdfUploadProps) {
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        className={`flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed px-6 py-12 text-center focus-within:outline-2 focus-within:outline-offset-2 ${
+        className={`flex cursor-pointer flex-col items-center gap-1 rounded-xl border-2 border-dashed px-6 py-12 text-center focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-focus ${
           dragging ? "border-accent bg-accent-soft" : "border-field bg-surface"
         }`}
       >
-        <span className="font-medium">Choose a PDF or drag it here</span>
+        <span className="text-headline">Choose a PDF or drag it here</span>
         <input
           id={inputId}
           type="file"
@@ -87,17 +87,17 @@ export function PdfUpload({ onUpload }: PdfUploadProps) {
           }}
         />
       </label>
-      <p id={hintId} className="-mt-2 text-center text-sm text-muted">
+      <p id={hintId} className="-mt-2 text-center text-footnote text-muted">
         Your assignment instructions as a PDF, up to {MAX_PDF_MB} MB.
       </p>
 
       {file && (
-        <p className="text-sm">
+        <p className="text-callout">
           <span className="font-medium">Selected:</span> {file.name} ({formatFileSize(file.size)})
         </p>
       )}
       {error && (
-        <p role="alert" className="text-sm font-medium text-danger">
+        <p role="alert" className="text-callout font-medium text-danger">
           {error}
         </p>
       )}
@@ -106,7 +106,7 @@ export function PdfUpload({ onUpload }: PdfUploadProps) {
         <Button type="submit" disabled={uploading}>
           {uploading ? "Reading your PDF…" : "Turn into questions"}
         </Button>
-        <p role="status" className="text-sm text-muted">
+        <p role="status" className="text-callout text-muted">
           {uploading ? "Finding each question and its answer type. This can take a minute." : ""}
         </p>
       </div>
