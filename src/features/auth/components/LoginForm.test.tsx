@@ -9,7 +9,7 @@ import { LoginForm } from "./LoginForm";
 
 const { replace, refresh } = vi.hoisted(() => ({ replace: vi.fn(), refresh: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace, refresh }) }));
-vi.mock("../auth-client", () => ({ logIn: vi.fn() }));
+vi.mock("../auth-client", () => ({ logIn: vi.fn(), resendConfirmation: vi.fn() }));
 
 const logInMock = vi.mocked(logIn);
 
@@ -102,5 +102,25 @@ describe("LoginForm", () => {
     );
     expect(screen.getByRole("button", { name: "Log in" })).toHaveProperty("disabled", false);
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("offers the confirmation link again when the email isn't confirmed yet", async () => {
+    logInMock.mockRejectedValue(new ApiError("Confirm your email before logging in", 403, "forbidden", null));
+    render(<LoginForm />);
+
+    submit("new@uni.edu");
+
+    expect((await screen.findByRole("alert")).textContent).toBe("Confirm your email before logging in");
+    expect(screen.getByRole("button", { name: "Send the link again" })).toBeTruthy();
+  });
+
+  it("doesn't offer the link for a wrong password", async () => {
+    logInMock.mockRejectedValue(new ApiError("Wrong email or password", 401, "unauthorized", null));
+    render(<LoginForm />);
+
+    submit();
+
+    await screen.findByRole("alert");
+    expect(screen.queryByRole("button", { name: "Send the link again" })).toBeNull();
   });
 });

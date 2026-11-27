@@ -12,6 +12,10 @@ import { useNextPath } from "../use-next-path";
 import { emailError, type FieldErrors, focusFirstInvalid, formErrors } from "../validation";
 import { AuthField } from "./AuthField";
 import { AuthFooterLink } from "./AuthLayout";
+import { ResendConfirmation } from "./ResendConfirmation";
+
+// The backend's answer for an account whose email isn't confirmed yet.
+const EMAIL_NOT_CONFIRMED = 403;
 
 /** Email and password log-in. Returns to `?next=` when it's safe, else to the role's home. */
 export function LoginForm() {
@@ -20,6 +24,8 @@ export function LoginForm() {
   const [pending, setPending] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
+  // Set when the account exists but its email isn't confirmed, to offer the link again.
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +37,7 @@ export function LoginForm() {
     const errors = formErrors(email, password, false);
     setFieldErrors(errors);
     setFormError(null);
+    setUnconfirmedEmail(null);
     if (Object.keys(errors).length > 0) {
       focusFirstInvalid(form, errors);
       return;
@@ -44,6 +51,9 @@ export function LoginForm() {
     } catch (caught) {
       // Wrong credentials are about both fields together, so they go above the button.
       setFormError(caught instanceof ApiError ? caught.message : "Couldn't log in. Try again.");
+      if (caught instanceof ApiError && caught.status === EMAIL_NOT_CONFIRMED) {
+        setUnconfirmedEmail(email.trim());
+      }
       setPending(false);
     }
   }
@@ -74,6 +84,7 @@ export function LoginForm() {
           {formError}
         </p>
       )}
+      {unconfirmedEmail && <ResendConfirmation email={unconfirmedEmail} />}
       <Button type="submit" disabled={pending} className="h-10 w-full">
         {pending ? "Logging in…" : "Log in"}
       </Button>

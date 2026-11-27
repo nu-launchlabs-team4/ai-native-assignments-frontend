@@ -11,6 +11,7 @@ import { signUp } from "../auth-client";
 import { emailError, type FieldErrors, focusFirstInvalid, formErrors, passwordError } from "../validation";
 import { AuthField } from "./AuthField";
 import { CheckEmailPanel } from "./CheckEmailPanel";
+import { ResendConfirmation } from "./ResendConfirmation";
 
 const CONFLICT = 409;
 const UNPROCESSABLE = 422;
@@ -78,7 +79,10 @@ export function SignupForm() {
 
   if (confirmEmailTo) {
     return (
-      <CheckEmailPanel onUseDifferentEmail={() => setConfirmEmailTo(null)}>
+      <CheckEmailPanel
+        onUseDifferentEmail={() => setConfirmEmailTo(null)}
+        actions={<ResendConfirmation email={confirmEmailTo} />}
+      >
         A confirmation link is on its way to <strong className="font-semibold">{confirmEmailTo}</strong>. Open it,
         then log in.
       </CheckEmailPanel>
