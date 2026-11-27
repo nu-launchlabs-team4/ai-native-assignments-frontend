@@ -12,6 +12,8 @@ vi.mock("../dashboard-client", () => ({ loadCourses: vi.fn(), createCourse: vi.f
 const COURSE: DashboardCourse = {
   id: "c1",
   title: "Intro to Programming",
+  join_code: "7K4Q-M2XP",
+  student_count: 3,
   created_at: "2026-11-20T00:00:00Z",
   assignments: [
     { ...MOCK_DRAFT, id: "a1", title: "Week 3 draft", published_at: null, created_at: "2026-11-21T10:00:00Z" },
@@ -48,6 +50,8 @@ describe("ProfessorDashboard", () => {
     expect(within(course).getByRole("link", { name: "New assignment" }).getAttribute("href")).toBe(
       "/professor/assignments/new?course=c1",
     );
+    expect(within(course).getByText("7K4Q-M2XP")).toBeDefined();
+    expect(within(course).getByText("3 students joined")).toBeDefined();
   });
 
   it("explains what to do when there are no courses", async () => {
