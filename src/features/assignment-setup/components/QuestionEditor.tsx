@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ANSWER_TYPE_LABELS, AnswerType, CODE_LANGUAGES } from "@/lib/constants";
 
@@ -8,6 +9,8 @@ interface QuestionEditorProps {
   question: SetupQuestion;
   questionNumber: number;
   onChange: (question: SetupQuestion) => void;
+  /** Removes the question. Left out when it's the only one, since an assignment needs one. */
+  onRemove?: () => void;
 }
 
 const ANSWER_TYPE_SEGMENTS = Object.values(AnswerType).map((value) => ({ value, label: ANSWER_TYPE_LABELS[value] }));
@@ -19,7 +22,7 @@ const TEXT_AREA_CLASS = `${FIELD_BASE} px-3 py-2 text-body`;
 const SELECT_CLASS = `${FIELD_BASE} h-8 px-2 text-callout pointer-coarse:min-h-11`;
 
 /** Lets the professor correct one detected question: its text, answer type and language. */
-export function QuestionEditor({ question, questionNumber, onChange }: QuestionEditorProps) {
+export function QuestionEditor({ question, questionNumber, onChange, onRemove }: QuestionEditorProps) {
   const idPrefix = `question-${question.id}`;
   const promptMissing = isPromptMissing(question);
   // Keep a language the parser detected even if it isn't in our list, so it isn't silently lost.
@@ -27,9 +30,16 @@ export function QuestionEditor({ question, questionNumber, onChange }: QuestionE
 
   return (
     <article aria-labelledby={`${idPrefix}-heading`} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-5">
-      <h3 id={`${idPrefix}-heading`} className="text-headline">
-        Question {questionNumber}
-      </h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 id={`${idPrefix}-heading`} className="text-headline">
+          Question {questionNumber}
+        </h3>
+        {onRemove && (
+          <Button variant="plain" size="small" onClick={onRemove} aria-label={`Remove question ${questionNumber}`}>
+            Remove
+          </Button>
+        )}
+      </div>
 
       <label htmlFor={`${idPrefix}-prompt`} className="text-footnote font-semibold">
         Question text

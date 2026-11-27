@@ -24,6 +24,17 @@ export function createMockAssignmentClient(initial: SetupAssignment): Assignment
   }
 
   return {
+    // The sample draft already exists, so these only hand back what the page has.
+    async create(assignment) {
+      await wait();
+      saved = assignment;
+      return saved;
+    },
+    async attachPdf(_assignmentId, file) {
+      await wait();
+      saved = { ...saved, source_pdf: file.name };
+      return saved;
+    },
     async save(assignment) {
       await wait();
       refuseIfPublished();

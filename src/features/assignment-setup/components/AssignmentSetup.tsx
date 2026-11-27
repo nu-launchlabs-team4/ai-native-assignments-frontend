@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { ApiError } from "@/lib/api";
+import { assignmentSetupRoute, MAX_ASSIGNMENT_TITLE_CHARS } from "@/lib/constants";
 
 import { assignmentClientFor } from "../assignment-client";
+import { isUnsaved } from "../new-draft";
+import { draftProblem, newQuestion } from "../questions";
 import type { AssignmentSettings, SetupAssignment, SetupQuestion } from "../types";
 import { AssignmentSettingsForm } from "./AssignmentSettingsForm";
 import { QuestionReviewList } from "./QuestionReviewList";
@@ -13,22 +16,36 @@ import { SetupTopBar } from "./SetupTopBar";
 
 interface AssignmentSetupProps {
   initialAssignment: SetupAssignment;
+  /** The professor's PDF for a new draft, attached on the first save. */
+  pdf?: File;
 }
 
 const SAVED = "Draft saved.";
 const PUBLISHED = "Published. Students in this course can now see it.";
 const FALLBACK_ERROR = "Something went wrong. Your edits are still here, so try again.";
 
+const FIELD_CLASS =
+  "rounded-lg border border-field bg-surface px-3 py-2 text-body text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+
+/** The PDF line under the title. The backend stores a path, which means nothing to the professor. */
+function pdfLine(sourcePdf: string | null): string | null {
+  if (!sourcePdf) return null;
+  return sourcePdf.includes("/") ? "PDF attached" : `From ${sourcePdf}`;
+}
+
 /**
- * The professor's setup page for one draft assignment. Holds every edit, so the
- * questions and settings can be saved and published together.
+ * The professor's setup page for one draft assignment. Holds every edit, so the title,
+ * questions and settings are saved and published together. A new draft is created on
+ * the backend by its first save.
  */
-export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
+export function AssignmentSetup({ initialAssignment, pdf }: AssignmentSetupProps) {
   const [assignment, setAssignment] = useState(initialAssignment);
   const [client] = useState(() => assignmentClientFor(initialAssignment));
+  const [pendingPdf, setPendingPdf] = useState(pdf ?? null);
   const [pending, setPending] = useState<SetupAction | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const titleId = useId();
   const published = assignment.published_at !== null;
 
   function edit(change: (current: SetupAssignment) => SetupAssignment) {
@@ -43,13 +60,62 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
     }));
   }
 
+  function addQuestion() {
+    edit((current) => ({ ...current, questions: [...current.questions, newQuestion(current.questions.length + 1)] }));
+  }
+
+  function removeQuestion(questionId: string) {
+    edit((current) => ({
+      ...current,
+      questions: current.questions
+        .filter((question) => question.id !== questionId)
+        .map((question, index) => ({ ...question, position: index + 1 })),
+    }));
+  }
+
   function updateSettings(settings: AssignmentSettings) {
     edit((current) => ({ ...current, ...settings }));
   }
 
+  async function createDraft(): Promise<SetupAssignment> {
+    const created = await client.create(assignment);
+    // From here on the draft exists, so a retry saves it instead of creating a second one,
+    // and the address points at it so a reload or a bookmark finds it.
+    setAssignment(created);
+    window.history.replaceState(null, "", assignmentSetupRoute(created.id));
+    return created;
+  }
+
+  async function attachPdf(saved: SetupAssignment, file: File): Promise<SetupAssignment> {
+    try {
+      const withPdf = await client.attachPdf(saved.id, file);
+      setPendingPdf(null);
+      return withPdf;
+    } catch (caught) {
+      // The draft itself is saved; only the file failed, so the next save tries it again.
+      const reason = caught instanceof ApiError ? caught.message : "The upload failed.";
+      throw new ApiError(
+        `Draft saved, but the PDF didn't upload. ${reason} Save again to retry.`,
+        caught instanceof ApiError ? caught.status : 0,
+        caught instanceof ApiError ? caught.code : "pdf_upload_failed",
+        null,
+      );
+    }
+  }
+
+  async function persist(): Promise<SetupAssignment> {
+    const saved = isUnsaved(assignment) ? await createDraft() : await client.save(assignment);
+    return pendingPdf ? attachPdf(saved, pendingPdf) : saved;
+  }
+
   async function run(action: SetupAction, call: () => Promise<SetupAssignment>, done: string) {
-    setPending(action);
     setNotice(null);
+    const problem = draftProblem(assignment);
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    setPending(action);
     setError(null);
     try {
       setAssignment(await call());
@@ -66,11 +132,13 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
     run(
       "publish",
       async () => {
-        await client.save(assignment);
-        return client.publish(assignment.id);
+        const saved = await persist();
+        return client.publish(saved.id);
       },
       PUBLISHED,
     );
+
+  const pdfText = pdfLine(assignment.source_pdf);
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-8 sm:px-8 sm:py-10">
@@ -78,8 +146,8 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
 
       <header className="flex flex-col gap-1">
         <p className="text-callout text-muted">{published ? "Published assignment" : "Set up assignment"}</p>
-        <h1 className="text-large-title">{assignment.title}</h1>
-        {assignment.source_pdf && <p className="text-callout text-muted">From {assignment.source_pdf}</p>}
+        <h1 className="text-large-title">{assignment.title.trim() || "Untitled assignment"}</h1>
+        {pdfText && <p className="text-callout text-muted">{pdfText}</p>}
       </header>
 
       <SetupActions
@@ -88,14 +156,27 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
         canPublish={assignment.questions.length > 0}
         notice={notice}
         error={error}
-        onSave={() => run("save", () => client.save(assignment), SAVED)}
+        onSave={() => run("save", persist, SAVED)}
         onPublish={publish}
       />
 
       {/* A published assignment is read-only, and nothing changes mid-save. */}
       <fieldset disabled={published || pending !== null} className="m-0 min-w-0 border-0 p-0">
-        {/* Settings first: three choices that shape every question, kept in view above the long list. */}
         <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-2">
+            <label htmlFor={titleId} className="text-footnote font-semibold">
+              Title
+            </label>
+            <input
+              id={titleId}
+              value={assignment.title}
+              maxLength={MAX_ASSIGNMENT_TITLE_CHARS}
+              onChange={(event) => edit((current) => ({ ...current, title: event.target.value }))}
+              className={FIELD_CLASS}
+            />
+          </div>
+
+          {/* Settings first: three choices that shape every question, kept in view above the long list. */}
           <section
             aria-labelledby="settings-heading"
             className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5"
@@ -108,14 +189,23 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
 
           <section aria-labelledby="questions-heading" className="flex flex-col gap-3">
             <h2 id="questions-heading" className="text-title">
-              Review questions
+              Questions
             </h2>
             {!published && (
               <p className="text-callout text-muted">
-                Check the order, the text and each question&apos;s answer type before you publish.
+                {isUnsaved(assignment)
+                  ? // TODO(dineshbachchani1234): drop this once backend #8 turns the PDF into questions (#4).
+                    "We can't read questions from a PDF yet, so write them here. Your PDF is attached when you save."
+                  : "Check the order, the text and each question's answer type before you publish."}
               </p>
             )}
-            <QuestionReviewList questions={assignment.questions} onQuestionChange={updateQuestion} />
+            <QuestionReviewList
+              questions={assignment.questions}
+              onQuestionChange={updateQuestion}
+              onAddQuestion={addQuestion}
+              onRemoveQuestion={removeQuestion}
+              readOnly={published}
+            />
           </section>
         </div>
       </fieldset>

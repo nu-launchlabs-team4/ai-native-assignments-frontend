@@ -36,6 +36,25 @@ describe("apiAssignmentClient", () => {
     expect(apiFetch).toHaveBeenCalledWith("/assignments/a%201", { method: "PATCH", body: toUpdateBody(REAL) });
   });
 
+  it("creates with POST /assignments, adding the course", async () => {
+    await apiAssignmentClient.create(REAL);
+
+    expect(apiFetch).toHaveBeenCalledWith("/assignments", {
+      method: "POST",
+      body: { course_id: REAL.course_id, ...toUpdateBody(REAL) },
+    });
+  });
+
+  it("attaches the PDF as a file upload to POST /assignments/{id}/pdf", async () => {
+    const file = new File(["%PDF"], "week-4.pdf", { type: "application/pdf" });
+    await apiAssignmentClient.attachPdf(REAL.id, file);
+
+    const [path, init] = vi.mocked(apiFetch).mock.calls[0];
+    expect(path).toBe("/assignments/a%201/pdf");
+    expect(init?.method).toBe("POST");
+    expect((init?.body as FormData).get("file")).toBe(file);
+  });
+
   it("publishes with POST /assignments/{id}/publish", async () => {
     await apiAssignmentClient.publish(REAL.id);
 
