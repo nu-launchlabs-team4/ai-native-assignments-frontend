@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Panel } from "@/components/ui/Panel";
 import { ApiError } from "@/lib/api";
 import { ChatRole, ROUTES } from "@/lib/constants";
@@ -130,9 +131,9 @@ export function ChatPanel({ submissionId, attemptSaved, loadHistory }: ChatPanel
           )}
           {historyStatus === "error" && (
             <div className="flex items-center gap-3 text-sm">
-              <p role="alert" className="text-danger">
+              <ErrorMessage role="alert" className="text-sm">
                 Couldn&apos;t load your conversation.
-              </p>
+              </ErrorMessage>
               <Button variant="plain" size="small" onClick={retryHistory}>
                 Try again
               </Button>
@@ -140,9 +141,9 @@ export function ChatPanel({ submissionId, attemptSaved, loadHistory }: ChatPanel
           )}
           <ChatMessageList messages={messages} isWaiting={isSending} />
           {error && (
-            <p role="alert" className="text-sm text-red-700 dark:text-red-300">
+            <ErrorMessage role="alert" className="text-sm">
               {error}
-            </p>
+            </ErrorMessage>
           )}
           <ChatComposer draft={draft} onDraftChange={setDraft} onSend={send} isSending={isSending} />
         </>

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { ROUTES } from "@/lib/constants";
 
 const PAUSE_FAILED = "Couldn't save, so you're still here. Check your connection and try again.";
@@ -37,9 +38,9 @@ export function PauseButton({ onSave }: PauseButtonProps) {
   return (
     <div className="flex items-center gap-2">
       {failed && (
-        <p role="alert" className="text-footnote text-danger">
+        <ErrorMessage role="alert" className="text-footnote">
           {PAUSE_FAILED}
-        </p>
+        </ErrorMessage>
       )}
       <Button variant="tinted" size="small" onClick={pause} disabled={isPausing}>
         {isPausing ? "Saving…" : "Save and pause"}
