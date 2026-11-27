@@ -1,8 +1,8 @@
 import { STEP_LABELS, type Step } from "@/lib/constants";
 
-import { formatDateTime, formatTime } from "../format";
 import { formatDuration, secondsBetween, sessionSeconds, sessionSegments } from "../session-time";
 import { type ActivityEvent, ActivityEventType, type WorkSession } from "../session-types";
+import { LocalTime } from "./LocalTime";
 
 interface MarkedEvent {
   id: string;
@@ -46,7 +46,7 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
           Session {number}
         </h3>
         <p className="text-footnote text-muted">
-          <time dateTime={session.started_at}>{formatDateTime(session.started_at)}</time>
+          <LocalTime iso={session.started_at} />
           {session.ended_at ? ` · ${duration}` : ` · Still open, ${duration} so far`}
         </p>
       </div>
@@ -63,9 +63,7 @@ export function SessionCard({ session, number }: { session: WorkSession; number:
         <ol aria-label={`Marked events in session ${number}`} className="flex flex-col gap-1 text-callout">
           {marked.map((event) => (
             <li key={event.id} className="flex flex-wrap gap-x-2">
-              <time dateTime={event.occurred_at} className="text-muted">
-                {formatTime(event.occurred_at)}
-              </time>
+              <LocalTime iso={event.occurred_at} show="time" className="text-muted" />
               <span className="text-muted">{STEP_LABELS[event.step]} step</span>
               <span>{event.text}</span>
             </li>
