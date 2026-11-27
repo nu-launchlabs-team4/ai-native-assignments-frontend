@@ -52,6 +52,7 @@ function fakeClient(): SubmissionClient {
     saveEvaluation: vi.fn(),
     saveRevisionAnswers: vi.fn(),
     finishRevision: vi.fn(),
+    getChatHistory: vi.fn().mockResolvedValue([]),
     getInterviewQuestions: vi.fn().mockResolvedValue(QUESTIONS),
     saveExplanation: vi.fn(),
   };

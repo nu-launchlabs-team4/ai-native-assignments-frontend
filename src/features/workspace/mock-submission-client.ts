@@ -155,6 +155,13 @@ export const mockSubmissionClient: SubmissionClient = {
     return update({ ...submission, current_step: Step.EXPLAIN });
   },
 
+  async getChatHistory(submissionId) {
+    await delay();
+    getOwned(submissionId);
+    // The sample's tutor replies aren't kept, so every visit starts a new conversation.
+    return [];
+  },
+
   async getInterviewQuestions(submissionId) {
     await delay();
     getOwned(submissionId);

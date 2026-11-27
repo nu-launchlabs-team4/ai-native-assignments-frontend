@@ -1,3 +1,5 @@
+import { loadChatHistory } from "@/features/chat/api";
+import type { ChatMessage } from "@/features/chat/types";
 import { apiFetch } from "@/lib/api";
 import type { AnswerMap, InterviewAnswer, SubmissionOut } from "@/lib/api-types";
 import { API_PATHS, type EvaluationVerdict } from "@/lib/constants";
@@ -37,6 +39,8 @@ export interface SubmissionClient {
   saveRevisionAnswers(submissionId: string, answers: AnswerMap, options?: SaveOptions): Promise<SubmissionOut>;
   /** Hand in the revision: moves the submission to the explain step. */
   finishRevision(submissionId: string): Promise<SubmissionOut>;
+  /** The conversation with the AI tutor so far, oldest first. */
+  getChatHistory(submissionId: string): Promise<ChatMessage[]>;
   /** Step 5's follow-up questions, generated from the student's own work. */
   getInterviewQuestions(submissionId: string): Promise<string[]>;
   /** Answer the follow-up questions and declare AI use. This submits the submission for good. */
@@ -73,6 +77,7 @@ export const apiSubmissionClient: SubmissionClient = {
     }),
   finishRevision: (submissionId) =>
     apiFetch<SubmissionOut>(submissionPath(submissionId, "revision"), { method: "POST" }),
+  getChatHistory: loadChatHistory,
   // TODO(akashshetty1997): confirm this path and shape with backend #11 (interview questions).
   getInterviewQuestions: async (submissionId) =>
     (await apiFetch<{ questions: string[] }>(submissionPath(submissionId, "interview-questions"))).questions,

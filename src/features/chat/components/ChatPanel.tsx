@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { ApiError } from "@/lib/api";
 import { ChatRole, ROUTES } from "@/lib/constants";
@@ -18,13 +19,17 @@ interface ChatPanelProps {
   submissionId: string | null;
   /** The tutor unlocks once step 1 (the attempt) is saved. */
   attemptSaved: boolean;
+  /** The conversation so far, shown when the panel opens (after a reload or a pause). */
+  loadHistory: () => Promise<ChatMessage[]>;
 }
+
+type HistoryStatus = "loading" | "ready" | "error";
 
 const ATTEMPT_FIRST_REASON = "Save your attempt first. The tutor unlocks after step 1.";
 const UNEXPECTED_ERROR_MESSAGE = "Something went wrong. Please try again.";
 
 /** The AI tutor panel in the student workspace. */
-export function ChatPanel({ submissionId, attemptSaved }: ChatPanelProps) {
+export function ChatPanel({ submissionId, attemptSaved, loadHistory }: ChatPanelProps) {
   const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -37,7 +42,35 @@ export function ChatPanel({ submissionId, attemptSaved }: ChatPanelProps) {
   // so it would crash when testing over http://<laptop-IP>:3000.
   const pendingCount = useRef(0);
 
-  const lockReason = !submissionId || !attemptSaved ? ATTEMPT_FIRST_REASON : serverLockReason;
+  const [historyStatus, setHistoryStatus] = useState<HistoryStatus>("loading");
+  const [historyLoads, setHistoryLoads] = useState(0);
+
+  const unlocked = Boolean(submissionId) && attemptSaved;
+  const lockReason = !unlocked ? ATTEMPT_FIRST_REASON : serverLockReason;
+
+  // Show the conversation so far. It replaces what's on screen, so showing the panel
+  // again (Next keeps the page alive while the student is away) never doubles it.
+  useEffect(() => {
+    if (!unlocked) return;
+    let cancelled = false;
+    loadHistory()
+      .then((history) => {
+        if (cancelled) return;
+        setMessages(history);
+        setHistoryStatus("ready");
+      })
+      .catch(() => {
+        if (!cancelled) setHistoryStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [unlocked, loadHistory, historyLoads]);
+
+  function retryHistory() {
+    setHistoryStatus("loading");
+    setHistoryLoads((count) => count + 1);
+  }
 
   async function send() {
     if (!submissionId) {
@@ -90,6 +123,21 @@ export function ChatPanel({ submissionId, attemptSaved }: ChatPanelProps) {
         <ChatLocked reason={lockReason} />
       ) : (
         <>
+          {historyStatus === "loading" && (
+            <p role="status" className="text-sm text-muted">
+              Loading your conversation…
+            </p>
+          )}
+          {historyStatus === "error" && (
+            <div className="flex items-center gap-3 text-sm">
+              <p role="alert" className="text-danger">
+                Couldn&apos;t load your conversation.
+              </p>
+              <Button variant="plain" size="small" onClick={retryHistory}>
+                Try again
+              </Button>
+            </div>
+          )}
           <ChatMessageList messages={messages} isWaiting={isSending} />
           {error && (
             <p role="alert" className="text-sm text-red-700 dark:text-red-300">
