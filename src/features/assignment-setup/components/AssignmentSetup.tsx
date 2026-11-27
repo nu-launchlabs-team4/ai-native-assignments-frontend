@@ -73,13 +73,13 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
     );
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-10">
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-8 sm:px-8 sm:py-10">
       <SetupTopBar />
 
       <header className="flex flex-col gap-1">
-        <p className="text-sm text-muted">{published ? "Published assignment" : "Set up assignment"}</p>
-        <h1 className="text-3xl font-semibold tracking-tight">{assignment.title}</h1>
-        {assignment.source_pdf && <p className="text-sm text-muted">From {assignment.source_pdf}</p>}
+        <p className="text-callout text-muted">{published ? "Published assignment" : "Set up assignment"}</p>
+        <h1 className="text-large-title">{assignment.title}</h1>
+        {assignment.source_pdf && <p className="text-callout text-muted">From {assignment.source_pdf}</p>}
       </header>
 
       <SetupActions
@@ -94,24 +94,28 @@ export function AssignmentSetup({ initialAssignment }: AssignmentSetupProps) {
 
       {/* A published assignment is read-only, and nothing changes mid-save. */}
       <fieldset disabled={published || pending !== null} className="m-0 min-w-0 border-0 p-0">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        {/* Settings first: three choices that shape every question, kept in view above the long list. */}
+        <div className="flex flex-col gap-8">
+          <section
+            aria-labelledby="settings-heading"
+            className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5"
+          >
+            <h2 id="settings-heading" className="text-title">
+              AI settings
+            </h2>
+            <AssignmentSettingsForm settings={assignment} onChange={updateSettings} />
+          </section>
+
           <section aria-labelledby="questions-heading" className="flex flex-col gap-3">
-            <h2 id="questions-heading" className="text-lg font-semibold">
+            <h2 id="questions-heading" className="text-title">
               Review questions
             </h2>
             {!published && (
-              <p className="text-sm text-muted">
+              <p className="text-callout text-muted">
                 Check the order, the text and each question&apos;s answer type before you publish.
               </p>
             )}
             <QuestionReviewList questions={assignment.questions} onQuestionChange={updateQuestion} />
-          </section>
-
-          <section aria-labelledby="settings-heading" className="flex flex-col gap-3">
-            <h2 id="settings-heading" className="text-lg font-semibold">
-              AI settings
-            </h2>
-            <AssignmentSettingsForm settings={assignment} onChange={updateSettings} />
           </section>
         </div>
       </fieldset>

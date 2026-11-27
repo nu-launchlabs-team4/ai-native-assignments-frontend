@@ -27,7 +27,8 @@ describe("QuestionEditor", () => {
 
     expect(screen.getByRole("heading", { name: "Question 1" })).toBeDefined();
     expect(screen.getByLabelText<HTMLTextAreaElement>("Question text").value).toBe(CODE_QUESTION.prompt);
-    expect(screen.getByLabelText<HTMLSelectElement>("Answer type").value).toBe(AnswerType.CODE);
+    expect(screen.getByRole("group", { name: "Answer type" })).toBeDefined();
+    expect(screen.getByRole<HTMLInputElement>("radio", { name: "Code" }).checked).toBe(true);
     expect(screen.getByLabelText<HTMLSelectElement>("Language").value).toBe("python");
   });
 
@@ -42,7 +43,7 @@ describe("QuestionEditor", () => {
   it("clears the language when the answer type changes from code", () => {
     const onChange = renderEditor();
 
-    fireEvent.change(screen.getByLabelText("Answer type"), { target: { value: AnswerType.TEXT } });
+    fireEvent.click(screen.getByRole("radio", { name: "Written" }));
 
     expect(onChange).toHaveBeenCalledWith({ ...CODE_QUESTION, answer_type: AnswerType.TEXT, language: null });
   });

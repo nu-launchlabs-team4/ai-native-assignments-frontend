@@ -2,7 +2,6 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError } from "@/lib/api";
-import { AnswerType } from "@/lib/constants";
 
 import { apiAssignmentClient } from "../assignment-client";
 import { MOCK_DRAFT } from "../mock-draft";
@@ -37,7 +36,7 @@ describe("AssignmentSetup", () => {
     render(<AssignmentSetup initialAssignment={MOCK_DRAFT} />);
 
     const written = questionItems()[1];
-    fireEvent.change(within(written).getByLabelText("Answer type"), { target: { value: AnswerType.CODE } });
+    fireEvent.click(within(written).getByRole("radio", { name: "Code" }));
 
     expect(within(questionItems()[1]).getByLabelText<HTMLSelectElement>("Language").value).toBe("python");
   });
@@ -74,7 +73,7 @@ describe("AssignmentSetup", () => {
     expect(await screen.findByText("Published. Students in this course can now see it.")).toBeDefined();
     expect(screen.getByText("Published assignment")).toBeDefined();
     expect(screen.queryByRole("button", { name: "Save draft" })).toBeNull();
-    expect(within(questionItems()[0]).getByLabelText("Answer type").matches(":disabled")).toBe(true);
+    expect(within(questionItems()[0]).getByRole("radio", { name: "Code" }).matches(":disabled")).toBe(true);
   });
 
   it("can cancel publishing", () => {

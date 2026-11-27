@@ -17,12 +17,12 @@ export function NewAssignment({ courseId }: { courseId: string }) {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-10">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 py-8 sm:px-8 sm:py-10">
       <SetupTopBar />
       <header className="flex flex-col gap-2">
-        <p className="text-sm text-muted">Set up assignment</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Upload your assignment PDF</h1>
-        <p className="text-muted">
+        <p className="text-callout text-muted">Set up assignment</p>
+        <h1 className="text-large-title">Upload your assignment PDF</h1>
+        <p className="text-body text-muted">
           We find each question and its answer type. You review and edit everything before students see it.
         </p>
       </header>

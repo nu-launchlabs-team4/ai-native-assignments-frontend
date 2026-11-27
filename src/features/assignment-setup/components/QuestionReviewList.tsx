@@ -9,7 +9,7 @@ interface QuestionReviewListProps {
 /** The detected questions in their order, each one editable. */
 export function QuestionReviewList({ questions, onQuestionChange }: QuestionReviewListProps) {
   if (questions.length === 0) {
-    return <p className="text-sm text-muted">No questions were found in this PDF.</p>;
+    return <p className="text-callout text-muted">No questions were found in this PDF.</p>;
   }
 
   return (
