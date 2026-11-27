@@ -2,23 +2,60 @@ import { describe, expect, it } from "vitest";
 
 import { Step } from "@/lib/constants";
 
-import { formatDuration, sessionSeconds, timePerStep } from "./session-time";
-import type { WorkSession } from "./session-types";
+import { formatDuration, sessionSeconds, sessionSegments, timePerStep } from "./session-time";
+import { ActivityEventType, type WorkSession } from "./session-types";
 
-function session(segments: WorkSession["segments"]): WorkSession {
-  return { id: "s", started_at: segments[0].started_at, ended_at: null, segments, events: [] };
+let nextId = 0;
+function snapshot(step: Step, occurredAt: string): WorkSession["events"][number] {
+  nextId += 1;
+  return { id: `e${nextId}`, type: ActivityEventType.SNAPSHOT, step, occurred_at: occurredAt };
 }
 
-const first = session([
-  { step: Step.ATTEMPT, started_at: "2026-11-19T22:00:00Z", ended_at: "2026-11-19T22:25:00Z" },
-  { step: Step.FEEDBACK, started_at: "2026-11-19T22:25:00Z", ended_at: "2026-11-19T22:40:00Z" },
-]);
-const second = session([
-  { step: Step.FEEDBACK, started_at: "2026-11-20T17:40:00Z", ended_at: "2026-11-20T17:45:00Z" },
-]);
+const first: WorkSession = {
+  id: "s1",
+  started_at: "2026-11-19T22:00:00Z",
+  ended_at: "2026-11-19T22:40:00Z",
+  events: [
+    snapshot(Step.ATTEMPT, "2026-11-19T22:05:00Z"),
+    snapshot(Step.ATTEMPT, "2026-11-19T22:20:00Z"),
+    snapshot(Step.FEEDBACK, "2026-11-19T22:25:00Z"),
+  ],
+};
+const second: WorkSession = {
+  id: "s2",
+  started_at: "2026-11-20T17:40:00Z",
+  ended_at: "2026-11-20T17:45:00Z",
+  events: [snapshot(Step.FEEDBACK, "2026-11-20T17:41:00Z")],
+};
+
+describe("sessionSegments", () => {
+  it("starts at the session, switches step at the new step's first event and ends with the session", () => {
+    expect(sessionSegments(first)).toEqual([
+      { step: Step.ATTEMPT, started_at: "2026-11-19T22:00:00Z", ended_at: "2026-11-19T22:25:00Z" },
+      { step: Step.FEEDBACK, started_at: "2026-11-19T22:25:00Z", ended_at: "2026-11-19T22:40:00Z" },
+    ]);
+  });
+
+  it("ends an open session at its latest event", () => {
+    const open: WorkSession = {
+      ...first,
+      ended_at: null,
+      events: [snapshot(Step.ATTEMPT, "2026-11-19T22:05:00Z"), snapshot(Step.ATTEMPT, "2026-11-19T22:12:00Z")],
+    };
+
+    expect(sessionSegments(open)).toEqual([
+      { step: Step.ATTEMPT, started_at: "2026-11-19T22:00:00Z", ended_at: "2026-11-19T22:12:00Z" },
+    ]);
+    expect(sessionSeconds(open)).toBe(12 * 60);
+  });
+
+  it("has no segments before the first event", () => {
+    expect(sessionSegments({ ...first, ended_at: null, events: [] })).toEqual([]);
+  });
+});
 
 describe("sessionSeconds", () => {
-  it("adds up the session's segments", () => {
+  it("counts from the session's start to its end", () => {
     expect(sessionSeconds(first)).toBe(40 * 60);
   });
 });

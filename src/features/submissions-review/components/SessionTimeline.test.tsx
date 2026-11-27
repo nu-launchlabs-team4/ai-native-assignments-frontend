@@ -39,7 +39,7 @@ describe("SessionTimeline", () => {
       "1:33 AM UTCAttempt stepPasted 610 characters",
       "1:50 AM UTCRevise stepAway from the tab for 8 min",
     ]);
-    expect(screen.getByText("0 snapshots of the attempt saved")).toBeDefined();
+    expect(screen.getByText("4 snapshots of the answers saved")).toBeDefined();
   });
 
   it("says when a session is still open", () => {
