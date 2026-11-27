@@ -11,10 +11,12 @@ interface CheckEmailPanelProps {
   children: ReactNode;
   /** Back to the form, to fix a mistyped address. */
   onUseDifferentEmail: () => void;
+  /** Extra actions under the message, such as sending the link again. */
+  actions?: ReactNode;
 }
 
 /** After an email goes out (sign-up confirmation, password reset): what happens next. */
-export function CheckEmailPanel({ children, onUseDifferentEmail }: CheckEmailPanelProps) {
+export function CheckEmailPanel({ children, onUseDifferentEmail, actions }: CheckEmailPanelProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // The form this replaces had focus; move it here so screen readers read the result.
@@ -28,6 +30,7 @@ export function CheckEmailPanel({ children, onUseDifferentEmail }: CheckEmailPan
         Check your email
       </h2>
       <p className="text-body">{children}</p>
+      {actions}
       <div className="flex flex-col gap-2">
         <Link href={ROUTES.LOGIN} className={buttonClassName({ className: "h-10 w-full" })}>
           Go to log in

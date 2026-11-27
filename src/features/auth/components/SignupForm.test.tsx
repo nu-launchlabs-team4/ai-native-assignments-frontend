@@ -9,7 +9,7 @@ import { SignupForm } from "./SignupForm";
 
 const { replace, refresh } = vi.hoisted(() => ({ replace: vi.fn(), refresh: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace, refresh }) }));
-vi.mock("../auth-client", () => ({ signUp: vi.fn() }));
+vi.mock("../auth-client", () => ({ signUp: vi.fn(), resendConfirmation: vi.fn() }));
 
 const signUpMock = vi.mocked(signUp);
 
@@ -78,6 +78,7 @@ describe("SignupForm", () => {
     expect(document.activeElement).toBe(heading);
     expect(screen.getByText("new@uni.edu")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Go to log in" }).getAttribute("href")).toBe("/login");
+    expect(screen.getByRole("button", { name: "Send the link again" })).toBeTruthy();
     expect(replace).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Use a different email" }));
